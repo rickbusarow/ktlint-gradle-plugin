@@ -1,0 +1,20 @@
+[
+  {
+    "gradlePath": ":ktlint-gradle-plugin",
+    "group": "com.rickbusarow.ktlint",
+    "artifactId": "com.rickbusarow.ktlint.gradle.plugin",
+    "description": "the ktlint Gradle plugin",
+    "packaging": "pom",
+    "javaVersion": "1.8",
+    "publicationName": "ktlint-gradle-pluginPluginMarkerMaven"
+  },
+  {
+    "gradlePath": ":ktlint-gradle-plugin",
+    "group": "com.rickbusarow.ktlint",
+    "artifactId": "ktlint-gradle-plugin",
+    "description": "the ktlint Gradle plugin",
+    "packaging": "jar",
+    "javaVersion": "1.8",
+    "publicationName": "pluginMaven"
+  }
+]
