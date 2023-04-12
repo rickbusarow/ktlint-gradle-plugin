@@ -115,6 +115,7 @@ comments:
     ignoreAnnotated:
       - "dagger.Binds"
       - "dagger.Module"
+      - "org.gradle.api.tasks.TaskAction"
   UndocumentedPublicProperty:
     active: true
     excludes:

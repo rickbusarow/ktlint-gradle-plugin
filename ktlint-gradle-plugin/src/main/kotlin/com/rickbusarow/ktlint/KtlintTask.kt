@@ -39,19 +39,23 @@ import org.gradle.workers.WorkerExecutor
 import java.io.File
 import javax.inject.Inject
 
+/** */
 abstract class KtlintTask(
   private val workerExecutor: WorkerExecutor,
   private val autoCorrect: Boolean
 ) : DefaultTask() {
 
+  /** */
   @get:InputFiles
   @get:Classpath
   abstract val ktlintClasspath: ConfigurableFileCollection
 
+  /** */
   @get:InputFile
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val editorConfig: RegularFileProperty
 
+  /** */
   @get:Incremental
   @get:InputFiles
   @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -104,15 +108,23 @@ abstract class KtlintTask(
     }
   }
 
+  /** */
   interface KtLintWorkParameters : WorkParameters {
 
+    /** */
     val autoCorrect: Property<Boolean>
+
+    /** */
     val sourceFiles: ListProperty<File>
+
+    /** */
     val editorConfig: RegularFileProperty
 
+    /** */
     val sourceFilesShadow: DirectoryProperty
   }
 
+  /** */
   abstract class KtLintWorker : WorkAction<KtLintWorkParameters> {
     override fun execute() {
 
@@ -146,6 +158,8 @@ abstract class KtlintTask(
   }
 }
 
+/** */
+@Suppress("UnnecessaryAbstractClass")
 abstract class KtlintFormatTask @Inject constructor(
   workerExecutor: WorkerExecutor
 ) : KtlintTask(workerExecutor, autoCorrect = true) {
@@ -155,6 +169,7 @@ abstract class KtlintFormatTask @Inject constructor(
   }
 }
 
+/** */
 abstract class KtlintCheckTask @Inject constructor(
   workerExecutor: WorkerExecutor
 ) : KtlintTask(workerExecutor, autoCorrect = false) {
@@ -164,6 +179,7 @@ abstract class KtlintCheckTask @Inject constructor(
     description = "Checks Kotlin code for correctness"
   }
 
+  /** */
   @get:OutputFile
   abstract val htmlReportFile: RegularFileProperty
 }

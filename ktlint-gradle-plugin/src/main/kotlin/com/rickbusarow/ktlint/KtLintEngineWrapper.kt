@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Runs a KtLint format against generated files, using editorconfig settings located at
  * [editorConfigPath] if that file exists.
  */
-class KtLintEngineWrapper(
+internal class KtLintEngineWrapper(
   private val editorConfigPath: File?,
   private val autoCorrect: Boolean
 ) : java.io.Serializable {
@@ -170,7 +170,7 @@ class KtLintEngineWrapper(
     )
   }
 
-  sealed interface KtLintResult : java.io.Serializable {
+  internal sealed interface KtLintResult : java.io.Serializable {
     val kotlinFile: File
     val lintErrors: List<LintErrorWithFixed>
 
@@ -180,13 +180,13 @@ class KtLintEngineWrapper(
     )
   }
 
-  data class KtLintFormatResult(
+  internal data class KtLintFormatResult(
     val outContent: String,
     override val kotlinFile: File,
     override val lintErrors: List<LintErrorWithFixed>
   ) : KtLintResult
 
-  data class KtLintCheckResult(
+  internal data class KtLintCheckResult(
     override val kotlinFile: File,
     override val lintErrors: List<LintErrorWithFixed>
   ) : KtLintResult

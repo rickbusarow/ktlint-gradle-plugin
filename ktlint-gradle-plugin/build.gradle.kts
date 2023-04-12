@@ -97,6 +97,7 @@ dependencies {
   api(libs.ktlint.ruleset.standard)
 
   compileOnly(gradleApi())
+
   compileOnly(libs.kotlin.gradle.plugin)
   compileOnly(libs.kotlin.gradle.plugin.api)
 

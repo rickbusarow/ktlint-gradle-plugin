@@ -1,39 +1,27 @@
-public abstract class com/rickbusarow/ktlint/KtLintConventionPlugin : org/gradle/api/Plugin {
-	public fun <init> ()V
-	public synthetic fun apply (Ljava/lang/Object;)V
-	public fun apply (Lorg/gradle/api/Project;)V
-}
-
-public final class com/rickbusarow/ktlint/KtLintEngineWrapper : java/io/Serializable {
-	public fun <init> ()V
-	public fun <init> (Ljava/io/File;)V
-	public synthetic fun <init> (Ljava/io/File;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun execute (Ljava/util/List;)Ljava/util/List;
-}
-
-public final class com/rickbusarow/ktlint/KtLintEngineWrapper$KtLintResult : java/io/Serializable {
-	public fun <init> (Ljava/lang/String;Ljava/io/File;Lcom/pinterest/ktlint/core/LintError;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/io/File;
-	public final fun component3 ()Lcom/pinterest/ktlint/core/LintError;
-	public final fun copy (Ljava/lang/String;Ljava/io/File;Lcom/pinterest/ktlint/core/LintError;)Lcom/rickbusarow/ktlint/KtLintEngineWrapper$KtLintResult;
-	public static synthetic fun copy$default (Lcom/rickbusarow/ktlint/KtLintEngineWrapper$KtLintResult;Ljava/lang/String;Ljava/io/File;Lcom/pinterest/ktlint/core/LintError;ILjava/lang/Object;)Lcom/rickbusarow/ktlint/KtLintEngineWrapper$KtLintResult;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getKotlinFile ()Ljava/io/File;
-	public final fun getLintErrorOrNull ()Lcom/pinterest/ktlint/core/LintError;
-	public final fun getOutContent ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
 public abstract class com/rickbusarow/ktlint/KtLintPlugin : org/gradle/api/Plugin {
 	public fun <init> ()V
 	public synthetic fun apply (Ljava/lang/Object;)V
 	public fun apply (Lorg/gradle/api/Project;)V
 }
 
-public abstract class com/rickbusarow/ktlint/KtlintTask : org/gradle/api/DefaultTask {
+public abstract class com/rickbusarow/ktlint/KtLintSyncRuleSetJarTask : org/gradle/api/tasks/Sync {
+	public fun <init> ()V
+	public final fun execute ()V
+	public abstract fun getJarFolder ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getXmlFile ()Lorg/gradle/api/file/RegularFileProperty;
+}
+
+public abstract class com/rickbusarow/ktlint/KtlintCheckTask : com/rickbusarow/ktlint/KtlintTask {
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
+	public abstract fun getHtmlReportFile ()Lorg/gradle/api/file/RegularFileProperty;
+}
+
+public abstract class com/rickbusarow/ktlint/KtlintFormatTask : com/rickbusarow/ktlint/KtlintTask {
+	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
+}
+
+public abstract class com/rickbusarow/ktlint/KtlintTask : org/gradle/api/DefaultTask {
+	public fun <init> (Lorg/gradle/workers/WorkerExecutor;Z)V
 	public final fun execute (Lorg/gradle/work/InputChanges;)V
 	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
 	public abstract fun getKtlintClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
@@ -41,6 +29,7 @@ public abstract class com/rickbusarow/ktlint/KtlintTask : org/gradle/api/Default
 }
 
 public abstract interface class com/rickbusarow/ktlint/KtlintTask$KtLintWorkParameters : org/gradle/workers/WorkParameters {
+	public abstract fun getAutoCorrect ()Lorg/gradle/api/provider/Property;
 	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
 	public abstract fun getSourceFiles ()Lorg/gradle/api/provider/ListProperty;
 	public abstract fun getSourceFilesShadow ()Lorg/gradle/api/file/DirectoryProperty;

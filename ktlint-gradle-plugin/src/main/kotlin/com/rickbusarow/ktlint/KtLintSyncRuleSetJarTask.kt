@@ -25,12 +25,15 @@ import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
+/** */
 abstract class KtLintSyncRuleSetJarTask : Sync() {
 
+  /** */
   @get:InputDirectory
   @get:PathSensitive(RELATIVE)
   abstract val jarFolder: DirectoryProperty
 
+  /** */
   @get:InputFile
   @get:PathSensitive(RELATIVE)
   abstract val xmlFile: RegularFileProperty

@@ -25,6 +25,8 @@ import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
+/** */
+@Suppress("UnnecessaryAbstractClass")
 abstract class KtLintPlugin : Plugin<Project> {
   override fun apply(target: Project) {
 
