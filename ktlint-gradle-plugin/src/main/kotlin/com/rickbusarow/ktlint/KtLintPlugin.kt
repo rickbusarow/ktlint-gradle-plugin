@@ -22,6 +22,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
 abstract class KtLintPlugin : Plugin<Project> {
@@ -30,31 +31,41 @@ abstract class KtLintPlugin : Plugin<Project> {
     val configProvider: NamedDomainObjectProvider<Configuration> =
       target.configurations.register("ktlint")
 
-    // target.plugins.withId("org.jetbrains.kotlin.jvm") {
-    //   registerKotlinTasks(target, configProvider)
-    // }
-    // target.plugins.withId("org.jetbrains.kotlin.android") {
-    //   registerKotlinTasks(target, configProvider)
-    // }
-    // target.plugins.withId("org.jetbrains.kotlin.js") {
-    //   registerKotlinTasks(target, configProvider)
-    // }
-    // target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
-    //   registerKotlinTasks(target, configProvider)
-    // }
-    //
-    // if (target == target.rootProject) {
-    //
-    //   target.tasks.register("ktlintFormat", KtlintTask::class.java) { task ->
-    //
-    //     task.sourceFiles.setFrom()
-    //
-    //     task.ktlintClasspath.setFrom(configProvider)
-    //
-    //     task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/root"))
-    //     task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
-    //   }
-    // }
+    target.plugins.withId("org.jetbrains.kotlin.jvm") {
+      registerKotlinTasks(target, configProvider)
+    }
+    target.plugins.withId("org.jetbrains.kotlin.android") {
+      registerKotlinTasks(target, configProvider)
+    }
+    target.plugins.withId("org.jetbrains.kotlin.js") {
+      registerKotlinTasks(target, configProvider)
+    }
+    target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
+      registerKotlinTasks(target, configProvider)
+    }
+
+    if (target == target.rootProject) {
+
+      target.tasks.register("ktlintFormat", KtlintFormatTask::class.java) { task ->
+
+        task.sourceFiles.setFrom()
+
+        task.ktlintClasspath.setFrom(configProvider)
+
+        task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/root"))
+        task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
+      }
+
+      target.tasks.register("ktlintCheck", KtlintCheckTask::class.java) { task ->
+
+        task.sourceFiles.setFrom()
+
+        task.ktlintClasspath.setFrom(configProvider)
+
+        task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/root"))
+        task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
+      }
+    }
 
     if (target == target.rootProject) {
       target.tasks.register("syncRuleSetJars", KtLintSyncRuleSetJarTask::class.java) { sync ->
@@ -106,22 +117,13 @@ abstract class KtLintPlugin : Plugin<Project> {
 
     val sourceSetNames = extension.sourceSets.names
 
-    val tasks = sourceSetNames.map { sourceSetName ->
-
-      val taskName = "ktlintFormat${sourceSetName.capitalize()}"
-
-      target.tasks.register(taskName, KtlintTask::class.java) { task ->
-
-        val sourceSet = extension.sourceSets.getByName(sourceSetName)
-
-        task.sourceFiles.from(sourceSet.kotlin)
-
-        task.ktlintClasspath.setFrom(configProvider)
-
-        task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/$sourceSetName"))
-        task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
-      }
+    val pairs = sourceSetNames.map { sourceSetName ->
+      registerFormatCheckPair(target, extension, sourceSetName, configProvider)
     }
+
+    val formatTasks = pairs.map { it.first }
+
+    val lintTasks = pairs.map { it.second }
 
     target.tasks.register("ktlintFormat", KtlintTask::class.java) { task ->
 
@@ -129,10 +131,62 @@ abstract class KtLintPlugin : Plugin<Project> {
 
       task.ktlintClasspath.setFrom(configProvider)
 
-      task.dependsOn(tasks)
+      task.dependsOn(formatTasks)
 
       task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/root"))
       task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
     }
+
+    target.tasks.register("ktlintCheck", KtlintCheckTask::class.java) { task ->
+
+      task.sourceFiles.setFrom()
+
+      task.ktlintClasspath.setFrom(configProvider)
+
+      task.dependsOn(lintTasks)
+
+      task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/root"))
+      task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
+    }
+  }
+
+  private fun registerFormatCheckPair(
+    target: Project,
+    extension: KotlinProjectExtension,
+    sourceSetName: String,
+    configProvider: NamedDomainObjectProvider<Configuration>?
+  ): Pair<TaskProvider<KtlintTask>, TaskProvider<KtlintTask>> {
+
+    val formatTaskName = "ktlintFormat${sourceSetName.capitalize()}"
+
+    val formatTask = target.tasks.register(formatTaskName, KtlintTask::class.java) { task ->
+
+      val sourceSet = extension.sourceSets.getByName(sourceSetName)
+
+      task.sourceFiles.from(sourceSet.kotlin)
+
+      task.ktlintClasspath.setFrom(configProvider)
+
+      task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/$sourceSetName"))
+      task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
+    }
+
+    val checkTaskName = "ktlintCheck${sourceSetName.capitalize()}"
+
+    val lintTask = target.tasks.register(checkTaskName, KtlintTask::class.java) { task ->
+
+      val sourceSet = extension.sourceSets.getByName(sourceSetName)
+
+      task.sourceFiles.from(sourceSet.kotlin)
+
+      task.ktlintClasspath.setFrom(configProvider)
+
+      task.mustRunAfter(formatTask)
+
+      task.sourceFilesShadow.set(target.buildDir.resolve("outputs/ktlint/$sourceSetName"))
+      task.editorConfig.fileValue(target.projectDir.resolveInParentOrNull(".editorconfig"))
+    }
+
+    return formatTask to lintTask
   }
 }

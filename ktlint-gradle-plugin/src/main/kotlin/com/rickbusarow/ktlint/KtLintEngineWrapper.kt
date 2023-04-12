@@ -15,10 +15,12 @@
 
 package com.rickbusarow.ktlint
 
+import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleSetProviderV2
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
+import com.rickbusarow.ktlint.KtLintEngineWrapper.KtLintResult.LintErrorWithFixed
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import org.gradle.api.GradleException
 import java.io.File
 import java.util.ServiceLoader
 import java.util.concurrent.ConcurrentHashMap
@@ -35,7 +38,8 @@ import java.util.concurrent.ConcurrentHashMap
  * [editorConfigPath] if that file exists.
  */
 class KtLintEngineWrapper(
-  private var editorConfigPath: File? = null,
+  private val editorConfigPath: File?,
+  private val autoCorrect: Boolean
 ) : java.io.Serializable {
 
   private val ruleProviders by lazy {
@@ -48,34 +52,40 @@ class KtLintEngineWrapper(
   /** formats all listed kotlin files */
   fun execute(kotlinFiles: List<File>): List<KtLintResult> = runBlocking {
 
-    kotlinFiles
-      .map { kotlinFile ->
+    kotlinFiles.map { kotlinFile ->
 
-        val ecDefaults = getEditorConfigDefaults(kotlinFile)
+      val ecDefaults = getEditorConfigDefaults(kotlinFile)
 
-        val engine = if (ecDefaults != null) {
-          KtLintRuleEngine(
-            ruleProviders = ruleProviders,
-            editorConfigDefaults = ecDefaults,
-            isInvokedFromCli = false
-          )
-        } else {
-          KtLintRuleEngine(
-            ruleProviders = ruleProviders,
-            isInvokedFromCli = false
-          )
-        }
-
-        formatFile(kotlinFile, engine)
+      val engine = if (ecDefaults != null) {
+        KtLintRuleEngine(
+          ruleProviders = ruleProviders,
+          editorConfigDefaults = ecDefaults,
+          isInvokedFromCli = false
+        )
+      } else {
+        KtLintRuleEngine(
+          ruleProviders = ruleProviders,
+          isInvokedFromCli = false
+        )
       }
-      .toList()
+
+      if (autoCorrect) {
+        formatFile(kotlinFile, engine)
+      } else {
+        lintFile(kotlinFile, engine)
+      }
+    }
       .awaitAll()
       .also { results ->
 
-        val errors = results.mapNotNull { it.lintErrorOrNull }
+        val errors = results
+          .flatMap { result -> result.lintErrors.filter { !it.fixed } }
 
-        check(errors.isEmpty()) {
-          "Ktlint format finished with ${errors.size} errors which were not fixed.  Check log for details."
+        if (errors.isNotEmpty()) {
+          throw GradleException(
+            "Ktlint format finished with ${errors.size} errors which were not fixed.  " +
+              "Check log for details."
+          )
         }
       }
   }
@@ -101,6 +111,31 @@ class KtLintEngineWrapper(
     return ecDefaults.computeIfAbsent(ecPath) { EditorConfigDefaults.load(ecPath.toPath()) }
   }
 
+  private fun CoroutineScope.lintFile(
+    kotlinFile: File,
+    engine: KtLintRuleEngine
+  ): Deferred<KtLintResult> = async(Dispatchers.Default) {
+
+    val lintErrors = mutableListOf<LintErrorWithFixed>()
+
+    engine.lint(Code.CodeFile(kotlinFile)) { lintError ->
+
+      lintErrors.add(LintErrorWithFixed(fixed = false, lintError = lintError))
+
+      println(
+        buildString {
+          append("file://$kotlinFile:${lintError.line}:${lintError.col} ")
+          append("${lintError.detail} [${lintError.ruleId}]")
+        }
+      )
+    }
+
+    KtLintCheckResult(
+      kotlinFile = kotlinFile,
+      lintErrors = lintErrors
+    )
+  }
+
   private fun CoroutineScope.formatFile(
     kotlinFile: File,
     engine: KtLintRuleEngine
@@ -108,18 +143,13 @@ class KtLintEngineWrapper(
 
     val inContent = kotlinFile.readText()
 
-    var lintErrorOrNull: LintError? = null
+    val lintErrors = mutableListOf<LintErrorWithFixed>()
 
     val outContent = engine.format(kotlinFile.toPath()) { lintError, fixed ->
 
-      val maybeFixed: String
+      val maybeFixed = if (fixed) " FIXED" else ""
 
-      if (fixed) {
-        maybeFixed = " FIXED"
-      } else {
-        maybeFixed = ""
-        lintErrorOrNull = lintError
-      }
+      lintErrors.add(LintErrorWithFixed(fixed, lintError))
 
       println(
         buildString {
@@ -133,16 +163,31 @@ class KtLintEngineWrapper(
       kotlinFile.writeText(outContent)
     }
 
-    KtLintResult(
+    KtLintFormatResult(
       outContent = outContent,
       kotlinFile = kotlinFile,
-      lintErrorOrNull = lintErrorOrNull
+      lintErrors = lintErrors
     )
   }
 
-  data class KtLintResult(
+  sealed interface KtLintResult : java.io.Serializable {
+    val kotlinFile: File
+    val lintErrors: List<LintErrorWithFixed>
+
+    data class LintErrorWithFixed(
+      val fixed: Boolean,
+      val lintError: LintError
+    )
+  }
+
+  data class KtLintFormatResult(
     val outContent: String,
-    val kotlinFile: File,
-    val lintErrorOrNull: LintError?
-  ) : java.io.Serializable
+    override val kotlinFile: File,
+    override val lintErrors: List<LintErrorWithFixed>
+  ) : KtLintResult
+
+  data class KtLintCheckResult(
+    override val kotlinFile: File,
+    override val lintErrors: List<LintErrorWithFixed>
+  ) : KtLintResult
 }

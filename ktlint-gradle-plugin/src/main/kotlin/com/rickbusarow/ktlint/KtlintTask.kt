@@ -20,11 +20,14 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -36,8 +39,9 @@ import org.gradle.workers.WorkerExecutor
 import java.io.File
 import javax.inject.Inject
 
-abstract class KtlintTask @Inject constructor(
-  private val workerExecutor: WorkerExecutor
+abstract class KtlintTask(
+  private val workerExecutor: WorkerExecutor,
+  private val autoCorrect: Boolean
 ) : DefaultTask() {
 
   @get:InputFiles
@@ -94,6 +98,7 @@ abstract class KtlintTask @Inject constructor(
     workQueue.submit(KtLintWorker::class.java) { params ->
       params.editorConfig.fileValue(editorConfig.get().asFile)
       params.sourceFiles.set(fileChanges)
+      params.autoCorrect.set(autoCorrect)
 
       params.sourceFilesShadow.set(sourceFilesShadow)
     }
@@ -101,6 +106,7 @@ abstract class KtlintTask @Inject constructor(
 
   interface KtLintWorkParameters : WorkParameters {
 
+    val autoCorrect: Property<Boolean>
     val sourceFiles: ListProperty<File>
     val editorConfig: RegularFileProperty
 
@@ -110,13 +116,17 @@ abstract class KtlintTask @Inject constructor(
   abstract class KtLintWorker : WorkAction<KtLintWorkParameters> {
     override fun execute() {
 
-      val engine = KtLintEngineWrapper(parameters.editorConfig.get().asFile)
+      val engine = KtLintEngineWrapper(
+        editorConfigPath = parameters.editorConfig.get().asFile,
+        autoCorrect = parameters.autoCorrect.get()
+      )
 
       val shadow = parameters.sourceFilesShadow.get().asFile
 
-      val results = engine.execute(parameters.sourceFiles.get())
+      val formatResults = engine.execute(parameters.sourceFiles.get())
+        .filterIsInstance<KtLintEngineWrapper.KtLintFormatResult>()
 
-      for (result in results) {
+      for (result in formatResults) {
 
         val file = result.kotlinFile
 
@@ -136,34 +146,24 @@ abstract class KtlintTask @Inject constructor(
   }
 }
 
-// @Suppress("UnstableApiUsage")
-// @UntrackedTask(because = "operates on the source tree")
-// abstract class KtlintFormatTask @Inject constructor(
-//   execOperations: ExecOperations,
-// ) : KtlintTask() {
-//
-//   override fun extraArgs(argsList: List<String>): List<String> {
-//     return argsList + "-F"
-//   }
-// }
-//
-// @Suppress("UnstableApiUsage")
-// @UntrackedTask(because = "operates on the source tree")
-// abstract class KtlintCheckTask @Inject constructor(
-//   execOperations: ExecOperations,
-// ) : KtlintTask() {
-//
-//   init {
-//     group = JavaBasePlugin.VERIFICATION_GROUP
-//     description = "Check Kotlin code for correctness against our rules."
-//   }
-//
-//   @get:OutputFile
-//   abstract val htmlReportFile: RegularFileProperty
-//
-//   override fun extraArgs(argsList: List<String>): List<String> {
-//     return argsList +
-//       "--reporter=plain" +
-//       "--reporter=html,output=${htmlReportFile.get().asFile.absolutePath}"
-//   }
-// }
+abstract class KtlintFormatTask @Inject constructor(
+  workerExecutor: WorkerExecutor
+) : KtlintTask(workerExecutor, autoCorrect = true) {
+  init {
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Checks Kotlin code for correctness and fixes what it can"
+  }
+}
+
+abstract class KtlintCheckTask @Inject constructor(
+  workerExecutor: WorkerExecutor
+) : KtlintTask(workerExecutor, autoCorrect = false) {
+
+  init {
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Checks Kotlin code for correctness"
+  }
+
+  @get:OutputFile
+  abstract val htmlReportFile: RegularFileProperty
+}
