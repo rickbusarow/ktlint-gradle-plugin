@@ -25,9 +25,9 @@ import java.io.File
 fun File.segments(): List<String> = path.split(File.separatorChar)
 
 /**
- * Makes parent directories, then creates the receiver file. If a [content] argument was provided, it
- * will be written to the newly-created file. If the file already existed, its content will be
- * overwritten.
+ * Makes parent directories, then creates the receiver file. If a
+ * [content] argument was provided, it will be written to the newly-created
+ * file. If the file already existed, its content will be overwritten.
  */
 fun File.createSafely(content: String? = null): File = apply {
   if (content != null) {
@@ -59,8 +59,8 @@ fun File.makeParentDir(): File = apply {
 /**
  * Walks upward in the file tree, looking for a directory which will resolve [relativePath].
  *
- * For example, given a receiver File path of './a/b/c/' and a `relativePath` of 'foo/bar.txt', this
- * function will attempt to resolve the following paths in order:
+ * For example, given a receiver File path of './a/b/c/' and a `relativePath` of
+ * 'foo/bar.txt', this function will attempt to resolve the following paths in order:
  *
  * ```text
  * ./a/b/c/foo/bar.txt
@@ -69,8 +69,8 @@ fun File.makeParentDir(): File = apply {
  * ./foo/bar.txt
  * ```
  *
- * @returns the first path to contain an [existent][File.exists] File for [relativePath], or `null`
- *   if it could not be resolved
+ * @returns the first path to contain an [existent][File.exists]
+ *   File for [relativePath], or `null` if it could not be resolved
  * @see resolveInParent for a version which throws if nothing is resolved
  * @since 0.10.5
  */
@@ -82,9 +82,9 @@ fun File.resolveInParentOrNull(relativePath: String): File? {
 /**
  * Non-nullable version of [resolveInParentOrNull]
  *
- * @throws IllegalArgumentException if a file cannot be resolved
  * @see resolveInParentOrNull for a nullable, non-throwing variant
  * @since 0.10.5
+ * @throws IllegalArgumentException if a file cannot be resolved
  */
 fun File.resolveInParent(relativePath: String): File {
   return requireNotNull(resolveInParentOrNull(relativePath)) {

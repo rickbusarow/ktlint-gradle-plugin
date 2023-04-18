@@ -21,17 +21,13 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
 
-/**
- * Convenience for reading the library version from `libs.versions.toml`
- */
+/** Convenience for reading the library version from `libs.versions.toml` */
 val Project.VERSION_NAME: String
   get() = libsCatalog.version("ktlint-gradle-plugin")
 
 const val GROUP: String = "com.rickbusarow.ktlint"
 
-/**
- * "1.6", "1.7", "1.8", etc.
- */
+/** "1.6", "1.7", "1.8", etc. */
 val Project.KOTLIN_API: String
   get() = libsCatalog.version("kotlinApi")
 
@@ -51,9 +47,7 @@ val Project.JVM_TARGET: String
 val Project.JDK: String
   get() = libsCatalog.version("jdk")
 
-/**
- * `6`, `8`, `11`, etc.
- */
+/** `6`, `8`, `11`, etc. */
 val Project.JVM_TARGET_INT: Int
   get() = JVM_TARGET.substringAfterLast('.').toInt()
 
