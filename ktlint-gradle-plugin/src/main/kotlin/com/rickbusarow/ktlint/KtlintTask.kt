@@ -62,24 +62,24 @@ abstract class KtlintTask(
   abstract val sourceFiles: ConfigurableFileCollection
 
   /**
-   * The directory where the updated documentation files will be written during the execution of this
-   * task.
+   * The directory where the updated documentation files
+   * will be written during the execution of this task.
    *
-   * This property serves as a workaround for the limitations of incremental tasks, which can't have
-   * the same inputs as their outputs. Since this task is a formatting task that modifies input files,
-   * we can't use the actual input files as outputs without risking that they will be deleted by Gradle
-   * in case of a binary change to the plugin or build environment. Instead, we use this property to
-   * declare a separate directory as the output of this task.
+   * This property serves as a workaround for the limitations of incremental tasks, which can't
+   * have the same inputs as their outputs. Since this task is a formatting task that modifies
+   * input files, we can't use the actual input files as outputs without risking that they
+   * will be deleted by Gradle in case of a binary change to the plugin or build environment.
+   * Instead, we use this property to declare a separate directory as the output of this task.
    *
-   * Any time this task writes changes to an input file, it also creates a stub file with the same
-   * relative path inside the sourceFilesShadow directory. During the next incremental build, the task
-   * will only need to update the real input files that have changed since the last build, and the
-   * contents of the sourceFilesShadow directory will be ignored.
+   * Any time this task writes changes to an input file, it also creates a stub file with the
+   * same relative path inside the sourceFilesShadow directory. During the next incremental
+   * build, the task will only need to update the real input files that have changed since
+   * the last build, and the contents of the sourceFilesShadow directory will be ignored.
    *
-   * Note that the contents of the sourceFilesShadow directory are not meant to be used by other tasks
-   * or processes, and should not be relied on as a source of truth. Its sole purpose is to allow this
-   * task to run incrementally without interfering with other tasks that might need to use the same
-   * files.
+   * Note that the contents of the sourceFilesShadow directory are not meant
+   * to be used by other tasks or processes, and should not be relied on as a
+   * source of truth. Its sole purpose is to allow this task to run incrementally
+   * without interfering with other tasks that might need to use the same files.
    */
   @get:OutputDirectory
   internal abstract val sourceFilesShadow: DirectoryProperty

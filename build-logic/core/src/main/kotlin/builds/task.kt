@@ -37,16 +37,12 @@ fun TaskContainer.maybeNamed(
     .configureEach(configuration)
 }
 
-/**
- * code golf for `matching { it.name == taskName }`
- */
+/** code golf for `matching { it.name == taskName }` */
 fun TaskContainer.matchingName(
   taskName: String
 ): TaskCollection<Task> = matching { it.name == taskName }
 
-/**
- * code golf for `withType<T>().matching { it.name == taskName }`
- */
+/** code golf for `withType<T>().matching { it.name == taskName }` */
 inline fun <reified T : Task> TaskContainer.matchingNameWithType(
   taskName: String
 ): TaskCollection<T> {
@@ -56,11 +52,11 @@ inline fun <reified T : Task> TaskContainer.matchingNameWithType(
 }
 
 /**
- * Finds all tasks named [taskName] in all projects. Does not throw if there are no tasks with that
- * name.
+ * Finds all tasks named [taskName] in all projects.
+ * Does not throw if there are no tasks with that name.
  *
- * @throws IllegalStateException if the project is not the root project
  * @since 0.1.0
+ * @throws IllegalStateException if the project is not the root project
  */
 fun Project.allProjectsTasksMatchingName(taskName: String): List<TaskCollection<Task>> {
   checkProjectIsRoot { "only call `allProjectsTasksMatchingName(...)` from the root project." }
@@ -68,11 +64,11 @@ fun Project.allProjectsTasksMatchingName(taskName: String): List<TaskCollection<
 }
 
 /**
- * Finds all tasks named [taskName] in all projects. Does not throw if there are no tasks with that
- * name.
+ * Finds all tasks named [taskName] in all projects.
+ * Does not throw if there are no tasks with that name.
  *
- * @throws IllegalStateException if the project is not the root project
  * @since 0.1.0
+ * @throws IllegalStateException if the project is not the root project
  */
 inline fun <reified T : Task> Project.allProjectsTasksMatchingNameWithType(taskName: String): List<TaskCollection<T>> {
   checkProjectIsRoot { "only call `allProjectsTasksMatchingName(...)` from the root project." }
@@ -81,16 +77,16 @@ inline fun <reified T : Task> Project.allProjectsTasksMatchingNameWithType(taskN
 }
 
 /**
- * Finds all tasks named [taskName] in this project's subprojects. Does not throw if there are no tasks
- * with that name.
+ * Finds all tasks named [taskName] in this project's subprojects.
+ * Does not throw if there are no tasks with that name.
  */
 fun Project.subProjectsTasksMatchingName(taskName: String): List<TaskCollection<Task>> {
   return subprojects.map { proj -> proj.tasks.matchingName(taskName) }
 }
 
 /**
- * Finds all tasks named [taskName] in this project's subprojects. Does not throw if there are no tasks
- * with that name.
+ * Finds all tasks named [taskName] in this project's subprojects.
+ * Does not throw if there are no tasks with that name.
  */
 inline fun <reified T : Task> Project.subProjectsTasksMatchingNameWithType(taskName: String): List<TaskCollection<T>> {
   return subprojects
@@ -106,9 +102,7 @@ fun <T : Task> TaskCollection<T>.dependOn(vararg objects: Any): TaskCollection<T
   }
 }
 
-/**
- * adds all [objects] as dependencies inside a configuration block, inside a `configure { }`
- */
+/** adds all [objects] as dependencies inside a configuration block, inside a `configure { }` */
 fun <T : Task> TaskProvider<T>.dependsOn(vararg objects: Any): TaskProvider<T> {
   return also { provider ->
     provider.configure { task ->
@@ -126,9 +120,7 @@ fun <T : Task> TaskCollection<T>.mustRunAfter(vararg objects: Any): TaskCollecti
   }
 }
 
-/**
- * adds all [objects] as `mustRunAfter` inside a configuration block, inside a `configure { }`
- */
+/** adds all [objects] as `mustRunAfter` inside a configuration block, inside a `configure { }` */
 fun <T : Task> TaskProvider<T>.mustRunAfter(vararg objects: Any): TaskProvider<T> {
   return also { provider ->
     provider.configure { task ->
@@ -138,13 +130,13 @@ fun <T : Task> TaskProvider<T>.mustRunAfter(vararg objects: Any): TaskProvider<T
 }
 
 /**
- * Returns a collection containing the objects in this collection of the given type. Equivalent to
- * calling `withType(type).all(configureAction)`.
+ * Returns a collection containing the objects in this collection of the
+ * given type. Equivalent to calling `withType(type).all(configureAction)`.
  *
  * @param S The type of objects to find.
  * @param configuration The action to execute for each object in the resulting collection.
- * @return The matching objects. Returns an empty collection if there are no such objects in this
- *   collection.
+ * @return The matching objects. Returns an empty collection
+ *   if there are no such objects in this collection.
  * @see [DomainObjectCollection.withType]
  * @since 0.1.0
  */
@@ -153,13 +145,13 @@ inline fun <reified S : Any> DomainObjectCollection<in S>.withType(
 ): DomainObjectCollection<S>? = withType(S::class.java, configuration)
 
 /**
- * Returns a collection containing the objects in this collection of the given type. The returned
- * collection is live, so that when matching objects are later added to this collection, they are also
- * visible in the filtered collection.
+ * Returns a collection containing the objects in this collection of the given
+ * type. The returned collection is live, so that when matching objects are later
+ * added to this collection, they are also visible in the filtered collection.
  *
  * @param S The type of objects to find.
- * @return The matching objects. Returns an empty collection if there are no such objects in this
- *   collection.
+ * @return The matching objects. Returns an empty collection
+ *   if there are no such objects in this collection.
  * @see [DomainObjectCollection.withType]
  * @since 0.1.0
  */
@@ -167,13 +159,13 @@ inline fun <reified S : Any> DomainObjectCollection<in S>.withType(): DomainObje
   withType(S::class.java)
 
 /**
- * Returns a collection containing the objects in this collection of the given type. The returned
- * collection is live, so that when matching objects are later added to this collection, they are also
- * visible in the filtered collection.
+ * Returns a collection containing the objects in this collection of the given
+ * type. The returned collection is live, so that when matching objects are later
+ * added to this collection, they are also visible in the filtered collection.
  *
  * @param S The type of objects to find.
- * @return The matching objects. Returns an empty collection if there are no such objects in this
- *   collection.
+ * @return The matching objects. Returns an empty collection
+ *   if there are no such objects in this collection.
  * @see [TaskCollection.withType]
  * @since 0.1.0
  */
@@ -198,8 +190,7 @@ fun <T : Task> TaskContainer.registerOnce(
 }
 
 /**
- * @return the fully qualified name of this task's type, without any '_Decorated' suffix if one
- *   exists
+ * @return the fully qualified name of this task's type, without any '_Decorated' suffix if one exists
  * @since 0.1.0
  */
 fun Task.undecoratedTypeName(): String {
