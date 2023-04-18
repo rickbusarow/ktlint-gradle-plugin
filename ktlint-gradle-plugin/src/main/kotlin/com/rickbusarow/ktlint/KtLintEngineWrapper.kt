@@ -34,8 +34,8 @@ import java.util.ServiceLoader
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Runs a KtLint format against generated files, using editorconfig settings located at
- * [editorConfigPath] if that file exists.
+ * Runs a KtLint format against generated files, using editorconfig
+ * settings located at [editorConfigPath] if that file exists.
  */
 internal class KtLintEngineWrapper(
   private val editorConfigPath: File?,

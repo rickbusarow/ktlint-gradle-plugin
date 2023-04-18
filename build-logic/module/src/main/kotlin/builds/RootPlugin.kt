@@ -19,9 +19,7 @@ import builds.artifacts.ArtifactsPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-/**
- * Applied to the real project root and the root project of any included build except this one.
- */
+/** Applied to the real project root and the root project of any included build except this one. */
 abstract class RootPlugin : Plugin<Project> {
   override fun apply(target: Project) {
 
