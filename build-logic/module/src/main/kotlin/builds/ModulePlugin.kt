@@ -19,9 +19,7 @@ import builds.ktlint.KtLintConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-/**
- * Applies conventions to any project which is not a Swift project.
- */
+/** Applies conventions to any project which is not a Swift project. */
 abstract class ModulePlugin : Plugin<Project> {
   override fun apply(target: Project) {
 
