@@ -62,7 +62,7 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "ktlint"
+rootProject.name = "ktlint-gradle-plugin"
 
 include(
   ":ktlint-gradle-plugin"
