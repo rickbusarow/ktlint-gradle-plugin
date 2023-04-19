@@ -64,7 +64,7 @@ abstract class DetektConventionPlugin : Plugin<Project> {
       extension.parallel = true
     }
 
-    target.tasks.withType(Detekt::class.java) { task ->
+    target.tasks.withType(Detekt::class.java).configureEach { task ->
 
       task.autoCorrect = false
       task.parallel = true
@@ -101,7 +101,7 @@ abstract class DetektConventionPlugin : Plugin<Project> {
       DetektCreateBaselineTask::class.java,
       DetektGenerateConfigTask::class.java
     ).forEach { type ->
-      target.tasks.withType(type) { it.group = "detekt" }
+      target.tasks.withType(type).configureEach { it.group = "detekt" }
     }
 
     // By default, `check` only handles the PSI Detekt task.  This adds the type resolution tasks.
