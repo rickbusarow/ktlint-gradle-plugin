@@ -62,7 +62,7 @@ abstract class KotlinJvmConventionPlugin : Plugin<Project> {
       target.extensions.configure(JavaPluginExtension::class.java) { extension ->
         extension.sourceCompatibility = JavaVersion.toVersion(target.JVM_TARGET)
       }
-      target.tasks.withType(JavaCompile::class.java) { task ->
+      target.tasks.withType(JavaCompile::class.java).configureEach { task ->
         task.options.release.set(target.JVM_TARGET_INT)
       }
     }
