@@ -36,9 +36,14 @@ abstract class DetektConventionPlugin : Plugin<Project> {
       "**/build/**"
     )
 
-    val reportMerge = target.tasks
-      .register("reportMerge", ReportMergeTask::class.java) {
-        it.output.set(target.rootProject.buildDir.resolve("reports/detekt/merged.sarif"))
+    target.tasks
+      .register("detektReportMerge", ReportMergeTask::class.java) { reportMergeTask ->
+        reportMergeTask.output
+          .set(target.rootProject.buildDir.resolve("reports/detekt/merged.sarif"))
+
+        reportMergeTask.input.from(
+          target.tasks.withType(Detekt::class.java).map { it.sarifReportFile }
+        )
       }
 
     target.dependencies.add("detektPlugins", target.libsCatalog.dependency("detekt-rules-libraries"))
@@ -65,15 +70,6 @@ abstract class DetektConventionPlugin : Plugin<Project> {
       task.parallel = true
       task.config.from(target.files("${target.rootDir}/detekt/detekt-config.yml"))
       task.buildUponDefaultConfig = true
-
-      // If in CI, merge sarif reports.  Skip this locally because it's not worth looking at
-      // and the task is unnecessarily chatty.
-      if (inCI()) {
-        task.finalizedBy(reportMerge)
-        reportMerge.configure {
-          it.input.from(task.sarifReportFile)
-        }
-      }
 
       task.reports {
         it.xml.required.set(true)

@@ -15,7 +15,6 @@
 
 plugins {
   kotlin("jvm")
-  @Suppress("DSL_SCOPE_VIOLATION")
   alias(libs.plugins.google.ksp)
   id("java-gradle-plugin")
 }
