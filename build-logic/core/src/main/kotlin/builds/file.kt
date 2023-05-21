@@ -33,7 +33,6 @@ import java.io.File
  * @returns the first path to contain an [existent][File.exists]
  *   File for [relativePath], or `null` if it could not be resolved
  * @see resolveInParent for a version which throws if nothing is resolved
- * @since 0.1.0
  */
 fun File.resolveInParentOrNull(relativePath: String): File? {
   return resolve(relativePath).existsOrNull()
@@ -44,7 +43,6 @@ fun File.resolveInParentOrNull(relativePath: String): File? {
  * Non-nullable version of [resolveInParentOrNull]
  *
  * @see resolveInParentOrNull for a nullable, non-throwing variant
- * @since 0.1.0
  * @throws IllegalArgumentException if a file cannot be resolved
  */
 fun File.resolveInParent(relativePath: String): File {
@@ -55,16 +53,12 @@ fun File.resolveInParent(relativePath: String): File {
   }.normalize()
 }
 
-/**
- * @return the receiver [File] if it exists in the file system, otherwise null
- * @since 0.1.0
- */
+/** @return the receiver [File] if it exists in the file system, otherwise null */
 fun File.existsOrNull(): File? = takeIf { it.exists() }
 
 /**
  * @return true if the receiver [File] is a directory with
  *   at least one child file which satisfies [childPredicate]
- * @since 0.1.0
  */
 fun File.isDirectoryWithFiles(
   childPredicate: (File) -> Boolean = { it.exists() }

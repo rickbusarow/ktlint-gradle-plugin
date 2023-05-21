@@ -24,18 +24,12 @@ import org.gradle.api.tasks.TaskCollection
 import org.gradle.composite.internal.DefaultIncludedBuild
 import org.gradle.composite.internal.DefaultIncludedBuild.IncludedBuildImpl
 
-/**
- * @return the root project of this included build
- * @since 0.1.0
- */
+/** @return the root project of this included build */
 fun IncludedBuild.rootProject(): ProjectInternal {
   return requireProjectRegistry().rootProject!!
 }
 
-/**
- * @return all projects in this included build
- * @since 0.1.0
- */
+/** @return all projects in this included build */
 fun IncludedBuild.allProjects(): Set<ProjectInternal> {
   return requireProjectRegistry().allProjects
 }
@@ -43,7 +37,6 @@ fun IncludedBuild.allProjects(): Set<ProjectInternal> {
 /**
  * @return the projects in this included build, or throws
  *   if the [IncludedBuild] is of an unexpected type
- * @since 0.1.0
  */
 fun IncludedBuild.requireProjectRegistry(): ProjectRegistry<ProjectInternal> {
   require(this is IncludedBuildImpl) {
@@ -61,10 +54,7 @@ fun IncludedBuild.requireProjectRegistry(): ProjectRegistry<ProjectInternal> {
   return delegate.mutableModel.projectRegistry
 }
 
-/**
- * @return all projects from all included builds
- * @since 0.1.0
- */
+/** @return all projects from all included builds */
 fun Gradle.allIncludedProjects(): List<ProjectInternal> {
   return includedBuilds.flatMap { it.allProjects() }
 }

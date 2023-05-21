@@ -55,7 +55,6 @@ inline fun <reified T : Task> TaskContainer.matchingNameWithType(
  * Finds all tasks named [taskName] in all projects.
  * Does not throw if there are no tasks with that name.
  *
- * @since 0.1.0
  * @throws IllegalStateException if the project is not the root project
  */
 fun Project.allProjectsTasksMatchingName(taskName: String): List<TaskCollection<Task>> {
@@ -67,7 +66,6 @@ fun Project.allProjectsTasksMatchingName(taskName: String): List<TaskCollection<
  * Finds all tasks named [taskName] in all projects.
  * Does not throw if there are no tasks with that name.
  *
- * @since 0.1.0
  * @throws IllegalStateException if the project is not the root project
  */
 inline fun <reified T : Task> Project.allProjectsTasksMatchingNameWithType(taskName: String): List<TaskCollection<T>> {
@@ -138,7 +136,6 @@ fun <T : Task> TaskProvider<T>.mustRunAfter(vararg objects: Any): TaskProvider<T
  * @return The matching objects. Returns an empty collection
  *   if there are no such objects in this collection.
  * @see [DomainObjectCollection.withType]
- * @since 0.1.0
  */
 inline fun <reified S : Any> DomainObjectCollection<in S>.withType(
   noinline configuration: (S) -> Unit
@@ -153,7 +150,6 @@ inline fun <reified S : Any> DomainObjectCollection<in S>.withType(
  * @return The matching objects. Returns an empty collection
  *   if there are no such objects in this collection.
  * @see [DomainObjectCollection.withType]
- * @since 0.1.0
  */
 inline fun <reified S : Any> DomainObjectCollection<in S>.withType(): DomainObjectCollection<S> =
   withType(S::class.java)
@@ -167,7 +163,6 @@ inline fun <reified S : Any> DomainObjectCollection<in S>.withType(): DomainObje
  * @return The matching objects. Returns an empty collection
  *   if there are no such objects in this collection.
  * @see [TaskCollection.withType]
- * @since 0.1.0
  */
 inline fun <reified S : Task> TaskCollection<in S>.withType(): TaskCollection<S> =
   withType(S::class.java)
@@ -191,7 +186,6 @@ fun <T : Task> TaskContainer.registerOnce(
 
 /**
  * @return the fully qualified name of this task's type, without any '_Decorated' suffix if one exists
- * @since 0.1.0
  */
 fun Task.undecoratedTypeName(): String {
   return javaClass.canonicalName.removeSuffix("_Decorated")
