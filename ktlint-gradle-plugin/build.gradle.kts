@@ -17,6 +17,7 @@ import builds.VERSION_NAME
 import builds.dependsOn
 import builds.isRealRootProject
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
+import com.squareup.kotlinpoet.Dynamic.tags
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -108,10 +109,15 @@ dependencies {
   implementation(libs.kotlin.reflect)
   implementation(libs.kotlinx.coroutines.core)
 
+  mainConfig(libs.ec4j.core)
+  mainConfig(libs.jetbrains.markdown)
   mainConfig(libs.jetbrains.markdown)
   mainConfig(libs.kotlinx.coroutines.core)
   mainConfig(libs.kotlinx.serialization.core)
   mainConfig(libs.kotlinx.serialization.json)
+  mainConfig(libs.ktlint.cli.ruleset.core)
+  mainConfig(libs.ktlint.rule.engine)
+  mainConfig(libs.ktlint.rule.engine.core)
 
   testImplementation(libs.jetbrains.markdown)
   testImplementation(libs.junit.engine)

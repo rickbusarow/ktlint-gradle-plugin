@@ -3,14 +3,21 @@
   "extends": ["config:base"],
   "rebaseWhen": "conflicted",
   "rebaseLabel": "rebase",
-  "packageRules": [{
-    "groupName": "Kotlin and compiler plugins",
-    "matchPackagePatterns": [
-      "^org\\.jetbrains\\.kotlin:(?:[\\w-]+)$",
-      "^com\\.google\\.devtools\\.ksp:(?:[\\w-]+)$",
-      "^com\\.square\\.anvil:(?:[\\w-]+)$"
-    ]
-  }],
+  "packageRules": [
+    {
+      "groupName": "Kotlin and compiler plugins",
+      "matchPackagePatterns": [
+        "^org\\.jetbrains\\.kotlin:(?:[\\w-]+)$",
+        "^com\\.google\\.devtools\\.ksp:(?:[\\w-]+)$",
+        "^com\\.square\\.anvil:(?:[\\w-]+)$"
+      ]
+    },
+    {
+      "matchPackagePatterns": ["^com\\.pinterest\\.ktlint:ktlint-"],
+      "matchCurrentVersion": "/0\\.(?:47|48)\\..*/",
+      "enabled": false
+    }
+  ],
   "labels": [
     "dependencies",
     "automerge"
