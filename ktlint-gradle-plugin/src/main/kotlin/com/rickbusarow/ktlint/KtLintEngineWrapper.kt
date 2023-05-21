@@ -15,11 +15,12 @@
 
 package com.rickbusarow.ktlint
 
-import com.pinterest.ktlint.core.Code
-import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.RuleSetProviderV2
-import com.pinterest.ktlint.core.api.EditorConfigDefaults
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.rule.engine.api.Code
+import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.rickbusarow.ktlint.KtLintEngineWrapper.KtLintResult.LintErrorWithFixed
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +44,7 @@ internal class KtLintEngineWrapper(
 ) : java.io.Serializable {
 
   private val ruleProviders by lazy {
-    ServiceLoader.load(RuleSetProviderV2::class.java)
+    ServiceLoader.load(RuleSetProviderV3::class.java)
       .flatMapTo(mutableSetOf()) { it.getRuleProviders() }
   }
 
@@ -108,7 +109,12 @@ internal class KtLintEngineWrapper(
     }
       ?: return null
 
-    return ecDefaults.computeIfAbsent(ecPath) { EditorConfigDefaults.load(ecPath.toPath()) }
+    return ecDefaults.computeIfAbsent(ecPath) {
+      EditorConfigDefaults.load(
+        path = ecPath.toPath(),
+        propertyTypes = ruleProviders.propertyTypes()
+      )
+    }
   }
 
   private fun CoroutineScope.lintFile(
@@ -118,7 +124,7 @@ internal class KtLintEngineWrapper(
 
     val lintErrors = mutableListOf<LintErrorWithFixed>()
 
-    engine.lint(Code.CodeFile(kotlinFile)) { lintError ->
+    engine.lint(Code.fromFile(kotlinFile)) { lintError ->
 
       lintErrors.add(LintErrorWithFixed(fixed = false, lintError = lintError))
 
@@ -145,7 +151,11 @@ internal class KtLintEngineWrapper(
 
     val lintErrors = mutableListOf<LintErrorWithFixed>()
 
-    val outContent = engine.format(kotlinFile.toPath()) { lintError, fixed ->
+    val outContent = engine.format(
+      Code.fromSnippet(
+        content = inContent, script = kotlinFile.extension == "kts"
+      )
+    ) { lintError, fixed ->
 
       val maybeFixed = if (fixed) " FIXED" else ""
 
