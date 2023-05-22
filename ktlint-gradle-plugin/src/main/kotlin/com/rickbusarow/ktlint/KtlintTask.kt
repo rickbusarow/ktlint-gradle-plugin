@@ -27,7 +27,6 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -180,6 +179,6 @@ abstract class KtlintCheckTask @Inject constructor(
   }
 
   /** */
-  @get:OutputFile
-  abstract val htmlReportFile: RegularFileProperty
+  // @get:OutputFile
+  // abstract val htmlReportFile: RegularFileProperty
 }

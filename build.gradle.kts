@@ -14,6 +14,7 @@
  */
 
 import builds.VERSION_NAME
+import modulecheck.gradle.task.AbstractModuleCheckTask
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -26,6 +27,15 @@ moduleCheck {
   deleteUnused = true
   checks.sortDependencies = true
 }
+
+tasks.withType(AbstractModuleCheckTask::class.java)
+  .matching { !it.name.endsWith("Auto") }
+  .configureEach {
+    mustRunAfter(
+      tasks.withType(AbstractModuleCheckTask::class.java)
+        .matching { it.name.endsWith("Auto") }
+    )
+  }
 
 // TODO move this to a convention plugin
 githubRelease {

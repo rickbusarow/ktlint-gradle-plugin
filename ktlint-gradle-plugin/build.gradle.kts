@@ -17,7 +17,6 @@ import builds.VERSION_NAME
 import builds.dependsOn
 import builds.isRealRootProject
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
-import com.squareup.kotlinpoet.Dynamic.tags
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -34,7 +33,6 @@ val pluginId = "com.rickbusarow.ktlint"
 val pluginArtifactId = "ktlint-gradle-plugin"
 val moduleDescription = "the ktlint Gradle plugin"
 
-@Suppress("UnstableApiUsage")
 val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
   gradlePlugin.plugins
     .register(pluginArtifactId) {
@@ -43,7 +41,7 @@ val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
       implementationClass = "com.rickbusarow.ktlint.KtLintPlugin"
       version = VERSION_NAME
       description = moduleDescription
-      tags.set(listOf("markdown", "documentation"))
+      this@register.tags.set(listOf("markdown", "documentation"))
     }
 
 val shade by configurations.register("shadowCompileOnly")
@@ -81,15 +79,16 @@ rootProject.tasks.named("prepareKotlinBuildScriptModel") {
 idea {
   module {
     java.sourceSets.integration {
+      @Suppress("UnstableApiUsage")
       this@module.testSources.from(allSource.srcDirs)
     }
   }
 }
 
-val mainConfig: String = if (rootProject.isRealRootProject()) {
-  shade.name
+val mainConfig: Configuration = if (rootProject.isRealRootProject()) {
+  shade
 } else {
-  "implementation"
+  configurations.getByName("implementation")
 }
 
 dependencies {

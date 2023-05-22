@@ -22,8 +22,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.file.SourceDirectorySet
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
 /** */
 @Suppress("UnnecessaryAbstractClass")
@@ -115,12 +116,23 @@ abstract class KtLintPlugin : Plugin<Project> {
     target: Project,
     configProvider: NamedDomainObjectProvider<Configuration>?
   ) {
-    val extension = target.extensions.getByType(KotlinProjectExtension::class.java)
 
-    val sourceSetNames = extension.sourceSets.names
+    val kotlinExtension = try {
+      val extension = target.extensions.findByName("kotlin") ?: return
+      extension as? org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension ?: return
+    } catch (_: ClassNotFoundException) {
+      return
+    }
+
+    val sourceSetNames = kotlinExtension.sourceSets.names
 
     val pairs = sourceSetNames.map { sourceSetName ->
-      registerFormatCheckPair(target, extension, sourceSetName, configProvider)
+      registerFormatCheckPair(
+        target = target,
+        sourceSetName = sourceSetName,
+        sourceDirectorySet = kotlinExtension.sourceSets.named(sourceSetName).map { it.kotlin },
+        configProvider = configProvider
+      )
     }
 
     val formatTasks = pairs.map { it.first }
@@ -154,8 +166,8 @@ abstract class KtLintPlugin : Plugin<Project> {
 
   private fun registerFormatCheckPair(
     target: Project,
-    extension: KotlinProjectExtension,
     sourceSetName: String,
+    sourceDirectorySet: Provider<SourceDirectorySet>,
     configProvider: NamedDomainObjectProvider<Configuration>?
   ): Pair<TaskProvider<KtlintTask>, TaskProvider<KtlintTask>> {
 
@@ -163,9 +175,7 @@ abstract class KtLintPlugin : Plugin<Project> {
 
     val formatTask = target.tasks.register(formatTaskName, KtlintTask::class.java) { task ->
 
-      val sourceSet = extension.sourceSets.getByName(sourceSetName)
-
-      task.sourceFiles.from(sourceSet.kotlin)
+      task.sourceFiles.from(sourceDirectorySet)
 
       task.ktlintClasspath.setFrom(configProvider)
 
@@ -177,9 +187,7 @@ abstract class KtLintPlugin : Plugin<Project> {
 
     val lintTask = target.tasks.register(checkTaskName, KtlintTask::class.java) { task ->
 
-      val sourceSet = extension.sourceSets.getByName(sourceSetName)
-
-      task.sourceFiles.from(sourceSet.kotlin)
+      task.sourceFiles.from(sourceDirectorySet)
 
       task.ktlintClasspath.setFrom(configProvider)
 
