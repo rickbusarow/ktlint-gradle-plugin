@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright (C) 2023 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,20 +18,40 @@
 pluginManagement {
   repositories {
     gradlePluginPortal()
+    mavenLocal()
     mavenCentral()
     google()
   }
-  @Suppress("UnstableApiUsage")
   includeBuild("..")
 }
 
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-  @Suppress("UnstableApiUsage")
   repositories {
     google()
+    mavenLocal()
     mavenCentral()
     maven("https://plugins.gradle.org/m2/")
+  }
+  versionCatalogs {
+    create("libs") {
+      from(files("../gradle/libs.versions.toml"))
+    }
   }
 }
 
 rootProject.name = "plugin-playground"
+
+plugins {
+  id("com.gradle.enterprise") version "3.13.3"
+}
+
+gradleEnterprise {
+  buildScan {
+
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
+    termsOfServiceAgree = "yes"
+
+    publishAlways()
+  }
+}

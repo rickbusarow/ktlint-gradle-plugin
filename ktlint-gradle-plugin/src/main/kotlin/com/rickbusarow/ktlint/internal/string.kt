@@ -21,3 +21,8 @@ import java.util.Locale
 internal fun String.capitalize(): String = replaceFirstChar {
   if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
 }
+
+/** */
+internal fun String.suffixIfNot(suffix: String): String {
+  return if (this.endsWith(suffix)) this else "$this$suffix"
+}

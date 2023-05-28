@@ -117,12 +117,13 @@ private fun Project.configurePublish(
 
   version = VERSION_NAME
 
+  val versionIsSnapshot = versionIsSnapshot()
+
   @Suppress("UnstableApiUsage")
   extensions.configure(MavenPublishBaseExtension::class.java) { extension ->
 
     extension.publishToMavenCentral(DEFAULT, automaticRelease = true)
 
-    @Suppress("UnstableApiUsage")
     extension.signAllPublications()
 
     @Suppress("UnstableApiUsage")
@@ -168,12 +169,16 @@ private fun Project.configurePublish(
       }
 
       pluginManager.hasPlugin("com.github.johnrengelman.shadow") -> {
-        extension.configure(KotlinJvm(javadocJar = Dokka(taskName = "dokkaHtml"), sourcesJar = true))
+        extension.configure(
+          KotlinJvm(javadocJar = Dokka(taskName = "dokkaHtml"), sourcesJar = true)
+        )
         applyBinaryCompatibility()
       }
 
       else -> {
-        extension.configure(KotlinJvm(javadocJar = Dokka(taskName = "dokkaHtml"), sourcesJar = true))
+        extension.configure(
+          KotlinJvm(javadocJar = Dokka(taskName = "dokkaHtml"), sourcesJar = true)
+        )
         applyBinaryCompatibility()
       }
     }
@@ -189,7 +194,7 @@ private fun Project.configurePublish(
 
   registerCoordinatesStringsCheckTask(groupId = groupId, artifactId = artifactId)
   registerSnapshotVersionCheckTask()
-  configureSkipDokka()
+  configureSkipDokka(this)
 
   tasks.withType(PublishToMavenRepository::class.java).configureEach {
     it.notCompatibleWithConfigurationCache("See https://github.com/gradle/gradle/issues/13468")
@@ -200,7 +205,7 @@ private fun Project.configurePublish(
   tasks.withType(Sign::class.java).configureEach {
     it.notCompatibleWithConfigurationCache("")
     // skip signing for -SNAPSHOT publishing
-    it.onlyIf { !(version as String).endsWith("SNAPSHOT") }
+    it.onlyIf { !versionIsSnapshot }
   }
 }
 
@@ -278,14 +283,14 @@ private fun Project.registerSnapshotVersionCheckTask() {
  * Dokka output, and generating kdoc for everything takes forever -- especially
  * on a GitHub Actions server. So for integration tests, skip Dokka tasks.
  */
-private fun Project.configureSkipDokka() {
+private fun configureSkipDokka(project: Project) {
 
-  if (tasks.names.contains("setSkipDokka")) {
+  if (project.tasks.names.contains("setSkipDokka")) {
     return
   }
 
   var skipDokka = false
-  val setSkipDokka = tasks.register(
+  val setSkipDokka = project.tasks.register(
     "setSkipDokka",
     BuildLogicTask::class.java
   ) { task ->
@@ -297,7 +302,7 @@ private fun Project.configureSkipDokka() {
     task.onlyIf { true }
   }
 
-  tasks.register("publishToMavenLocalNoDokka", BuildLogicTask::class.java) {
+  project.tasks.register("publishToMavenLocalNoDokka", BuildLogicTask::class.java) {
 
     it.group = "publishing"
     it.description = "Delegates to `publishToMavenLocal`, " +
@@ -309,14 +314,14 @@ private fun Project.configureSkipDokka() {
     it.dependsOn("publishToMavenLocal")
   }
 
-  tasks.matching { it.name == "javaDocReleaseGeneration" }.configureEach {
+  project.tasks.matching { it.name == "javaDocReleaseGeneration" }.configureEach {
     it.onlyIf { !skipDokka }
   }
-  tasks.withType(AbstractDokkaLeafTask::class.java).configureEach {
+  project.tasks.withType(AbstractDokkaLeafTask::class.java).configureEach {
     it.onlyIf { !skipDokka }
   }
 
-  tasks.named("publishToMavenLocal") {
+  project.tasks.named("publishToMavenLocal") {
     it.mustRunAfter(setSkipDokka)
   }
 }

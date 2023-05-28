@@ -110,7 +110,8 @@ fun <T : Task> TaskProvider<T>.dependsOn(vararg objects: Any): TaskProvider<T> {
 }
 
 /**
- * adds all [objects] as `mustRunAfter` to every task in the collection, inside a `configureEach { }`
+ * adds all [objects] as `mustRunAfter` to every task
+ * in the collection, inside a `configureEach { }`
  */
 fun <T : Task> TaskCollection<T>.mustRunAfter(vararg objects: Any): TaskCollection<T> {
   return also { taskCollection ->
@@ -185,7 +186,8 @@ fun <T : Task> TaskContainer.registerOnce(
 }
 
 /**
- * @return the fully qualified name of this task's type, without any '_Decorated' suffix if one exists
+ * @return the fully qualified name of this task's
+ *   type, without any '_Decorated' suffix if one exists
  */
 fun Task.undecoratedTypeName(): String {
   return javaClass.canonicalName.removeSuffix("_Decorated")

@@ -14,6 +14,10 @@
  */
 
 plugins {
-  base
+  kotlin("jvm") version "1.8.21"
   id("com.rickbusarow.ktlint")
+}
+
+dependencies {
+  ktlint(libs.rickBusarow.ktrules)
 }

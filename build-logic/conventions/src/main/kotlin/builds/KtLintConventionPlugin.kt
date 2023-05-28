@@ -13,17 +13,8 @@
  * limitations under the License.
  */
 
-package builds.ktlint
+package builds
 
-import builds.VERSION_NAME
-import builds.allProjects
-import builds.applyOnce
-import builds.capitalize
-import builds.dependsOn
-import builds.isRealRootProject
-import builds.matchingName
-import builds.register
-import builds.rootProject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskContainer

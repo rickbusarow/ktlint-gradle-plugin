@@ -18,12 +18,10 @@ import builds.dependsOn
 import builds.isRealRootProject
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   id("module")
   id("java-gradle-plugin")
   id("com.gradle.plugin-publish")
-  @Suppress("DSL_SCOPE_VIOLATION")
   alias(libs.plugins.integration.test)
   alias(libs.plugins.buildconfig)
   idea
@@ -47,8 +45,7 @@ val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
 val shade by configurations.register("shadowCompileOnly")
 
 module {
-  autoService()
-  serialization()
+
   shadow(shade)
 
   published(
@@ -59,16 +56,41 @@ module {
   publishedPlugin(pluginDeclaration = pluginDeclaration)
 }
 
+val deps = mutableSetOf<String>()
+
 buildConfig {
+
+  this@buildConfig.sourceSets.named("main") {
+
+    packageName(builds.GROUP)
+    className("BuildConfig")
+
+    buildConfigField("String", "pluginId", "\"$pluginId\"")
+    buildConfigField("String", "version", "\"${VERSION_NAME}\"")
+    buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
+    buildConfigField(
+      type = "String",
+      name = "deps",
+      value = provider {
+        if (deps.isEmpty()) {
+          throw GradleException(
+            "There are no dependencies to pass along to the Gradle Worker's classpath.  " +
+              "Is there a race condition?"
+          )
+        }
+        deps.joinToString(",\" +\n\"", "\"", "\"")
+      }
+    )
+  }
 
   this@buildConfig.sourceSets.named(java.sourceSets.integration.name) {
 
-    this@named.packageName(builds.GROUP)
-    this@named.className("BuildConfig")
+    packageName(builds.GROUP)
+    className("BuildConfig")
 
-    this@named.buildConfigField("String", "pluginId", "\"$pluginId\"")
-    this@named.buildConfigField("String", "version", "\"${VERSION_NAME}\"")
-    this@named.buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
+    buildConfigField("String", "pluginId", "\"$pluginId\"")
+    buildConfigField("String", "version", "\"${VERSION_NAME}\"")
+    buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
   }
 }
 
@@ -85,38 +107,38 @@ idea {
   }
 }
 
-val mainConfig: Configuration = if (rootProject.isRealRootProject()) {
-  shade
-} else {
-  configurations.getByName("implementation")
+val mainConfig: Configuration = when {
+  rootProject.isRealRootProject() -> shade
+  else -> configurations.getByName("implementation")
+}
+
+fun DependencyHandlerScope.worker(dependencyNotation: Any) {
+  mainConfig(dependencyNotation)
+
+  when (dependencyNotation) {
+    is org.gradle.api.internal.provider.TransformBackedProvider<*, *> -> {
+      deps.add(dependencyNotation.get().toString())
+    }
+
+    is ProviderConvertible<*> -> {
+      deps.add(dependencyNotation.asProvider().get().toString())
+    }
+
+    else -> error("unsupported dependency type -- ${dependencyNotation::class.java.canonicalName}")
+  }
 }
 
 dependencies {
 
-  api(libs.ktlint.core)
-  api(libs.ktlint.ruleset.standard)
-
   compileOnly(gradleApi())
-
-  compileOnly(libs.kotlin.gradle.plugin)
   compileOnly(libs.kotlin.gradle.plugin.api)
 
-  implementation(libs.google.auto.service.annotations)
-  implementation(libs.jetbrains.markdown)
-  implementation(libs.jmailen.kotlinter)
-  implementation(libs.kotlin.compiler)
-  implementation(libs.kotlin.reflect)
-  implementation(libs.kotlinx.coroutines.core)
-
-  mainConfig(libs.ec4j.core)
-  mainConfig(libs.jetbrains.markdown)
-  mainConfig(libs.jetbrains.markdown)
-  mainConfig(libs.kotlinx.coroutines.core)
-  mainConfig(libs.kotlinx.serialization.core)
-  mainConfig(libs.kotlinx.serialization.json)
-  mainConfig(libs.ktlint.cli.ruleset.core)
-  mainConfig(libs.ktlint.rule.engine)
-  mainConfig(libs.ktlint.rule.engine.core)
+  worker(libs.ec4j.core)
+  worker(libs.kotlinx.coroutines.core)
+  worker(libs.ktlint.cli.ruleset.core)
+  worker(libs.ktlint.ruleset.standard)
+  worker(libs.ktlint.rule.engine)
+  worker(libs.ktlint.rule.engine.core)
 
   testImplementation(libs.jetbrains.markdown)
   testImplementation(libs.junit.engine)
@@ -136,3 +158,10 @@ dependencies {
 }
 
 tasks.named("integrationTest").dependsOn("publishToMavenLocalNoDokka")
+
+kotlin {
+  val compilations = target.compilations
+  compilations.named("integration") {
+    associateWith(compilations.getByName("main"))
+  }
+}

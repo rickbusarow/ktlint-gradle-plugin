@@ -13,34 +13,23 @@
  * limitations under the License.
  */
 
-pluginManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
-  }
+package com.rickbusarow.ktlint.internal
+
+import kotlin.contracts.contract
+
+/** from Kotlin's addToStdlib.kt */
+internal inline fun <T> T.letIf(predicate: Boolean, body: T.() -> T): T {
+  return if (predicate) body() else this
 }
 
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
+/**
+ * shorthand for `requireNotNull(this, lazyMessage)`
+ *
+ * @throws IllegalArgumentException if receiver is null
+ */
+internal inline fun <T : Any> T?.requireNotNull(lazyMessage: () -> Any): T {
+  contract {
+    returns() implies (this@requireNotNull != null)
   }
-
-  versionCatalogs {
-    create("libs") {
-      from(files("../gradle/libs.versions.toml"))
-    }
-  }
+  return requireNotNull(this, lazyMessage)
 }
-
-rootProject.name = "build-logic"
-
-include(
-  ":artifacts",
-  ":conventions",
-  ":core",
-  ":module"
-)

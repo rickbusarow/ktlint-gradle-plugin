@@ -26,6 +26,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -44,12 +45,18 @@ abstract class KtlintTask(
   private val autoCorrect: Boolean
 ) : DefaultTask() {
 
+  init {
+    group = "KtLint"
+    description = "to do..."
+  }
+
   /** */
   @get:InputFiles
   @get:Classpath
   abstract val ktlintClasspath: ConfigurableFileCollection
 
   /** */
+  @get:Optional
   @get:InputFile
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val editorConfig: RegularFileProperty
@@ -99,7 +106,7 @@ abstract class KtlintTask(
       }
 
     workQueue.submit(KtLintWorker::class.java) { params ->
-      params.editorConfig.fileValue(editorConfig.get().asFile)
+      params.editorConfig.fileValue(editorConfig.orNull?.asFile)
       params.sourceFiles.set(fileChanges)
       params.autoCorrect.set(autoCorrect)
 
@@ -128,7 +135,7 @@ abstract class KtlintTask(
     override fun execute() {
 
       val engine = KtLintEngineWrapper(
-        editorConfigPath = parameters.editorConfig.get().asFile,
+        editorConfigPath = parameters.editorConfig.orNull?.asFile,
         autoCorrect = parameters.autoCorrect.get()
       )
 

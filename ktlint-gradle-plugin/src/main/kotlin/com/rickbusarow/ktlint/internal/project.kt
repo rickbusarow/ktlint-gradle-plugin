@@ -13,12 +13,10 @@
  * limitations under the License.
  */
 
-package builds
+package com.rickbusarow.ktlint.internal
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.GradleInternal
-import org.gradle.api.plugins.PluginContainer
 
 /**
  * Determines whether the receiver project is the "real" root of this
@@ -26,7 +24,7 @@ import org.gradle.api.plugins.PluginContainer
  *
  * @see isRootProject to check if the project is the root of any build in a composite build
  */
-fun Project.isRealRootProject(): Boolean {
+internal fun Project.isRealRootProject(): Boolean {
   return (gradle as GradleInternal).isRootBuild && this == rootProject
 }
 
@@ -37,25 +35,4 @@ fun Project.isRealRootProject(): Boolean {
  *
  * @see isRealRootProject to check if the project is the ultimate root of a composite build
  */
-fun Project.isRootProject() = this == rootProject
-
-/** Add the plugin if it hasn't been applied already. */
-fun PluginContainer.applyOnce(id: String) {
-  if (!hasPlugin(id)) apply(id)
-}
-
-/** Add the plugin if it hasn't been applied already. */
-inline fun <reified T : Plugin<*>> PluginContainer.applyOnce() {
-  if (!hasPlugin(T::class.java)) apply(T::class.java)
-}
-
-/**
- * throws with [message] if the receiver project is not the root project
- *
- * @throws IllegalStateException if the project is not the root project
- */
-fun Project.checkProjectIsRoot(
-  message: () -> Any = { "Only apply this plugin to the project root." }
-) {
-  check(isRootProject(), message)
-}
+internal fun Project.isRootProject() = this == rootProject

@@ -13,7 +13,6 @@ public abstract class com/rickbusarow/ktlint/KtLintSyncRuleSetJarTask : org/grad
 
 public abstract class com/rickbusarow/ktlint/KtlintCheckTask : com/rickbusarow/ktlint/KtlintTask {
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
-	public abstract fun getHtmlReportFile ()Lorg/gradle/api/file/RegularFileProperty;
 }
 
 public abstract class com/rickbusarow/ktlint/KtlintFormatTask : com/rickbusarow/ktlint/KtlintTask {
@@ -40,14 +39,8 @@ public abstract class com/rickbusarow/ktlint/KtlintTask$KtLintWorker : org/gradl
 	public fun execute ()V
 }
 
-public final class com/rickbusarow/ktlint/internal/FileKt {
-	public static final fun createSafely (Ljava/io/File;Ljava/lang/String;)Ljava/io/File;
-	public static synthetic fun createSafely$default (Ljava/io/File;Ljava/lang/String;ILjava/lang/Object;)Ljava/io/File;
-	public static final fun existsOrNull (Ljava/io/File;)Ljava/io/File;
-	public static final fun makeParentDir (Ljava/io/File;)Ljava/io/File;
-	public static final fun mkdirsInline (Ljava/io/File;)Ljava/io/File;
-	public static final fun resolveInParent (Ljava/io/File;Ljava/lang/String;)Ljava/io/File;
-	public static final fun resolveInParentOrNull (Ljava/io/File;Ljava/lang/String;)Ljava/io/File;
-	public static final fun segments (Ljava/io/File;)Ljava/util/List;
+public final class com/rickbusarow/ktlint/internal/TaskKt$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun execute (Ljava/lang/Object;)V
 }
 

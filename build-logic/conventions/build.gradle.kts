@@ -57,6 +57,10 @@ gradlePlugin {
       id = "builds.knit"
       implementationClass = "builds.KnitConventionPlugin"
     }
+    create("builds.ktlint") {
+      id = "builds.ktlint"
+      implementationClass = "builds.KtLintConventionPlugin"
+    }
     create("builds.spotless") {
       id = "builds.spotless"
       implementationClass = "builds.SpotlessConventionPlugin"
@@ -70,11 +74,14 @@ gradlePlugin {
 
 dependencies {
 
+  api(libs.ktlint48.core)
+  api(libs.ktlint48.ruleset.experimental)
+  api(libs.ktlint48.ruleset.standard)
+  api(libs.rickBusarow.ktrules48)
+  api(libs.slf4j.api)
   api(libs.square.moshi)
 
-  api(project(path = ":core"))
-
-  compileOnly(gradleApi())
+  api(project(":core"))
 
   implementation(libs.benManes.versions)
   implementation(libs.detekt.gradle)
@@ -82,9 +89,11 @@ dependencies {
   implementation(libs.dokka.gradle)
   implementation(libs.dokka.versioning)
   implementation(libs.dropbox.dependencyGuard)
+  implementation(libs.google.auto.service.annotations)
   implementation(libs.google.dagger.api)
   implementation(libs.google.ksp)
   implementation(libs.gradle.plugin.publish)
+  implementation(libs.jetbrains.markdown)
   implementation(libs.jmailen.kotlinter)
   implementation(libs.johnrengelman.shadowJar)
   implementation(libs.kotlin.compiler)

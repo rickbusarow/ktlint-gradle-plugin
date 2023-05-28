@@ -17,15 +17,8 @@ package com.rickbusarow.ktlint.internal
 
 import java.io.File
 
-/** `File("a/b/c/d.txt").segments() == ["a", "b", "c", "d.txt"]` */
-fun File.segments(): List<String> = path.split(File.separatorChar)
-
-/**
- * Makes parent directories, then creates the receiver file. If a
- * [content] argument was provided, it will be written to the newly-created
- * file. If the file already existed, its content will be overwritten.
- */
-fun File.createSafely(content: String? = null): File = apply {
+/** Makes parent directories, then creates the receiver file. If a [content] argument was provided, it will be written to the newly-created file. If the file already existed, its content will be overwritten. */
+internal fun File.createSafely(content: String? = null): File = apply {
   if (content != null) {
     makeParentDir().writeText(content)
   } else {
@@ -39,7 +32,7 @@ fun File.createSafely(content: String? = null): File = apply {
  * @see File.mkdirs
  * @see File.makeParentDir
  */
-fun File.mkdirsInline(): File = apply(File::mkdirs)
+internal fun File.mkdirsInline(): File = apply(File::mkdirs)
 
 /**
  * Creates the parent directory if it doesn't already exist.
@@ -47,7 +40,7 @@ fun File.mkdirsInline(): File = apply(File::mkdirs)
  * @see File.mkdirsInline
  * @see File.mkdirs
  */
-fun File.makeParentDir(): File = apply {
+internal fun File.makeParentDir(): File = apply {
   val fileParent = requireNotNull(parentFile) { "File's `parentFile` must not be null." }
   fileParent.mkdirs()
 }
@@ -65,11 +58,10 @@ fun File.makeParentDir(): File = apply {
  * ./foo/bar.txt
  * ```
  *
- * @returns the first path to contain an [existent][File.exists]
- *   File for [relativePath], or `null` if it could not be resolved
+ * @returns the first path to contain an [existent][File.exists] File for [relativePath], or `null` if it could not be resolved
  * @see resolveInParent for a version which throws if nothing is resolved
  */
-fun File.resolveInParentOrNull(relativePath: String): File? {
+internal fun File.resolveInParentOrNull(relativePath: String): File? {
   return resolve(relativePath).existsOrNull()?.normalize()
     ?: parentFile?.resolveInParentOrNull(relativePath)
 }
@@ -80,7 +72,7 @@ fun File.resolveInParentOrNull(relativePath: String): File? {
  * @see resolveInParentOrNull for a nullable, non-throwing variant
  * @throws IllegalArgumentException if a file cannot be resolved
  */
-fun File.resolveInParent(relativePath: String): File {
+internal fun File.resolveInParent(relativePath: String): File {
   return requireNotNull(resolveInParentOrNull(relativePath)) {
     "Could not resolve a file with relative path in any parent paths.\n" +
       "\t       relative path: $relativePath\n" +
@@ -89,4 +81,28 @@ fun File.resolveInParent(relativePath: String): File {
 }
 
 /** @return the receiver [File] if it exists in the file system, otherwise null */
-fun File.existsOrNull(): File? = takeIf { it.exists() }
+internal fun File.existsOrNull(): File? = takeIf { it.exists() }
+
+/**
+ * Returns the most specific common parent directory for all [File]s in the receiver [List].
+ *
+ * The function assumes that all files exist in the file system
+ * and have absolute paths, so they do have a common parent.
+ *
+ * @receiver List of [File]s for which to find the common parent directory.
+ * @return The most specific common parent directory as a [File].
+ * @throws IllegalArgumentException if the receiver [List] is empty.
+ */
+internal fun List<File>.commonParent(): File {
+  require(isNotEmpty()) { "List of files must not be empty." }
+
+  var commonParent = this[0].parentFile
+
+  for (file in this) {
+    while (!file.path.startsWith(commonParent.path)) {
+      commonParent = commonParent.parentFile
+    }
+  }
+
+  return commonParent
+}

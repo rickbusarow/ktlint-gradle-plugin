@@ -10,7 +10,6 @@
 # Some keys were manually changed:
 #   * insert_final_newline (is false, changed to true, expected by KtLint)
 #   * max_line_length (is 100, changed to 103 for historical reasons)
-#   * disabled_rules (see comment below, needed for KtLint)
 #   * root (see comment below)
 
 # Tells tools to stop searching upwards.
@@ -22,7 +21,7 @@ end_of_line = lf
 indent_size = 2
 indent_style = space
 insert_final_newline = true
-max_line_length = 103
+max_line_length = 100
 tab_width = 2
 trim_trailing_whitespace = true
 ij_continuation_indent_size = 4
@@ -53,7 +52,8 @@ ktlint_ignore_back_ticked_identifier = true
 # ktlint_function_signature_body_expression_wrapping = default
 # ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 3
 ktlint_experimental = enabled
-project_version = 0.1.0-SNAPSHOT
+ktlint_kt-rules_project_version = 1.1.2-SNAPSHOT
+ktlint_kt-rules_wrapping_style = equal
 
 ktlint_experimental_class-naming = disabled
 ktlint_experimental_function-naming = disabled
@@ -62,28 +62,13 @@ ktlint_experimental_property-naming = disabled
 ktlint_standard_filename = disabled
 ktlint_standard_max-line-length = disabled
 ktlint_standard_no-empty-first-line-in-method-block = disabled
-ktlint_standard_wrapping = disabled
-
-ktlint_kt-rules = enabled
-ktlint_kt-rules_kdoc-leading-asterisk = enabled
-ktlint_kt-rules_kdoc-wrapping = enabled
-ktlint_kt-rules_no-duplicate-copyright-header = enabled
-ktlint_kt-rules_no-leading-blank-lines = enabled
-ktlint_kt-rules_no-since-in-kdoc = enabled
-ktlint_kt-rules_no-space-in-annotation-with-target = enabled
-ktlint_kt-rules_no-trailing-space-in-raw-string-literal = enabled
-ktlint_kt-rules_no-useless-constructor-keyword = enabled
-
-# noinspection EditorConfigKeyCorrectness
-[build-logic/**/*.{kt,kts}]
-ktlint_kt-rules_no-since-in-kdoc = disabled
 
 [{*.kt,*.kts}]
 ij_continuation_indent_size = 2
 ij_kotlin_align_in_columns_case_branch = false
 ij_kotlin_align_multiline_binary_operation = false
 ij_kotlin_align_multiline_extends_list = false
-ij_kotlin_align_multiline_method_parentheses = false
+ij_kotlin_align_multiline_method_parentheses = false #
 ij_kotlin_align_multiline_parameters = false
 ij_kotlin_align_multiline_parameters_in_calls = false
 ij_kotlin_allow_trailing_comma = false
@@ -168,9 +153,9 @@ ij_yaml_spaces_within_braces = true
 ij_yaml_spaces_within_brackets = true
 
 [{*.markdown,*.md,*.mdx}]
-indent_size = 4
-tab_width = 4
-ij_continuation_indent_size = 4
+indent_size = 3
+tab_width = 3
+ij_continuation_indent_size = 3
 ij_markdown_force_one_space_after_blockquote_symbol = true
 ij_markdown_force_one_space_after_header_symbol = true
 ij_markdown_force_one_space_after_list_bullet = true

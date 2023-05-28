@@ -13,34 +13,16 @@
  * limitations under the License.
  */
 
-pluginManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
-  }
+package com.rickbusarow.ktlint.playground
+
+/**
+ * Determines whether the receiver project is the "real" root of this
+ * composite build, as opposed to the root projects of included builds.
+ *
+ * @see isRootProject to check if the project is the root of any build in a composite build
+ * @since null
+ */
+class File {
+
+  val property = ""
 }
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
-  }
-
-  versionCatalogs {
-    create("libs") {
-      from(files("../gradle/libs.versions.toml"))
-    }
-  }
-}
-
-rootProject.name = "build-logic"
-
-include(
-  ":artifacts",
-  ":conventions",
-  ":core",
-  ":module"
-)

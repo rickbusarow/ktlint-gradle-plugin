@@ -46,15 +46,18 @@ abstract class DetektConventionPlugin : Plugin<Project> {
         )
       }
 
-    target.dependencies.add("detektPlugins", target.libsCatalog.dependency("detekt-rules-libraries"))
+    target.dependencies.add(
+      "detektPlugins",
+      target.libsCatalog.dependency("detekt-rules-libraries")
+    )
 
     target.extensions.configure(DetektExtension::class.java) { extension ->
 
       extension.autoCorrect = false
-      extension.config = target.files("${target.rootDir}/detekt/detekt-config.yml")
+      extension.config.from("${target.rootDir}/detekt/detekt-config.yml")
       extension.buildUponDefaultConfig = true
 
-      extension.source = target.files(
+      extension.source.from(
         "src/main/java",
         "src/test/java",
         "src/main/kotlin",

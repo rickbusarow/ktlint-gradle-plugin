@@ -13,34 +13,10 @@
  * limitations under the License.
  */
 
-pluginManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
-  }
-}
+package com.rickbusarow.ktlint
 
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
-  }
+import com.rickbusarow.ktlint.internal.suffixIfNot
 
-  versionCatalogs {
-    create("libs") {
-      from(files("../gradle/libs.versions.toml"))
-    }
-  }
-}
+class KtLintEngineWrapperTest
 
-rootProject.name = "build-logic"
-
-include(
-  ":artifacts",
-  ":conventions",
-  ":core",
-  ":module"
-)
+val foo = "".suffixIfNot("butt")
