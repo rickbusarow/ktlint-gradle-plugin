@@ -20,12 +20,16 @@ import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.rickbusarow.ktlint.KtLintEngineWrapper.Color.Companion.colorized
+import com.rickbusarow.ktlint.KtLintEngineWrapper.Color.Companion.supported
 import com.rickbusarow.ktlint.KtLintEngineWrapper.Color.LIGHT_GREEN
+import com.rickbusarow.ktlint.KtLintEngineWrapper.Color.LIGHT_RED
 import com.rickbusarow.ktlint.KtLintEngineWrapper.KtLintResult.LintErrorWithFixed
+import com.rickbusarow.ktlint.KtLintEngineWrapper.Style.Companion.style
+import com.rickbusarow.ktlint.KtLintEngineWrapper.Style.UNDERLINE
 import com.rickbusarow.ktlint.internal.commonParent
-import com.rickbusarow.ktlint.internal.letIf
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -34,7 +38,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.GradleException
-import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
 import java.io.File
 import java.util.ServiceLoader
 import java.util.concurrent.ConcurrentHashMap
@@ -46,18 +49,19 @@ import kotlin.LazyThreadSafetyMode.NONE
  */
 internal class KtLintEngineWrapper(
   private val editorConfigPath: File?,
-  private val autoCorrect: Boolean
-) : java.io.Serializable {
-
-  private val ruleProviders by lazy {
+  private val autoCorrect: Boolean,
+  ruleProviders: Lazy<Set<RuleProvider>> = lazy {
     ServiceLoader.load(RuleSetProviderV3::class.java)
       .flatMapTo(mutableSetOf()) { it.getRuleProviders() }
   }
+) : java.io.Serializable {
+
+  private val ruleProviders by ruleProviders
 
   private val ecDefaults = ConcurrentHashMap<File, EditorConfigDefaults>()
 
   /** formats all listed kotlin files */
-  fun execute(kotlinFiles: List<File>): List<KtLintResult> = runBlocking {
+  fun execute(kotlinFiles: List<File>): List<ReportedResult> = runBlocking {
 
     val ecDefaults = getEditorConfigDefaults(kotlinFiles)
 
@@ -82,10 +86,10 @@ internal class KtLintEngineWrapper(
       }
     }
       .awaitAll()
+      .flatten()
       .also { results ->
 
-        val errors = results
-          .flatMap { result -> result.lintErrors.filter { !it.fixed } }
+        val errors = results.filter { !it.fixed }
 
         if (errors.isNotEmpty()) {
           throw GradleException(
@@ -128,14 +132,12 @@ internal class KtLintEngineWrapper(
   private fun CoroutineScope.lintFile(
     kotlinFile: File,
     engine: KtLintRuleEngine
-  ): Deferred<KtLintResult> = async(Dispatchers.Default) {
+  ): Deferred<MutableList<ReportedResult>> = async(Dispatchers.Default) {
 
-    val lintErrors = mutableListOf<LintErrorWithFixed>()
     val results = mutableListOf<ReportedResult>()
 
     engine.lint(Code.fromFile(kotlinFile)) { lintError ->
 
-      lintErrors.add(LintErrorWithFixed(fixed = false, lintError = lintError))
       results.add(
         ReportedResult(
           fixed = false,
@@ -148,16 +150,13 @@ internal class KtLintEngineWrapper(
       )
     }
 
-    KtLintCheckResult(
-      kotlinFile = kotlinFile,
-      lintErrors = lintErrors
-    )
+    results
   }
 
   private fun CoroutineScope.formatFile(
     kotlinFile: File,
     engine: KtLintRuleEngine
-  ): Deferred<KtLintResult> = async(Dispatchers.Default) {
+  ): Deferred<MutableList<ReportedResult>> = async(Dispatchers.Default) {
 
     val inContent by lazy(NONE) { kotlinFile.readText() }
 
@@ -180,25 +179,12 @@ internal class KtLintEngineWrapper(
           ruleId = lintError.ruleId.value
         )
       )
-
-      println(
-        buildString {
-          append("file://$kotlinFile:${lintError.line}:${lintError.col}$maybeFixed ")
-          append("${lintError.detail} ".letIf(!fixed) { colorized(Color.LIGHT_RED) })
-          append("[${lintError.ruleId.value}]".colorized(Color.LIGHT_YELLOW))
-        }
-      )
     }
 
     if (lintErrors.isNotEmpty() && outContent != inContent) {
       kotlinFile.writeText(outContent)
     }
-
-    KtLintFormatResult(
-      outContent = outContent,
-      kotlinFile = kotlinFile,
-      lintErrors = lintErrors
-    )
+    results
   }
 
   internal sealed interface KtLintResult : java.io.Serializable {
@@ -229,7 +215,85 @@ internal class KtLintEngineWrapper(
     val col: Int,
     val detail: String,
     val ruleId: String
-  )
+  ) : Comparable<ReportedResult> {
+
+    val link = "file://$file:$line:$col"
+
+    override fun compareTo(other: ReportedResult): Int {
+      return compareValuesBy(
+        this,
+        other,
+        { it.fixed },
+        { it.link },
+        { it.ruleId },
+        { it.detail }
+      )
+    }
+
+    companion object {
+
+      fun List<ReportedResult>.block(): String {
+
+        fun ReportedResult.reportLine(
+          indent: Int,
+          ruleWidth: Int,
+          detailWidth: Int
+        ): String {
+
+          val icon = if (fixed) "✔".colorized(LIGHT_GREEN) else "X".colorized(LIGHT_RED)
+
+          return buildString {
+            append(" ".repeat(indent))
+            append("$icon  ")
+            append(ruleId.padEnd(ruleWidth))
+            append(detail.padEnd(detailWidth))
+            appendLine(link)
+          }
+        }
+
+        val indent = 6
+        val ruleWidth = maxOf { it.ruleId.length } + 2
+        val detailWidth = maxOf { it.detail.length } + 2
+
+        return buildString {
+
+          append(" ".repeat(indent + 3))
+          append("rule id".style(UNDERLINE).padEnd(ruleWidth + 8))
+          append("detail".style(UNDERLINE).padEnd(detailWidth + 8))
+          appendLine("file".style(UNDERLINE))
+
+          this@block.sorted()
+            .forEach {
+              append(
+                it.reportLine(
+                  indent = indent,
+                  ruleWidth = ruleWidth,
+                  detailWidth = detailWidth
+                )
+              )
+            }
+        }
+      }
+    }
+  }
+
+  enum class Style(val code: Int) {
+    RESET(0),
+    BOLD(1),
+    ITALIC(3),
+    UNDERLINE(4);
+
+    companion object {
+
+      fun String.style(style: Style): String {
+        return if (supported) {
+          "\u001B[${style.code}m$this\u001B[0m"
+        } else {
+          this
+        }
+      }
+    }
+  }
 
   @Suppress("MagicNumber")
   internal enum class Color(val code: Int) {
@@ -259,7 +323,7 @@ internal class KtLintEngineWrapper(
 
     companion object {
 
-      private val supported = "win" !in System.getProperty("os.name").lowercase()
+      internal val supported = "win" !in System.getProperty("os.name").lowercase()
 
       fun String.noColors(): String = "\u001B\\[[;\\d]*m".toRegex().replace(this, "")
 

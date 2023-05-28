@@ -15,11 +15,14 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.KtLintEngineWrapper.ReportedResult.Companion.block
 import com.rickbusarow.ktlint.internal.createSafely
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -38,6 +41,7 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 import java.io.File
 import javax.inject.Inject
+import org.gradle.api.logging.Logging as GradleLogging
 
 /** */
 abstract class KtlintTask(
@@ -93,10 +97,6 @@ abstract class KtlintTask(
   @TaskAction
   fun execute(inputChanges: InputChanges) {
 
-    val workQueue = workerExecutor.classLoaderIsolation {
-      it.classpath.setFrom(ktlintClasspath)
-    }
-
     val extensions = setOf("kt", "kts")
 
     val fileChanges = inputChanges.getFileChanges(sourceFiles)
@@ -104,6 +104,12 @@ abstract class KtlintTask(
         fileChange.file
           .takeIf { it.isFile && it.extension in extensions }
       }
+
+    if (fileChanges.isEmpty()) return
+
+    val workQueue = workerExecutor.classLoaderIsolation {
+      it.classpath.setFrom(ktlintClasspath)
+    }
 
     workQueue.submit(KtLintWorker::class.java) { params ->
       params.editorConfig.fileValue(editorConfig.orNull?.asFile)
@@ -131,8 +137,12 @@ abstract class KtlintTask(
   }
 
   /** */
-  abstract class KtLintWorker : WorkAction<KtLintWorkParameters> {
+  abstract class KtLintWorker @Inject constructor(
+    private val of: ObjectFactory
+  ) : WorkAction<KtLintWorkParameters> {
     override fun execute() {
+
+      val logger: Logger = GradleLogging.getLogger("ktlint logger Gradle")
 
       val engine = KtLintEngineWrapper(
         editorConfigPath = parameters.editorConfig.orNull?.asFile,
@@ -142,11 +152,10 @@ abstract class KtlintTask(
       val shadow = parameters.sourceFilesShadow.get().asFile
 
       val formatResults = engine.execute(parameters.sourceFiles.get())
-        .filterIsInstance<KtLintEngineWrapper.KtLintFormatResult>()
 
       for (result in formatResults) {
 
-        val file = result.kotlinFile
+        val file = result.file
 
         val relative = file.relativeTo(shadow)
           .normalize()
@@ -158,7 +167,11 @@ abstract class KtlintTask(
           .replace(file.extension, "txt")
 
         shadow.resolve(relative)
-          .createSafely(result.outContent.hashCode().toString())
+          .createSafely(result.hashCode().toString())
+      }
+
+      if (formatResults.isNotEmpty()) {
+        logger.lifecycle(formatResults.block())
       }
     }
   }

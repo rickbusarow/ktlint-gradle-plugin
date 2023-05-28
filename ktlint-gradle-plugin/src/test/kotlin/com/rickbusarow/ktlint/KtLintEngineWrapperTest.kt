@@ -15,8 +15,62 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.KtLintEngineWrapper.ReportedResult.Companion.block
+import com.rickbusarow.ktlint.internal.createSafely
 import com.rickbusarow.ktlint.internal.suffixIfNot
+import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.Test
+import java.io.File
 
-class KtLintEngineWrapperTest
+@Suppress("RemoveEmptyClassBody")
+internal class KtLintEngineWrapperTest {
 
-val foo = "".suffixIfNot("butt")
+  @Test
+  fun `canary test`() = test {
+
+    kotlin(
+      "Subject.kt",
+      """
+      package com.test
+
+      class Subject { }
+      """.trimIndent()
+    )
+
+    format()
+      .block()
+      // TODO <Rick> delete me
+      .also(::println)
+  }
+
+  inline fun test(action: TestEnvironment.() -> Unit) {
+    TestEnvironment().action()
+  }
+
+  class TestEnvironment {
+
+    val workingDir: File by lazy { kotlin.io.path.createTempDirectory().toFile() }
+
+    fun kotlin(
+      path: String,
+      @Language("kotlin") content: String
+    ): File = workingDir.resolve(path)
+      .createSafely(
+        content.trimIndent()
+          .suffixIfNot("\n\n")
+      )
+
+    fun editorconfig(
+      path: String = ".editorconfig",
+      @Language("editorconfig") content: String
+    ): File = workingDir.resolve(path)
+      .createSafely(content.trimIndent().suffixIfNot("\n\n"))
+
+    fun format(
+      editorConfigPath: File? = workingDir.resolve(".editorconfig"),
+      files: List<File> = workingDir.walkBottomUp()
+        .filter { it.isFile && it.extension in setOf("kt", "kts") }
+        .toList()
+    ) = KtLintEngineWrapper(editorConfigPath, true).execute(files)
+  }
+}

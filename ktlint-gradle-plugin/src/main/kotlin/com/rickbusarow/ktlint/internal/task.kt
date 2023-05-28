@@ -85,7 +85,9 @@ internal inline fun <reified S : Any> DomainObjectCollection<in S>.withType(): D
   withType(S::class.java)
 
 /**
- * Registers a task with the specified name, type, and configuration action in the task container. If a task with the same name already exists, the configuration action is applied to the existing task. If the task doesn't exist, a new task is registered with the provided configuration action.
+ * Registers a task with the specified name, type, and configuration action in the task container.
+ * If a task with the same name already exists, the configuration action is applied to the existing
+ * task. If the task doesn't exist, a new task is registered with the provided configuration action.
  *
  * @param name The name of the task to register.
  * @param type The class object representing the type of task.

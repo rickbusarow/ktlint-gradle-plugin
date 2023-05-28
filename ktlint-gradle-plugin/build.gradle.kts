@@ -22,9 +22,8 @@ plugins {
   id("module")
   id("java-gradle-plugin")
   id("com.gradle.plugin-publish")
-  alias(libs.plugins.integration.test)
+  `jvm-test-suite`
   alias(libs.plugins.buildconfig)
-  idea
 }
 
 val pluginId = "com.rickbusarow.ktlint"
@@ -39,6 +38,7 @@ val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
       implementationClass = "com.rickbusarow.ktlint.KtLintPlugin"
       version = VERSION_NAME
       description = moduleDescription
+      @Suppress("UnstableApiUsage")
       this@register.tags.set(listOf("markdown", "documentation"))
     }
 
@@ -83,7 +83,7 @@ buildConfig {
     )
   }
 
-  this@buildConfig.sourceSets.named(java.sourceSets.integration.name) {
+  this@buildConfig.sourceSets.register("integrationTest") {
 
     packageName(builds.GROUP)
     className("BuildConfig")
@@ -94,16 +94,37 @@ buildConfig {
   }
 }
 
-rootProject.tasks.named("prepareKotlinBuildScriptModel") {
-  dependsOn(tasks.withType(BuildConfigTask::class.java))
+rootProject.tasks.named("prepareKotlinBuildScriptModel")
+  .dependsOn(tasks.withType(BuildConfigTask::class.java))
+
+testing {
+  suites {
+    @Suppress("UnstableApiUsage")
+    register("integrationTest", JvmTestSuite::class) {
+      testType.set(TestSuiteType.INTEGRATION_TEST)
+    }
+  }
 }
 
-idea {
-  module {
-    java.sourceSets.integration {
-      @Suppress("UnstableApiUsage")
-      this@module.testSources.from(allSource.srcDirs)
-    }
+val main by sourceSets.getting
+val test by sourceSets.getting
+
+sourceSets.named("integrationTest") {
+  kotlin.apply {
+    compileClasspath += main.output
+      .plus(test.output)
+      .plus(configurations.testRuntimeClasspath.get())
+    runtimeClasspath += output + compileClasspath
+  }
+}
+
+tasks.named("check").dependsOn("integrationTest")
+tasks.named("integrationTest").dependsOn("publishToMavenLocalNoDokka")
+
+kotlin {
+  val compilations = target.compilations
+  compilations.named("integrationTest") {
+    associateWith(compilations.getByName("main"))
   }
 }
 
@@ -155,13 +176,5 @@ dependencies {
   testImplementation(libs.kotlinx.serialization.core)
   testImplementation(libs.kotlinx.serialization.json)
   testImplementation(libs.ktlint.test)
-}
-
-tasks.named("integrationTest").dependsOn("publishToMavenLocalNoDokka")
-
-kotlin {
-  val compilations = target.compilations
-  compilations.named("integration") {
-    associateWith(compilations.getByName("main"))
-  }
+  testImplementation(libs.ktlint.ruleset.standard)
 }

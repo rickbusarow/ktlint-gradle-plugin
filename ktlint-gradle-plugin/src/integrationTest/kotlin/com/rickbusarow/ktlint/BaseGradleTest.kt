@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+// TODO: https://youtrack.jetbrains.com/issue/KTIJ-23114/
+@file:Suppress("invisible_reference", "invisible_member")
+
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.ktlint.internal.createSafely

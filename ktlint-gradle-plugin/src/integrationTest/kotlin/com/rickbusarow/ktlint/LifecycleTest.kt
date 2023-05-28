@@ -21,7 +21,7 @@ import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.kotlin.fir.declarations.builder.buildFile
 import org.junit.jupiter.api.Test
 
-@Suppress("RemoveEmptyClassBody" /* for Kotlin code samples */)
+@Suppress("RemoveEmptyClassBody")
 internal class LifecycleTest : BaseGradleTest {
 
   @Test

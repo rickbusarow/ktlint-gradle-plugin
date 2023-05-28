@@ -17,7 +17,11 @@ package com.rickbusarow.ktlint.internal
 
 import java.io.File
 
-/** Makes parent directories, then creates the receiver file. If a [content] argument was provided, it will be written to the newly-created file. If the file already existed, its content will be overwritten. */
+/**
+ * Makes parent directories, then creates the receiver file. If a
+ * [content] argument was provided, it will be written to the newly-created
+ * file. If the file already existed, its content will be overwritten.
+ */
 internal fun File.createSafely(content: String? = null): File = apply {
   if (content != null) {
     makeParentDir().writeText(content)
@@ -58,7 +62,8 @@ internal fun File.makeParentDir(): File = apply {
  * ./foo/bar.txt
  * ```
  *
- * @returns the first path to contain an [existent][File.exists] File for [relativePath], or `null` if it could not be resolved
+ * @returns the first path to contain an [existent][File.exists]
+ *   File for [relativePath], or `null` if it could not be resolved
  * @see resolveInParent for a version which throws if nothing is resolved
  */
 internal fun File.resolveInParentOrNull(relativePath: String): File? {

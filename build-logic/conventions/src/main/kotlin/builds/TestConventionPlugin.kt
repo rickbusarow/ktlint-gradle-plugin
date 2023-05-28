@@ -22,7 +22,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
-import org.gradle.internal.classpath.Instrumented.systemProperty
 
 abstract class TestConventionPlugin : Plugin<Project> {
 
@@ -65,15 +64,6 @@ abstract class TestConventionPlugin : Plugin<Project> {
         it.showCauses = true
         it.showStackTraces = true
       }
-
-      target.properties
-        .asSequence()
-        .filter { (key, value) ->
-          key.startsWith("ktlint") && value != null
-        }
-        .forEach { (key, value) ->
-          systemProperty(key, value as String)
-        }
 
       task.maxHeapSize = "4g"
 

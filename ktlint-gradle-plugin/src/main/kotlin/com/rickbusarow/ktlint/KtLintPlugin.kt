@@ -38,8 +38,13 @@ import java.io.File
 abstract class KtLintPlugin : Plugin<Project> {
   override fun apply(target: Project) {
 
-    val configProvider: NamedDomainObjectProvider<Configuration> = target.configurations
+    val rulesetConfig: NamedDomainObjectProvider<Configuration> = target.configurations
       .register("ktlint")
+
+    val configProvider: NamedDomainObjectProvider<Configuration> = target.configurations
+      .register("ktlintAllDependencies") {
+        it.extendsFrom(rulesetConfig.get())
+      }
 
     BuildConfig.deps.split(",")
       .map { it.trim() }
