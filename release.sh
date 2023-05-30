@@ -117,7 +117,7 @@ progress "create the release on GitHub"
 ./gradlew githubRelease
 
 progress "update the dev version to ${NEXT_VERSION}"
-OLD="(^ *ktlint *= *)\"${VERSION_NAME}\""
+OLD="(^ *ktlint-gradle-plugin *= *)\"${VERSION_NAME}\""
 NEW="\$1\"${NEXT_VERSION}\""
 # Write the new -SNAPSHOT version to the versions toml file
 perl -pi -e "s/$OLD/$NEW/" $VERSION_TOML
