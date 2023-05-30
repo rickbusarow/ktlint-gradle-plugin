@@ -1,12 +1,7 @@
 [versions]
-androidTools = "7.1.0"
-antlr = "4.10.1"
 autoManifest = "2.0"
-benManes-caffeine = "3.1.1"
 benManes-versions = "0.46.0"
 buildconfig = "4.0.4"
-classgraph = "4.8.158"
-clikt = "3.5.2"
 commons-io = "2.12.0"
 dependencyAnalysis = "1.20.0"
 detekt = "1.23.0"
@@ -15,20 +10,13 @@ ktlint-gradle-plugin = "0.1.0-SNAPSHOT"
 dokka = "1.8.10"
 dropbox-dependencyGuard = "0.4.3"
 ec4j = "0.3.0"
-exhaustive = "0.2.0"
 github-release = "2.4.1"
-google-dagger = "2.46.1"
 google-guava = "31.1-jre"
 google-ksp = "1.8.21-1.0.11"
 gradle-plugin-publish = "1.2.0"
-gradleDoctor = "0.8.1"
-graphviz = "0.18.1"
-groovy = "3.0.10"
 integration-test = "1.4.5"
 jUnit = "5.9.3"
-jackson = "2.15.1"
 java-diff-utils = "4.12"
-javaParser = "3.25.3"
 jetbrains-markdown = "0.4.1"
 jmailen-kotlinter = "3.14.0"
 johnrengelman-shadow = "8.1.1"
@@ -36,16 +24,11 @@ johnrengelman-shadow = "8.1.1"
 jdk = "11"
 # the jdk used in packaging
 jvmTarget = "1.8"
-kaml = "0.53.0"
-kct = "1.5.0"
-knit = "0.4.0"
 kotest = "5.6.2"
 kotlin = "1.8.21"
 kotlinApi = "1.7"
 kotlinx-binaryCompatibility = "0.13.1"
-kotlinx-cli = "0.3.5"
 kotlinx-coroutines = "1.7.1"
-kotlinx-datetime = "0.4.0"
 kotlinx-knit = "0.4.0"
 kotlinx-serialization = "1.5.1"
 ktlint-lib = "0.49.1"
@@ -55,50 +38,33 @@ rickBusarow-ktrules = "1.1.1"
 rickBusarow-moduleCheck = "0.12.5"
 slf4j = "2.0.7"
 square-anvil = "2.4.6"
-square-javaPoet = "1.13.0"
-square-kotlinPoet = "1.13.2"
 square-moshi = "1.15.0"
-square-okio = "3.3.0"
-outfoxx-swiftPoet = "1.5.0"
-outfoxx-typescriptPoet = "1.1.2"
 taskTree = "2.1.1"
-threetenbp = "1.6.8"
 vanniktech-publish = "0.25.2"
-versionCatalogUpdate = "0.8.0"
 
 [plugins]
 
-anvil = { id = "com.squareup.anvil", version.ref = "square-anvil" }
-autoManifest = { id = "com.gradleup.auto.manifest", version.ref = "autoManifest" }
 benManes = { id = "com.github.ben-manes.versions", version.ref = "benManes-versions" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dropbox-dependencyGuard = { id = "com.dropbox.dependency-guard", version.ref = "dropbox-dependencyGuard" }
-exhaustive = { id = "app.cash.exhaustive:exhaustive-gradle", version.ref = "exhaustive" }
 github-release = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
-gradleDoctor = { id = "com.osacky.doctor", version.ref = "gradleDoctor" }
 integration-test = { id = "com.coditory.integration-test", version.ref = "integration-test" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "jmailen-kotlinter" }
 kotlinx-binaryCompatibility = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinx-binaryCompatibility" }
-kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 moduleCheck = { id = "com.rickbusarow.module-check", version.ref = "rickBusarow-moduleCheck" }
 shadowJar = { id = "com.github.johnrengelman.shadow", version.ref = "johnrengelman-shadow" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
-versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
 
 [libraries]
 benManes-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "benManes-versions" }
 
 buildconfig = { module = "com.github.gmazzo:gradle-buildconfig-plugin", version.ref = "buildconfig" }
-
-classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
-
-clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 
@@ -127,23 +93,13 @@ github-release = { module = "com.github.breadmoirai:github-release", version.ref
 google-auto-service-annotations = "com.google.auto.service:auto-service-annotations:1.0.1"
 google-auto-service-processor = "com.google.auto.service:auto-service:1.0.1"
 
-google-dagger-api = { module = "com.google.dagger:dagger", version.ref = "google-dagger" }
-google-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "google-dagger" }
-
 google-ksp = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "google-ksp" }
 
 gradle-plugin-publish = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "gradle-plugin-publish" }
 
 google-guava = { module = "com.google.guava:guava", version.ref = "google-guava" }
 
-jackson-toml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-toml", version.ref = "jackson" }
-
 java-diff-utils = { module = "io.github.java-diff-utils:java-diff-utils", version.ref = "java-diff-utils" }
-
-javaParser-core = { module = "com.github.javaparser:javaparser-core", version.ref = "javaParser" }
-javaParser-symbols = { module = "com.github.javaparser:javaparser-symbol-solver-core", version.ref = "javaParser" }
-
-javax-inject = "javax.inject:javax.inject:1"
 
 jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrains-markdown" }
 
@@ -155,10 +111,6 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jUnit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jUnit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jUnit" }
-
-kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
-
-kct = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kct" }
 
 kotest-assertions-api = { module = "io.kotest:kotest-assertions-api", version.ref = "kotest" }
 kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
@@ -182,9 +134,6 @@ kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", versi
 
 kotlinx-binaryCompatibility = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "kotlinx-binaryCompatibility" }
 
-kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli", version.ref = "kotlinx-cli" }
-
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-coreCommon = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-common", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinx-coroutines" }
@@ -192,10 +141,8 @@ kotlinx-coroutines-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-co
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
-
-kotlinx-knit = { module = "org.jetbrains.kotlinx:kotlinx-knit", version.ref = "knit" }
-kotlinx-knit-pathSaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit" }
+kotlinx-knit = { module = "org.jetbrains.kotlinx:kotlinx-knit", version.ref = "kotlinx-knit" }
+kotlinx-knit-pathSaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "kotlinx-knit" }
 
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
@@ -229,29 +176,8 @@ rickBusarow-moduleCheck-gradle-plugin = { module = "com.rickbusarow.modulecheck:
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
-square-anvil-annotations = { module = "com.squareup.anvil:annotations", version.ref = "square-anvil" }
-square-anvil-compiler-api = { module = "com.squareup.anvil:compiler-api", version.ref = "square-anvil" }
-square-anvil-compiler-core = { module = "com.squareup.anvil:compiler", version.ref = "square-anvil" }
-square-anvil-compiler-utils = { module = "com.squareup.anvil:compiler-utils", version.ref = "square-anvil" }
-square-anvil-gradle = { module = "com.squareup.anvil:gradle-plugin", version.ref = "square-anvil" }
-
-square-javaPoet = { module = "com.squareup:javapoet", version.ref = "square-javaPoet" }
-square-kotlinPoet = { module = "com.squareup:kotlinpoet", version.ref = "square-kotlinPoet" }
-
 square-moshi = { module = "com.squareup.moshi:moshi", version.ref = "square-moshi" }
 square-moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "square-moshi" }
-
-square-okio = { module = "com.squareup.okio:okio", version.ref = "square-okio" }
-square-okio-bom = { module = "com.squareup.okio:okio-bom", version.ref = "square-okio" }
-square-okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem-jvm", version.ref = "square-okio" }
-square-okio-jvm = { module = "com.squareup.okio:okio-jvm", version.ref = "square-okio" }
-
-outfoxx-swiftPoet = { module = "io.outfoxx:swiftpoet", version.ref = "outfoxx-swiftPoet" }
-outfoxx-typescriptPoet = { module = "io.outfoxx:typescriptpoet", version.ref = "outfoxx-typescriptPoet" }
-
-threetenbp = { module = "org.threeten:threetenbp", version.ref = "threetenbp" }
-
-undercouch-download = "de.undercouch:gradle-download-task:5.4.0"
 
 vanniktech-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-publish" }
 

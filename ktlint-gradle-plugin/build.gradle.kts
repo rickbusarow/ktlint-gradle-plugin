@@ -152,14 +152,8 @@ fun DependencyHandlerScope.worker(dependencyNotation: Any) {
 dependencies {
 
   compileOnly(gradleApi())
-  compileOnly(libs.kotlin.gradle.plugin.api)
 
-  worker(libs.ec4j.core)
-  worker(libs.kotlinx.coroutines.core)
-  worker(libs.ktlint.cli.ruleset.core)
-  worker(libs.ktlint.ruleset.standard)
-  worker(libs.ktlint.rule.engine)
-  worker(libs.ktlint.rule.engine.core)
+  compileOnly(libs.kotlin.gradle.plugin.api)
 
   testImplementation(libs.jetbrains.markdown)
   testImplementation(libs.junit.engine)
@@ -175,6 +169,13 @@ dependencies {
   testImplementation(libs.kotlinx.coroutines.core)
   testImplementation(libs.kotlinx.serialization.core)
   testImplementation(libs.kotlinx.serialization.json)
-  testImplementation(libs.ktlint.test)
   testImplementation(libs.ktlint.ruleset.standard)
+  testImplementation(libs.ktlint.test)
+
+  worker(libs.ec4j.core)
+  worker(libs.kotlinx.coroutines.core)
+  worker(libs.ktlint.cli.ruleset.core)
+  worker(libs.ktlint.rule.engine)
+  worker(libs.ktlint.rule.engine.core)
+  worker(libs.ktlint.ruleset.standard)
 }

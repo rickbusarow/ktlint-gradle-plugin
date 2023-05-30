@@ -104,7 +104,7 @@ progress "Publish Maven release"
 ./gradlew publish --no-configuration-cache
 
 # Publish to Gradle Plugin Portal
-# progress "Publish to Gradle Plugin Portal"
+progress "Publish to Gradle Plugin Portal"
 ./gradlew publishPlugins --no-configuration-cache
 
 # Create the "Releasing ______" commit and a new tag for the current `VERSION_NAME`

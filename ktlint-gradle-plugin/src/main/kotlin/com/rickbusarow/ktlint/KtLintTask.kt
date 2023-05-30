@@ -15,20 +15,16 @@
 
 package com.rickbusarow.ktlint
 
-import com.rickbusarow.ktlint.KtLintEngineWrapper.ReportedResult.Companion.block
-import com.rickbusarow.ktlint.internal.createSafely
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
@@ -36,17 +32,19 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
-import org.gradle.workers.WorkAction
-import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import java.io.File
 import javax.inject.Inject
-import org.gradle.api.logging.Logging as GradleLogging
 
 /** */
-abstract class KtlintTask(
+@Suppress("UnnecessaryAbstractClass")
+abstract class KtLintTask(
   private val workerExecutor: WorkerExecutor,
-  private val autoCorrect: Boolean
+  /**
+   * If `true`, the task will run KtLint's "format" functionality (`--format` or `-F` in the
+   * CLI). Otherwise, the task will run it in "lint" mode and fail if there are any errors.
+   */
+  @get:Input
+  val autoCorrect: Boolean
 ) : DefaultTask() {
 
   init {
@@ -94,6 +92,9 @@ abstract class KtlintTask(
   @get:OutputDirectory
   internal abstract val sourceFilesShadow: DirectoryProperty
 
+  @get:Internal
+  internal abstract val rootDir: DirectoryProperty
+
   @TaskAction
   fun execute(inputChanges: InputChanges) {
 
@@ -111,77 +112,22 @@ abstract class KtlintTask(
       it.classpath.setFrom(ktlintClasspath)
     }
 
-    workQueue.submit(KtLintWorker::class.java) { params ->
+    workQueue.submit(KtLintWorkAction::class.java) { params ->
       params.editorConfig.fileValue(editorConfig.orNull?.asFile)
       params.sourceFiles.set(fileChanges)
       params.autoCorrect.set(autoCorrect)
+      params.rootDir.set(rootDir)
 
       params.sourceFilesShadow.set(sourceFilesShadow)
-    }
-  }
-
-  /** */
-  interface KtLintWorkParameters : WorkParameters {
-
-    /** */
-    val autoCorrect: Property<Boolean>
-
-    /** */
-    val sourceFiles: ListProperty<File>
-
-    /** */
-    val editorConfig: RegularFileProperty
-
-    /** */
-    val sourceFilesShadow: DirectoryProperty
-  }
-
-  /** */
-  abstract class KtLintWorker @Inject constructor(
-    private val of: ObjectFactory
-  ) : WorkAction<KtLintWorkParameters> {
-    override fun execute() {
-
-      val logger: Logger = GradleLogging.getLogger("ktlint logger Gradle")
-
-      val engine = KtLintEngineWrapper(
-        editorConfigPath = parameters.editorConfig.orNull?.asFile,
-        autoCorrect = parameters.autoCorrect.get()
-      )
-
-      val shadow = parameters.sourceFilesShadow.get().asFile
-
-      val formatResults = engine.execute(parameters.sourceFiles.get())
-
-      for (result in formatResults) {
-
-        val file = result.file
-
-        val relative = file.relativeTo(shadow)
-          .normalize()
-          .path
-          .removePrefix(shadow.path)
-          .split(File.separator)
-          .dropWhile { it == ".." && it.isNotBlank() }
-          .joinToString(File.separator)
-          .replace(file.extension, "txt")
-
-        shadow.resolve(relative)
-          .createSafely(result.hashCode().toString())
-      }
-
-      if (formatResults.isNotEmpty()) {
-        logger.lifecycle(formatResults.block())
-      }
     }
   }
 }
 
 /** */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KtlintFormatTask @Inject constructor(
+abstract class KtLintFormatTask @Inject constructor(
   workerExecutor: WorkerExecutor
-) : KtlintTask(workerExecutor, autoCorrect = true) {
+) : KtLintTask(workerExecutor, autoCorrect = true) {
   init {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Checks Kotlin code for correctness and fixes what it can"
@@ -189,9 +135,9 @@ abstract class KtlintFormatTask @Inject constructor(
 }
 
 /** */
-abstract class KtlintCheckTask @Inject constructor(
+abstract class KtLintCheckTask @Inject constructor(
   workerExecutor: WorkerExecutor
-) : KtlintTask(workerExecutor, autoCorrect = false) {
+) : KtLintTask(workerExecutor, autoCorrect = false) {
 
   init {
     group = JavaBasePlugin.VERIFICATION_GROUP

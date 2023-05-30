@@ -15,9 +15,12 @@
 
 package com.rickbusarow.ktlint
 
-import com.rickbusarow.ktlint.KtLintEngineWrapper.ReportedResult.Companion.block
+import com.rickbusarow.ktlint.internal.KtLintResult
+import com.rickbusarow.ktlint.internal.KtLintResultList
 import com.rickbusarow.ktlint.internal.createSafely
+import com.rickbusarow.ktlint.internal.existsOrNull
 import com.rickbusarow.ktlint.internal.suffixIfNot
+import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -26,7 +29,7 @@ import java.io.File
 internal class KtLintEngineWrapperTest {
 
   @Test
-  fun `canary test`() = test {
+  fun `check fails for a fixable error`() = test {
 
     kotlin(
       "Subject.kt",
@@ -37,10 +40,40 @@ internal class KtLintEngineWrapperTest {
       """.trimIndent()
     )
 
-    format()
-      .block()
-      // TODO <Rick> delete me
-      .also(::println)
+    check() shouldBe listOf(
+      KtLintResult(
+        fixed = false,
+        file = workingDir.resolve("Subject.kt"),
+        line = 3,
+        col = 15,
+        detail = """Unnecessary block ("{}")""",
+        ruleId = "standard:no-empty-class-body"
+      )
+    )
+  }
+
+  @Test
+  fun `format fixes a fixable error`() = test {
+
+    kotlin(
+      "Subject.kt",
+      """
+      package com.test
+
+      class Subject { }
+      """.trimIndent()
+    )
+
+    format() shouldBe listOf(
+      KtLintResult(
+        fixed = true,
+        file = workingDir.resolve("Subject.kt"),
+        line = 3,
+        col = 15,
+        detail = """Unnecessary block ("{}")""",
+        ruleId = "standard:no-empty-class-body"
+      )
+    )
   }
 
   inline fun test(action: TestEnvironment.() -> Unit) {
@@ -57,7 +90,7 @@ internal class KtLintEngineWrapperTest {
     ): File = workingDir.resolve(path)
       .createSafely(
         content.trimIndent()
-          .suffixIfNot("\n\n")
+          .suffixIfNot("\n")
       )
 
     fun editorconfig(
@@ -66,11 +99,24 @@ internal class KtLintEngineWrapperTest {
     ): File = workingDir.resolve(path)
       .createSafely(content.trimIndent().suffixIfNot("\n\n"))
 
-    fun format(
-      editorConfigPath: File? = workingDir.resolve(".editorconfig"),
+    fun check(
+      editorConfigPath: File? = workingDir.resolve(".editorconfig").existsOrNull(),
       files: List<File> = workingDir.walkBottomUp()
         .filter { it.isFile && it.extension in setOf("kt", "kts") }
         .toList()
-    ) = KtLintEngineWrapper(editorConfigPath, true).execute(files)
+    ): KtLintResultList {
+      return KtLintEngineWrapper(editorConfigPath, autoCorrect = false).execute(files)
+        .also { println(it.block(root = workingDir, maxDetailWidth = 60)) }
+    }
+
+    fun format(
+      editorConfigPath: File? = workingDir.resolve(".editorconfig").existsOrNull(),
+      files: List<File> = workingDir.walkBottomUp()
+        .filter { it.isFile && it.extension in setOf("kt", "kts") }
+        .toList()
+    ): KtLintResultList {
+      return KtLintEngineWrapper(editorConfigPath, autoCorrect = true).execute(files)
+        .also { println(it.block(root = workingDir, maxDetailWidth = 60)) }
+    }
   }
 }

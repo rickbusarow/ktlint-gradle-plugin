@@ -90,7 +90,6 @@ dependencies {
   implementation(libs.dokka.versioning)
   implementation(libs.dropbox.dependencyGuard)
   implementation(libs.google.auto.service.annotations)
-  implementation(libs.google.dagger.api)
   implementation(libs.google.ksp)
   implementation(libs.gradle.plugin.publish)
   implementation(libs.jetbrains.markdown)
@@ -107,8 +106,6 @@ dependencies {
   implementation(libs.kotlinx.serialization.json.jvm)
   implementation(libs.kotlinx.serialization.protobuf)
   implementation(libs.rickBusarow.moduleCheck.gradle.plugin)
-  implementation(libs.square.kotlinPoet)
-  implementation(libs.undercouch.download)
   implementation(libs.vanniktech.publish)
 
   ksp(libs.square.moshi.codegen)

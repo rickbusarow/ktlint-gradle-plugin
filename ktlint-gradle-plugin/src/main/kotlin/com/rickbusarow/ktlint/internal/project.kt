@@ -15,7 +15,6 @@
 
 package com.rickbusarow.ktlint.internal
 
-import org.gradle.api.Project
 import org.gradle.api.internal.GradleInternal
 
 /**
@@ -24,7 +23,7 @@ import org.gradle.api.internal.GradleInternal
  *
  * @see isRootProject to check if the project is the root of any build in a composite build
  */
-internal fun Project.isRealRootProject(): Boolean {
+internal fun GradleProject.isRealRootProject(): Boolean {
   return (gradle as GradleInternal).isRootBuild && this == rootProject
 }
 
@@ -35,4 +34,4 @@ internal fun Project.isRealRootProject(): Boolean {
  *
  * @see isRealRootProject to check if the project is the ultimate root of a composite build
  */
-internal fun Project.isRootProject() = this == rootProject
+internal fun GradleProject.isRootProject() = this == rootProject

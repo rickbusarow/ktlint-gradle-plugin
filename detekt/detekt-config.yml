@@ -772,13 +772,16 @@ style:
         value: "FIXME:"
       - reason: "Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code."
         value: "STOPSHIP:"
-      - reason: "Forbidden TODO todo marker in comment, please do the changes."
-        value: "TODO:"
     allowedPatterns: ""
   ForbiddenImport:
     active: true
     imports:
       - "com.android.build.*"
+      - "org.gradle.api.Project"
+      - "org.gradle.api.artifacts.Configuration"
+      - "org.gradle.api.logging.Logger"
+      - "org.gradle.api.logging.Logging"
+      - "org.gradle.api.provider.Provider"
     forbiddenPatterns: ""
     excludes: ["**/build-logic/**"]
   ForbiddenMethodCall:

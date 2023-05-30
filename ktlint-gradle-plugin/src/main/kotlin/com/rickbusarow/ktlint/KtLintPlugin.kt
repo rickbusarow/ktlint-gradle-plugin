@@ -15,6 +15,9 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.internal.GradleConfiguration
+import com.rickbusarow.ktlint.internal.GradleProject
+import com.rickbusarow.ktlint.internal.GradleProvider
 import com.rickbusarow.ktlint.internal.addAsDependencyTo
 import com.rickbusarow.ktlint.internal.capitalize
 import com.rickbusarow.ktlint.internal.dependsOn
@@ -24,24 +27,21 @@ import com.rickbusarow.ktlint.internal.registerOnce
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 /** */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KtLintPlugin : Plugin<Project> {
-  override fun apply(target: Project) {
+abstract class KtLintPlugin : Plugin<GradleProject> {
+  override fun apply(target: GradleProject) {
 
-    val rulesetConfig: NamedDomainObjectProvider<Configuration> = target.configurations
+    val rulesetConfig: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
       .register("ktlint")
 
-    val configProvider: NamedDomainObjectProvider<Configuration> = target.configurations
+    val configProvider: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
       .register("ktlintAllDependencies") {
         it.extendsFrom(rulesetConfig.get())
       }
@@ -75,9 +75,9 @@ abstract class KtLintPlugin : Plugin<Project> {
   }
 
   private fun registerKotlinTasks(
-    target: Project,
+    target: GradleProject,
     editorConfigFile: Lazy<File?>,
-    configProvider: NamedDomainObjectProvider<Configuration>?
+    configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ) {
 
     val kotlinExtension = try {
@@ -125,31 +125,32 @@ abstract class KtLintPlugin : Plugin<Project> {
   }
 
   private fun registerFormatCheckPair(
-    target: Project,
+    target: GradleProject,
     taskNameSuffix: String,
-    sourceFileShadowDirectory: Provider<Directory>,
-    sourceDirectorySet: Provider<FileCollection>?,
+    sourceFileShadowDirectory: GradleProvider<Directory>,
+    sourceDirectorySet: GradleProvider<FileCollection>?,
     editorConfigFile: Lazy<File?>,
-    configProvider: NamedDomainObjectProvider<Configuration>?
-  ): Pair<TaskProvider<KtlintFormatTask>, TaskProvider<KtlintCheckTask>> {
+    configProvider: NamedDomainObjectProvider<GradleConfiguration>?
+  ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {
 
     val formatTaskName = "ktlintFormat${taskNameSuffix.capitalize()}"
 
     val formatTask =
-      target.tasks.registerOnce(formatTaskName, KtlintFormatTask::class.java) { task ->
+      target.tasks.registerOnce(formatTaskName, KtLintFormatTask::class.java) { task ->
 
         task.sourceFiles.from(sourceDirectorySet)
 
         task.ktlintClasspath.setFrom(configProvider)
 
         task.sourceFilesShadow.set(sourceFileShadowDirectory)
+        task.rootDir.set(target.rootProject.layout.projectDirectory)
         task.editorConfig.fileValue(editorConfigFile.value)
       }
         .addAsDependencyTo(target.tasks.matchingName("fix"))
 
     val checkTaskName = "ktlintCheck${taskNameSuffix.capitalize()}"
 
-    val lintTask = target.tasks.registerOnce(checkTaskName, KtlintCheckTask::class.java) { task ->
+    val lintTask = target.tasks.registerOnce(checkTaskName, KtLintCheckTask::class.java) { task ->
 
       task.sourceFiles.from(sourceDirectorySet)
 
@@ -159,6 +160,7 @@ abstract class KtLintPlugin : Plugin<Project> {
       task.mustRunAfter(formatTask)
 
       task.sourceFilesShadow.set(sourceFileShadowDirectory)
+      task.rootDir.set(target.rootProject.layout.projectDirectory)
       task.editorConfig.fileValue(editorConfigFile.value)
     }
       .addAsDependencyTo(target.tasks.matchingName("check"))
@@ -166,8 +168,8 @@ abstract class KtLintPlugin : Plugin<Project> {
     return formatTask to lintTask
   }
 
-  private fun Project.registerSyncRuleSetJars(
-    configProvider: NamedDomainObjectProvider<Configuration>
+  private fun GradleProject.registerSyncRuleSetJars(
+    configProvider: NamedDomainObjectProvider<GradleConfiguration>
   ) {
     tasks.register("syncRuleSetJars", KtLintSyncRuleSetJarTask::class.java) { sync ->
 
@@ -201,7 +203,7 @@ abstract class KtLintPlugin : Plugin<Project> {
       .addAsDependencyTo(tasks.named("prepareKotlinBuildScriptModel"))
   }
 
-  private fun Project.sourceFileShadowDirectory(
+  private fun GradleProject.sourceFileShadowDirectory(
     sourceSetName: String
-  ): Provider<Directory> = layout.buildDirectory.dir("outputs/ktlint/$sourceSetName")
+  ): GradleProvider<Directory> = layout.buildDirectory.dir("outputs/ktlint/$sourceSetName")
 }

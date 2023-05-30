@@ -1,3 +1,11 @@
+public abstract class com/rickbusarow/ktlint/KtLintCheckTask : com/rickbusarow/ktlint/KtLintTask {
+	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
+}
+
+public abstract class com/rickbusarow/ktlint/KtLintFormatTask : com/rickbusarow/ktlint/KtLintTask {
+	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
+}
+
 public abstract class com/rickbusarow/ktlint/KtLintPlugin : org/gradle/api/Plugin {
 	public fun <init> ()V
 	public synthetic fun apply (Ljava/lang/Object;)V
@@ -11,32 +19,30 @@ public abstract class com/rickbusarow/ktlint/KtLintSyncRuleSetJarTask : org/grad
 	public abstract fun getXmlFile ()Lorg/gradle/api/file/RegularFileProperty;
 }
 
-public abstract class com/rickbusarow/ktlint/KtlintCheckTask : com/rickbusarow/ktlint/KtlintTask {
-	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
-}
-
-public abstract class com/rickbusarow/ktlint/KtlintFormatTask : com/rickbusarow/ktlint/KtlintTask {
-	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
-}
-
-public abstract class com/rickbusarow/ktlint/KtlintTask : org/gradle/api/DefaultTask {
+public abstract class com/rickbusarow/ktlint/KtLintTask : org/gradle/api/DefaultTask {
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;Z)V
 	public final fun execute (Lorg/gradle/work/InputChanges;)V
+	public final fun getAutoCorrect ()Z
 	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
 	public abstract fun getKtlintClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public abstract fun getSourceFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
 }
 
-public abstract interface class com/rickbusarow/ktlint/KtlintTask$KtLintWorkParameters : org/gradle/workers/WorkParameters {
-	public abstract fun getAutoCorrect ()Lorg/gradle/api/provider/Property;
-	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
-	public abstract fun getSourceFiles ()Lorg/gradle/api/provider/ListProperty;
-	public abstract fun getSourceFilesShadow ()Lorg/gradle/api/file/DirectoryProperty;
-}
-
-public abstract class com/rickbusarow/ktlint/KtlintTask$KtLintWorker : org/gradle/workers/WorkAction {
+public abstract class com/rickbusarow/ktlint/KtLintWorkAction : org/gradle/workers/WorkAction {
+	public static final field Companion Lcom/rickbusarow/ktlint/KtLintWorkAction$Companion;
 	public fun <init> ()V
 	public fun execute ()V
+}
+
+public final class com/rickbusarow/ktlint/KtLintWorkAction$Companion {
+}
+
+public abstract interface class com/rickbusarow/ktlint/KtLintWorkAction$KtLintWorkParameters : org/gradle/workers/WorkParameters {
+	public abstract fun getAutoCorrect ()Lorg/gradle/api/provider/Property;
+	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getRootDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getSourceFiles ()Lorg/gradle/api/provider/ListProperty;
+	public abstract fun getSourceFilesShadow ()Lorg/gradle/api/file/DirectoryProperty;
 }
 
 public final class com/rickbusarow/ktlint/internal/TaskKt$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
