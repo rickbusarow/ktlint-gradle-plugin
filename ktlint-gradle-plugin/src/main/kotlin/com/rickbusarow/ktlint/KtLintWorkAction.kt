@@ -1,0 +1,106 @@
+/*
+ * Copyright (C) 2023 Rick Busarow
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.rickbusarow.ktlint
+
+import com.rickbusarow.ktlint.internal.GradleLogger
+import com.rickbusarow.ktlint.internal.GradleLogging
+import com.rickbusarow.ktlint.internal.GradleProperty
+import com.rickbusarow.ktlint.internal.createSafely
+import org.gradle.api.GradleException
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
+import java.io.File
+
+/** */
+abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParameters> {
+  override fun execute() {
+
+    val logger: GradleLogger = GradleLogging.getLogger("ktlint logger Gradle")
+
+    val engine = KtLintEngineWrapper(
+      editorConfigPath = parameters.editorConfig.orNull?.asFile,
+      autoCorrect = parameters.autoCorrect.get()
+    )
+
+    val results = engine.execute(parameters.sourceFiles.get())
+
+    if (parameters.autoCorrect.get()) {
+      parameters.sourceFilesShadow.orNull?.asFile?.let { shadow ->
+
+        for (result in results) {
+
+          val file = result.file
+
+          val relative = file.relativeTo(shadow)
+            .normalize()
+            .path
+            .removePrefix(shadow.path)
+            .split(File.separator)
+            .dropWhile { it == ".." && it.isNotBlank() }
+            .joinToString(File.separator)
+            .replace(file.extension, "txt")
+
+          shadow.resolve(relative)
+            .createSafely(result.hashCode().toString())
+        }
+      }
+    }
+
+    if (results.isNotEmpty()) {
+      logger.lifecycle(
+        results.block(
+          root = parameters.rootDir.get().asFile,
+          maxDetailWidth = MAX_DETAIL_COLUMN_WIDTH
+        )
+      )
+
+      val errors = results.filter { !it.fixed }
+
+      if (errors.isNotEmpty()) {
+
+        throw GradleException(
+          "Ktlint format finished with ${errors.size} errors which were not fixed.  " +
+            "Check log for details."
+        )
+      }
+    }
+  }
+
+  /** */
+  interface KtLintWorkParameters : WorkParameters {
+    /** */
+    val autoCorrect: GradleProperty<Boolean>
+
+    /** */
+    val sourceFiles: ListProperty<File>
+
+    /** */
+    val editorConfig: RegularFileProperty
+
+    /** */
+    val sourceFilesShadow: DirectoryProperty
+
+    /** */
+    val rootDir: DirectoryProperty
+  }
+
+  companion object {
+    private const val MAX_DETAIL_COLUMN_WIDTH = 60
+  }
+}
