@@ -61,10 +61,7 @@ fun Project.editorConfigKotlinProperties(): Map<String, String> {
  * where keys are the property name and the value is the trimmed text to
  * the right of the '='. Note that every value is a String, including.
  */
-fun editorConfigKotlinProperties(
-  editorConfigFile: File,
-  rootDir: File
-): Map<String, String> {
+fun editorConfigKotlinProperties(editorConfigFile: File, rootDir: File): Map<String, String> {
 
   val myCache = Caches.none()
   val propService = ResourcePropertiesService.builder()

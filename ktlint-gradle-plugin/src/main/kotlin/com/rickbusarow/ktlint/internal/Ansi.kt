@@ -30,11 +30,7 @@ internal sealed interface Ansi {
 
     fun String.noAnsi(): String = "$ESCAPE\\[[;\\d]*m".toRegex().replace(this, "")
 
-    fun String.ansi(
-      vararg codes: Ansi,
-      padStart: Int? = null,
-      padEnd: Int? = null
-    ): String {
+    fun String.ansi(vararg codes: Ansi, padStart: Int? = null, padEnd: Int? = null): String {
 
       fun Int?.plusAnsiLength(): Int = requireNotNull(this).letIf(supportsAnsi) {
         var totalLength = this

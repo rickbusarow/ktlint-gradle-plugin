@@ -233,11 +233,7 @@ internal class KtLintResultBlockTest {
     }
   }
 
-  private fun block(
-    result: KtLintResult,
-    maxDetailWidth: Int,
-    root: File = File("root")
-  ): String {
+  private fun block(result: KtLintResult, maxDetailWidth: Int, root: File = File("root")): String {
     return KtLintResultList(result)
       .block(root = root, maxDetailWidth = maxDetailWidth)
       .also(::println)

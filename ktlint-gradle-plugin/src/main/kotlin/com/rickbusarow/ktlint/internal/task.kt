@@ -23,9 +23,8 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 
 /** code golf for `matching { it.name == taskName }` */
-internal fun TaskContainer.matchingName(
-  taskName: String
-): TaskCollection<Task> = matching { it.name == taskName }
+internal fun TaskContainer.matchingName(taskName: String): TaskCollection<Task> =
+  matching { it.name == taskName }
 
 /**
  * adds all [objects] as dependencies to every task in the collection, inside a `configureEach { }`
@@ -46,14 +45,18 @@ internal fun <T : Task> TaskProvider<T>.dependsOn(vararg objects: Any): TaskProv
 }
 
 /** makes the receiver task a dependency of the [dependentTask] parameter. */
-internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTask: TaskProvider<*>): TaskProvider<T> {
+internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(
+  dependentTask: TaskProvider<*>
+): TaskProvider<T> {
   return also { receiver ->
     dependentTask.dependsOn(receiver)
   }
 }
 
 /** makes the receiver task a dependency of the tasks in the [dependentTasks] collection. */
-internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTasks: TaskCollection<*>): TaskProvider<T> {
+internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(
+  dependentTasks: TaskCollection<*>
+): TaskProvider<T> {
   return also { receiver ->
     dependentTasks.dependOn(receiver)
   }

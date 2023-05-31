@@ -23,10 +23,7 @@ import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 
-fun TaskContainer.maybeNamed(
-  taskName: String,
-  configuration: Task.() -> Unit
-) {
+fun TaskContainer.maybeNamed(taskName: String, configuration: Task.() -> Unit) {
 
   if (names.contains(taskName)) {
     named(taskName, configuration)
@@ -38,9 +35,8 @@ fun TaskContainer.maybeNamed(
 }
 
 /** code golf for `matching { it.name == taskName }` */
-fun TaskContainer.matchingName(
-  taskName: String
-): TaskCollection<Task> = matching { it.name == taskName }
+fun TaskContainer.matchingName(taskName: String): TaskCollection<Task> =
+  matching { it.name == taskName }
 
 /** code golf for `withType<T>().matching { it.name == taskName }` */
 inline fun <reified T : Task> TaskContainer.matchingNameWithType(
@@ -68,7 +64,9 @@ fun Project.allProjectsTasksMatchingName(taskName: String): List<TaskCollection<
  *
  * @throws IllegalStateException if the project is not the root project
  */
-inline fun <reified T : Task> Project.allProjectsTasksMatchingNameWithType(taskName: String): List<TaskCollection<T>> {
+inline fun <reified T : Task> Project.allProjectsTasksMatchingNameWithType(
+  taskName: String
+): List<TaskCollection<T>> {
   checkProjectIsRoot { "only call `allProjectsTasksMatchingName(...)` from the root project." }
   return allprojects
     .map { proj -> proj.tasks.matchingNameWithType(taskName) }
@@ -86,7 +84,9 @@ fun Project.subProjectsTasksMatchingName(taskName: String): List<TaskCollection<
  * Finds all tasks named [taskName] in this project's subprojects.
  * Does not throw if there are no tasks with that name.
  */
-inline fun <reified T : Task> Project.subProjectsTasksMatchingNameWithType(taskName: String): List<TaskCollection<T>> {
+inline fun <reified T : Task> Project.subProjectsTasksMatchingNameWithType(
+  taskName: String
+): List<TaskCollection<T>> {
   return subprojects
     .map { proj -> proj.tasks.matchingNameWithType(taskName) }
 }

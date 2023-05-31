@@ -190,9 +190,7 @@ open class ArtifactsCheckTask @Inject constructor(
     }
   }
 
-  private fun StringBuilder.maybeAddMissingArtifactMessages(
-    missing: List<ArtifactConfig>
-  ) = apply {
+  private fun StringBuilder.maybeAddMissingArtifactMessages(missing: List<ArtifactConfig>) = apply {
 
     if (missing.isNotEmpty()) {
       val isAre = if (missing.size == 1) "is" else "are"
@@ -208,28 +206,23 @@ open class ArtifactsCheckTask @Inject constructor(
     }
   }
 
-  private fun StringBuilder.maybeAddExtraArtifactMessages(
-    extraFromCurrent: List<ArtifactConfig>
-  ) = apply {
+  private fun StringBuilder.maybeAddExtraArtifactMessages(extraFromCurrent: List<ArtifactConfig>) =
+    apply {
 
-    if (extraFromCurrent.isNotEmpty()) {
-      appendLine("\t${pluralsString(extraFromCurrent.size)} new:\n")
-      extraFromCurrent.forEach {
-        appendLine(it.message())
-        appendLine()
+      if (extraFromCurrent.isNotEmpty()) {
+        appendLine("\t${pluralsString(extraFromCurrent.size)} new:\n")
+        extraFromCurrent.forEach {
+          appendLine(it.message())
+          appendLine()
+        }
       }
     }
-  }
 
   private fun StringBuilder.maybeAddChangedValueMessages(
     changed: List<Pair<ArtifactConfig, ArtifactConfig>>
   ): StringBuilder = apply {
 
-    fun appendDiff(
-      propertyName: String,
-      old: String,
-      new: String
-    ) {
+    fun appendDiff(propertyName: String, old: String, new: String) {
       appendLine("\t\t\told $propertyName - $old")
       appendLine("\t\t\tnew $propertyName - $new")
     }

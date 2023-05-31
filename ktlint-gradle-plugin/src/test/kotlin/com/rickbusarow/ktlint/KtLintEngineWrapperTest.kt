@@ -84,10 +84,7 @@ internal class KtLintEngineWrapperTest {
 
     val workingDir: File by lazy { kotlin.io.path.createTempDirectory().toFile() }
 
-    fun kotlin(
-      path: String,
-      @Language("kotlin") content: String
-    ): File = workingDir.resolve(path)
+    fun kotlin(path: String, @Language("kotlin") content: String): File = workingDir.resolve(path)
       .createSafely(
         content.trimIndent()
           .suffixIfNot("\n")
