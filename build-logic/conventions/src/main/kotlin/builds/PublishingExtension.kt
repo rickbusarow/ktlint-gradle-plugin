@@ -97,9 +97,10 @@ private fun Project.configurePublishPlugin(
       extensions.configure(GradlePluginDevelopmentExtension::class.java) { pluginDevelopmentExtension ->
 
         @Suppress("UnstableApiUsage")
-        pluginDevelopmentExtension.website.set("https://www.github.com/rbusarow/ktlint")
+        pluginDevelopmentExtension.website.set("https://github.com/rbusarow/ktlint-gradle-plugin")
         @Suppress("UnstableApiUsage")
-        pluginDevelopmentExtension.vcsUrl.set("https://www.github.com/rbusarow/ktlint.git")
+        pluginDevelopmentExtension.vcsUrl
+          .set("https://github.com/rbusarow/ktlint-gradle-plugin.git")
       }
     }
   }
@@ -184,11 +185,12 @@ private fun Project.configurePublish(
     }
 
     extensions.configure(PublishingExtension::class.java) { publishingExtension ->
-      publishingExtension.publications.withType(MavenPublication::class.java).configureEach { publication ->
-        publication.artifactId = artifactId
-        publication.pom.description.set(pomDescription)
-        publication.groupId = groupId
-      }
+      publishingExtension.publications.withType(MavenPublication::class.java)
+        .configureEach { publication ->
+          publication.artifactId = artifactId
+          publication.pom.description.set(pomDescription)
+          publication.groupId = groupId
+        }
     }
   }
 

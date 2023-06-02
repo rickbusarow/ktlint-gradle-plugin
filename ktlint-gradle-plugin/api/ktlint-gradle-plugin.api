@@ -45,6 +45,21 @@ public abstract interface class com/rickbusarow/ktlint/KtLintWorkAction$KtLintWo
 	public abstract fun getSourceFilesShadow ()Lorg/gradle/api/file/DirectoryProperty;
 }
 
+public final class com/rickbusarow/ktlint/internal/ApplyKt {
+	public static final fun requireNotNull (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/rickbusarow/ktlint/internal/FileKt {
+	public static final fun div (Ljava/io/File;Ljava/lang/String;)Ljava/io/File;
+	public static final fun parents (Ljava/io/File;)Lkotlin/sequences/Sequence;
+	public static final fun segments (Ljava/io/File;)Ljava/util/List;
+}
+
+public final class com/rickbusarow/ktlint/internal/StringKt {
+	public static final fun remove (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
+	public static final fun remove (Ljava/lang/String;[Lkotlin/text/Regex;)Ljava/lang/String;
+}
+
 public final class com/rickbusarow/ktlint/internal/TaskKt$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
 	public fun <init> (Lkotlin/jvm/functions/Function1;)V
 	public final synthetic fun execute (Ljava/lang/Object;)V

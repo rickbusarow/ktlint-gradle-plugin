@@ -33,3 +33,16 @@ internal inline fun <T : Any> T?.requireNotNull(lazyMessage: () -> Any): T {
   }
   return requireNotNull(this, lazyMessage)
 }
+
+/**
+ * shorthand for `requireNotNull(this)`
+ *
+ * @throws IllegalArgumentException if receiver is null
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T : Any> T?.requireNotNull(): T {
+  contract {
+    returns() implies (this@requireNotNull != null)
+  }
+  return requireNotNull(this)
+}

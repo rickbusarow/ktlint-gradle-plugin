@@ -97,11 +97,45 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         target = target,
         taskNameSuffix = sourceSetName.capitalize(),
         sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
-        sourceDirectorySet = kotlinExtension.sourceSets.named(sourceSetName).map { it.kotlin },
+        sourceDirectorySet = kotlinExtension.sourceSets.named(sourceSetName)
+          .map { sourceSet ->
+            sourceSet.kotlin.minus(target.fileTree(target.buildDir))
+          },
         editorConfigFile = editorConfigFile,
         configProvider = configProvider
       )
-    }
+    }.plus(
+      registerFormatCheckPair(
+        target = target,
+        taskNameSuffix = "GradleScripts",
+        sourceFileShadowDirectory = target.sourceFileShadowDirectory("gradleScripts"),
+        sourceDirectorySet = target.provider {
+          target.fileTree(target.projectDir) { fileTree ->
+            fileTree.exclude("build/**")
+            fileTree.exclude("**/src/**")
+
+            fileTree.exclude(
+              target.subprojects
+                .map { it.projectDir.relativeTo(target.projectDir).path + "/**" }
+            )
+            fileTree.exclude(
+              target.gradle
+                .includedBuilds.map { it.projectDir.relativeTo(target.projectDir).path + "/**" }
+            )
+
+            fileTree.exclude(
+              kotlinExtension.sourceSets
+                .flatMap { it.kotlin.srcDirs }
+                .map { it.path }
+            )
+
+            fileTree.include("**/*.gradle.kts")
+          }
+        },
+        editorConfigFile = editorConfigFile,
+        configProvider = configProvider
+      )
+    )
 
     val formatTasks = pairs.map { it.first }
     val lintTasks = pairs.map { it.second }

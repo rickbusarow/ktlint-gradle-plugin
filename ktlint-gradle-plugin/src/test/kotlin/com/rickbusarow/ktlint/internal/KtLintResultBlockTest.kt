@@ -17,6 +17,7 @@ package com.rickbusarow.ktlint.internal
 
 import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
 import io.kotest.matchers.shouldBe
+import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -68,7 +69,7 @@ internal class KtLintResultBlockTest {
       |
     """.trimMargin()
 
-    results.block(File("root"), 60).noAnsi() shouldBe expected
+    block(results, maxDetailWidth = 60) shouldBe expected
   }
 
   @Nested
@@ -242,5 +243,18 @@ internal class KtLintResultBlockTest {
       .block(root = root, maxDetailWidth = maxDetailWidth)
       .also(::println)
       .noAnsi()
+      .replace(File.separator, "/")
+  }
+
+  private fun block(
+    results: List<KtLintResult>,
+    maxDetailWidth: Int,
+    root: File = File("root")
+  ): String {
+    return KtLintResultList(results)
+      .block(root = root, maxDetailWidth = maxDetailWidth)
+      .also(::println)
+      .noAnsi()
+      .replace(File.separator, "/")
   }
 }

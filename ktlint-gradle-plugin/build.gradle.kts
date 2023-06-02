@@ -88,9 +88,12 @@ buildConfig {
     packageName(builds.GROUP)
     className("BuildConfig")
 
+    buildConfigField("String", "gradleVersion", "\"${gradle.gradleVersion}\"")
+    buildConfigField("String", "gradleUserHomeDir", "\"${gradle.gradleUserHomeDir}\"")
+    buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
+    buildConfigField("String", "ktlintVersion", "\"${libs.versions.ktlint.lib.get()}\"")
     buildConfigField("String", "pluginId", "\"$pluginId\"")
     buildConfigField("String", "version", "\"${VERSION_NAME}\"")
-    buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
   }
 }
 
