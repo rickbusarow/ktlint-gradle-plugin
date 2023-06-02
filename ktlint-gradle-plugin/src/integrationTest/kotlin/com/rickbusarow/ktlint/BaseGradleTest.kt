@@ -19,8 +19,12 @@
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.ktlint.internal.createSafely
+import com.rickbusarow.ktlint.internal.div
 import com.rickbusarow.ktlint.internal.letIf
 import com.rickbusarow.ktlint.internal.suffixIfNot
+import com.rickbusarow.ktlint.testing.HasWorkingDir
+import com.rickbusarow.ktlint.testing.HasWorkingDir.Companion.testStackTraceElement
+import com.rickbusarow.ktlint.testing.SkipInStackTrace
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldNotBe
 import org.gradle.testkit.runner.BuildResult
@@ -34,9 +38,9 @@ import java.io.File
 @Execution(SAME_THREAD)
 internal interface BaseGradleTest {
 
-  open class GradleTestEnvironment {
-
-    val workingDir: File by lazy { kotlin.io.path.createTempDirectory().toFile() }
+  open class GradleTestEnvironment(
+    testStackFrame: StackTraceElement
+  ) : HasWorkingDir(createWorkingDir(testStackFrame)) {
 
     val buildFile by lazy {
       workingDir.resolve("build.gradle.kts").createSafely(
@@ -44,6 +48,7 @@ internal interface BaseGradleTest {
         plugins {
           id("com.rickbusarow.ktlint") version "${BuildConfig.version}"
         }
+
         """.trimIndent()
       )
     }
@@ -75,6 +80,7 @@ internal interface BaseGradleTest {
               maven("https://plugins.gradle.org/m2/")
             }
           }
+
           """.trimIndent()
         )
     }
@@ -83,7 +89,8 @@ internal interface BaseGradleTest {
 
       GradleRunner.create()
         .forwardOutput()
-        .withGradleVersion("8.1.1")
+        .withGradleVersion(BuildConfig.gradleVersion)
+        // .withTestKitDir(workingDir / "testKit")
         .withDebug(true)
         .withProjectDir(workingDir)
     }
@@ -130,10 +137,16 @@ internal interface BaseGradleTest {
       }
     }
 
+    fun clean() {
+
+      workingDir.deleteRecursively()
+    }
+
     private fun ensureFilesAreWritten() {
       buildFile
       settingsFile
       workingDir.walkTopDown()
+        .filter { !it.path.contains("/testKit/") }
         .filter { it.isFile }
         .forEach { println("file://$it") }
     }
@@ -179,7 +192,12 @@ internal interface BaseGradleTest {
     }
   }
 
+  @SkipInStackTrace
   fun test(action: GradleTestEnvironment.() -> Unit) {
-    GradleTestEnvironment().action()
+
+    val gradleTestEnvironment = GradleTestEnvironment(testStackTraceElement())
+
+    gradleTestEnvironment.clean()
+    gradleTestEnvironment.action()
   }
 }

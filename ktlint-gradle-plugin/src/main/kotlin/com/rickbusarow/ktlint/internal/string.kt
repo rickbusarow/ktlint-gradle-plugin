@@ -26,3 +26,13 @@ internal fun String.capitalize(): String = replaceFirstChar {
 internal fun String.suffixIfNot(suffix: String): String {
   return if (this.endsWith(suffix)) this else "$this$suffix"
 }
+
+/** shorthand for `replace(___, "")` against multiple tokens */
+fun String.remove(vararg strings: String): String = strings.fold(this) { acc, string ->
+  acc.replace(string, "")
+}
+
+/** shorthand for `replace(___, "")` against multiple tokens */
+fun String.remove(vararg regex: Regex): String = regex.fold(this) { acc, reg ->
+  acc.replace(reg, "")
+}

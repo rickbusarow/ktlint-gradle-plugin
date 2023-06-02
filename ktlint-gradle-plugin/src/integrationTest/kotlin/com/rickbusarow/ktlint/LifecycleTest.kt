@@ -17,8 +17,8 @@ package com.rickbusarow.ktlint
 
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
+import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.jetbrains.kotlin.fir.declarations.builder.buildFile
 import org.junit.jupiter.api.Test
 
 @Suppress("RemoveEmptyClassBody")
@@ -46,8 +46,8 @@ internal class LifecycleTest : BaseGradleTest {
         """
       )
 
-    shouldSucceed("check") {
-      task(":ktlintCheck")?.outcome shouldBe SUCCESS
+    shouldFail("check") {
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe FAILED
     }
   }
 

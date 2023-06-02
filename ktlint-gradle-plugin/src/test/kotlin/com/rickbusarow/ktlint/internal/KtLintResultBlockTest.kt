@@ -17,6 +17,7 @@ package com.rickbusarow.ktlint.internal
 
 import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
 import io.kotest.matchers.shouldBe
+import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File

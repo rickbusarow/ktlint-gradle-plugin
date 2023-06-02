@@ -111,3 +111,12 @@ internal fun List<File>.commonParent(): File {
 
   return commonParent
 }
+
+/** `file.resolve(child)` */
+operator fun File.div(child: String): File = resolve(child)
+
+/** `File("a/b/c/d.txt").segments() == ["a", "b", "c", "d.txt"]` */
+fun File.segments(): List<String> = path.split(File.separatorChar)
+
+/** all parents starting from the direct parent. Does not include the receiver file.*/
+fun File.parents(): Sequence<File> = generateSequence(parentFile) { it.parentFile }
