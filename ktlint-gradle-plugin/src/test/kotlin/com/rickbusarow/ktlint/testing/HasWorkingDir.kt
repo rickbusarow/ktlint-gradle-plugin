@@ -105,10 +105,7 @@ abstract class HasWorkingDir(workingDir: File) {
      * @since 0.1.1
      */
     @SkipInStackTrace
-    fun createWorkingDir(
-      testStackFrame: StackTraceElement,
-      vararg testVariantName: String
-    ): File {
+    fun createWorkingDir(testStackFrame: StackTraceElement, vararg testVariantName: String): File {
 
       val actualClass = testStackFrame.declaringClass()
         // trim off all the stuff like "$$inlined$$execute$1""

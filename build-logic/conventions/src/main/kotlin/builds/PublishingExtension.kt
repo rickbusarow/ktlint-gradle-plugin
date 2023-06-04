@@ -34,10 +34,7 @@ import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
 
 interface PublishingExtension {
 
-  fun Project.published(
-    artifactId: String,
-    pomDescription: String
-  ) {
+  fun Project.published(artifactId: String, pomDescription: String) {
     published(
       groupId = GROUP,
       artifactId = artifactId,
@@ -45,11 +42,7 @@ interface PublishingExtension {
     )
   }
 
-  fun Project.published(
-    groupId: String,
-    artifactId: String,
-    pomDescription: String
-  ) {
+  fun Project.published(groupId: String, artifactId: String, pomDescription: String) {
 
     plugins.apply("com.vanniktech.maven.publish.base")
     plugins.apply("builds.dokka")
@@ -110,11 +103,7 @@ private fun Project.versionIsSnapshot(): Boolean {
   return VERSION_NAME.endsWith("-SNAPSHOT")
 }
 
-private fun Project.configurePublish(
-  artifactId: String,
-  pomDescription: String,
-  groupId: String
-) {
+private fun Project.configurePublish(artifactId: String, pomDescription: String, groupId: String) {
 
   version = VERSION_NAME
 
@@ -211,10 +200,7 @@ private fun Project.configurePublish(
   }
 }
 
-private fun Project.registerCoordinatesStringsCheckTask(
-  groupId: String,
-  artifactId: String
-) {
+private fun Project.registerCoordinatesStringsCheckTask(groupId: String, artifactId: String) {
 
   val checkTask = tasks.registerOnce(
     "checkMavenCoordinatesStrings",

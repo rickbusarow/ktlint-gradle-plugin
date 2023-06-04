@@ -22,10 +22,7 @@ package com.rickbusarow.ktlint.testing
  *
  * @since 0.1.1
  */
-inline fun <R> withClueCatching(
-  clue: () -> Any?,
-  thunk: () -> R
-): R {
+inline fun <R> withClueCatching(clue: () -> Any?, thunk: () -> R): R {
   try {
     return thunk()
   } catch (@Suppress("TooGenericExceptionCaught") throwable: Throwable) {

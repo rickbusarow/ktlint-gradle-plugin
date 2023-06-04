@@ -27,9 +27,8 @@ import org.gradle.api.tasks.TaskProvider
  *
  * @since 0.1.1
  */
-internal fun TaskContainer.matchingName(
-  taskName: String
-): TaskCollection<Task> = matching { it.name == taskName }
+internal fun TaskContainer.matchingName(taskName: String): TaskCollection<Task> =
+  matching { it.name == taskName }
 
 /**
  * adds all [objects] as dependencies to every task in the collection, inside a `configureEach { }`
@@ -60,7 +59,9 @@ internal fun <T : Task> TaskProvider<T>.dependsOn(vararg objects: Any): TaskProv
  *
  * @since 0.1.1
  */
-internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTask: TaskProvider<*>): TaskProvider<T> {
+internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(
+  dependentTask: TaskProvider<*>
+): TaskProvider<T> {
   return also { receiver ->
     dependentTask.dependsOn(receiver)
   }
@@ -71,7 +72,9 @@ internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTask: TaskPro
  *
  * @since 0.1.1
  */
-internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTasks: TaskCollection<*>): TaskProvider<T> {
+internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(
+  dependentTasks: TaskCollection<*>
+): TaskProvider<T> {
   return also { receiver ->
     dependentTasks.dependOn(receiver)
   }

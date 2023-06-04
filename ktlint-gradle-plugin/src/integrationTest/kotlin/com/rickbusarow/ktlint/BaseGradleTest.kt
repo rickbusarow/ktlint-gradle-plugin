@@ -167,25 +167,18 @@ internal interface BaseGradleTest {
       }
     }
 
-    fun markdown(
-      path: String,
-      @Language("markdown") content: String
-    ): File = File(path).createSafely(content.trimIndent())
+    fun markdown(path: String, @Language("markdown") content: String): File =
+      File(path).createSafely(content.trimIndent())
 
     @JvmName("writeMarkdownContent")
-    fun File.markdown(
-      @Language("markdown") content: String
-    ): File = createSafely(content.trimIndent())
+    fun File.markdown(@Language("markdown") content: String): File =
+      createSafely(content.trimIndent())
 
-    fun kotlin(
-      path: String,
-      @Language("kotlin") content: String
-    ): File = File(path).createSafely(content.trimIndent().suffixIfNot("\n\n"))
+    fun kotlin(path: String, @Language("kotlin") content: String): File =
+      File(path).createSafely(content.trimIndent().suffixIfNot("\n\n"))
 
     @JvmName("writeKotlinContent")
-    fun File.kotlin(
-      @Language("kotlin") content: String
-    ): File = createSafely(content.trimIndent())
+    fun File.kotlin(@Language("kotlin") content: String): File = createSafely(content.trimIndent())
 
     operator fun File.invoke(contentBuilder: () -> String) {
       createSafely(contentBuilder().trimIndent())
