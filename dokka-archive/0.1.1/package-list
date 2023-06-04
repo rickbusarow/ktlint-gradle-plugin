@@ -1,0 +1,6 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:ktlint-gradle-plugin
+com.rickbusarow.ktlint
+com.rickbusarow.ktlint.internal
