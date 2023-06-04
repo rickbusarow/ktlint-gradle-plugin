@@ -18,7 +18,7 @@ integration-test = "1.4.5"
 jUnit = "5.9.3"
 java-diff-utils = "4.12"
 jetbrains-markdown = "0.4.1"
-jmailen-kotlinter = "3.14.0"
+jmailen-kotlinter = "3.15.0"
 johnrengelman-shadow = "8.1.1"
 # the jdk used to build the project
 jdk = "11"
