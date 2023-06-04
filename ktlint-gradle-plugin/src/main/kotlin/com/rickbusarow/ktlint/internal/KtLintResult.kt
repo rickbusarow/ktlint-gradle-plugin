@@ -28,7 +28,7 @@ internal data class KtLintResult(
   val ruleId: String
 ) : Comparable<KtLintResult> {
 
-  val fileWithPosition by lazy(NONE) { "file://$file:$line:$col" }
+  val fileWithPosition by lazy(NONE) { "file://$file:$line:$col:" }
 
   private val wrappedDetails by lazy(NONE) { mutableMapOf<Int, String>() }
   internal fun detailWrapped(maxDetailWidth: Int): String {
