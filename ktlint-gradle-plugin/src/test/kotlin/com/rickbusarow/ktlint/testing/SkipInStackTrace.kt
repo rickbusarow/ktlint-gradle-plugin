@@ -29,6 +29,7 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
  * stack trace, such as in assertions or when trying to parse a test function's name.
  *
  * @see StackTraceElement.isSkipped
+ * @since 0.1.1
  */
 @Target(
   FUNCTION,

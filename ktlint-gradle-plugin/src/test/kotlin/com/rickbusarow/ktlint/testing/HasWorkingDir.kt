@@ -21,11 +21,16 @@ import java.io.File
 
 /**
  * @param workingDir the directory containing all source and generated files to be used in this test
+ * @since 0.1.1
  */
 @Suppress("UnnecessaryAbstractClass")
 abstract class HasWorkingDir(workingDir: File) {
 
-  /** the directory containing all source and generated files to be used in this test */
+  /**
+   * the directory containing all source and generated files to be used in this test
+   *
+   * @since 0.1.1
+   */
   val workingDir: File by lazy {
     checkInWorkingDir(workingDir)
     workingDir
@@ -97,6 +102,7 @@ abstract class HasWorkingDir(workingDir: File) {
      * @param testVariantName additional subdirectories underneath the test
      *   function's name, such as the names of the languages being generated
      * @return a File directory corresponding to the root of the working directory for this test
+     * @since 0.1.1
      */
     @SkipInStackTrace
     fun createWorkingDir(
@@ -152,6 +158,8 @@ abstract class HasWorkingDir(workingDir: File) {
     /**
      * Finds the stack trace element corresponding to the invoking test
      * function. This should be called as close as possible to the test function.
+     *
+     * @since 0.1.1
      */
     @SkipInStackTrace
     fun testStackTraceElement(): StackTraceElement {

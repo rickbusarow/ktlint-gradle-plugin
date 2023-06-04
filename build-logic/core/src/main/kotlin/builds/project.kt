@@ -25,6 +25,7 @@ import org.gradle.api.plugins.PluginContainer
  * composite build, as opposed to the root projects of included builds.
  *
  * @see isRootProject to check if the project is the root of any build in a composite build
+ * @since 0.1.1
  */
 fun Project.isRealRootProject(): Boolean {
   return (gradle as GradleInternal).isRootBuild && this == rootProject
@@ -36,15 +37,24 @@ fun Project.isRealRootProject(): Boolean {
  * For composite builds, this will return true for the root of each included build.
  *
  * @see isRealRootProject to check if the project is the ultimate root of a composite build
+ * @since 0.1.1
  */
 fun Project.isRootProject() = this == rootProject
 
-/** Add the plugin if it hasn't been applied already. */
+/**
+ * Add the plugin if it hasn't been applied already.
+ *
+ * @since 0.1.1
+ */
 fun PluginContainer.applyOnce(id: String) {
   if (!hasPlugin(id)) apply(id)
 }
 
-/** Add the plugin if it hasn't been applied already. */
+/**
+ * Add the plugin if it hasn't been applied already.
+ *
+ * @since 0.1.1
+ */
 inline fun <reified T : Plugin<*>> PluginContainer.applyOnce() {
   if (!hasPlugin(T::class.java)) apply(T::class.java)
 }
@@ -52,6 +62,7 @@ inline fun <reified T : Plugin<*>> PluginContainer.applyOnce() {
 /**
  * throws with [message] if the receiver project is not the root project
  *
+ * @since 0.1.1
  * @throws IllegalStateException if the project is not the root project
  */
 fun Project.checkProjectIsRoot(

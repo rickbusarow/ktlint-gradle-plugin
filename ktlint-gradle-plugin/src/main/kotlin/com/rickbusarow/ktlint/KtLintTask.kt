@@ -35,13 +35,15 @@ import org.gradle.work.InputChanges
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
-/** */
+/** @since 0.1.1 */
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintTask(
   private val workerExecutor: WorkerExecutor,
   /**
    * If `true`, the task will run KtLint's "format" functionality (`--format` or `-F` in the
    * CLI). Otherwise, the task will run it in "lint" mode and fail if there are any errors.
+   *
+   * @since 0.1.1
    */
   @get:Input
   val autoCorrect: Boolean
@@ -52,18 +54,18 @@ abstract class KtLintTask(
     description = "to do..."
   }
 
-  /** */
+  /** @since 0.1.1 */
   @get:InputFiles
   @get:Classpath
   abstract val ktlintClasspath: ConfigurableFileCollection
 
-  /** */
+  /** @since 0.1.1 */
   @get:Optional
   @get:InputFile
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val editorConfig: RegularFileProperty
 
-  /** */
+  /** @since 0.1.1 */
   @get:Incremental
   @get:InputFiles
   @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -88,6 +90,8 @@ abstract class KtLintTask(
    * to be used by other tasks or processes, and should not be relied on as a
    * source of truth. Its sole purpose is to allow this task to run incrementally
    * without interfering with other tasks that might need to use the same files.
+   *
+   * @since 0.1.1
    */
   @get:OutputDirectory
   internal abstract val sourceFilesShadow: DirectoryProperty
@@ -123,7 +127,7 @@ abstract class KtLintTask(
   }
 }
 
-/** */
+/** @since 0.1.1 */
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintFormatTask @Inject constructor(
   workerExecutor: WorkerExecutor
@@ -134,7 +138,7 @@ abstract class KtLintFormatTask @Inject constructor(
   }
 }
 
-/** */
+/** @since 0.1.1 */
 abstract class KtLintCheckTask @Inject constructor(
   workerExecutor: WorkerExecutor
 ) : KtLintTask(workerExecutor, autoCorrect = false) {
@@ -144,7 +148,7 @@ abstract class KtLintCheckTask @Inject constructor(
     description = "Checks Kotlin code for correctness"
   }
 
-  /** */
+  /** @since 0.1.1 */
   // @get:OutputFile
   // abstract val htmlReportFile: RegularFileProperty
 }

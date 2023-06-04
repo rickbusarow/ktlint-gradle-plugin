@@ -27,7 +27,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import java.io.File
 
-/** */
+/** @since 0.1.1 */
 abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParameters> {
   override fun execute() {
 
@@ -82,21 +82,21 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
     }
   }
 
-  /** */
+  /** @since 0.1.1 */
   interface KtLintWorkParameters : WorkParameters {
-    /** */
+    /** @since 0.1.1 */
     val autoCorrect: GradleProperty<Boolean>
 
-    /** */
+    /** @since 0.1.1 */
     val sourceFiles: ListProperty<File>
 
-    /** */
+    /** @since 0.1.1 */
     val editorConfig: RegularFileProperty
 
-    /** */
+    /** @since 0.1.1 */
     val sourceFilesShadow: DirectoryProperty
 
-    /** */
+    /** @since 0.1.1 */
     val rootDir: DirectoryProperty
   }
 

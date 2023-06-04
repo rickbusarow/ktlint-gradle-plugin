@@ -39,6 +39,8 @@ import kotlin.LazyThreadSafetyMode.NONE
 /**
  * Runs a KtLint format against generated files, using editorconfig
  * settings located at [editorConfigPath] if that file exists.
+ *
+ * @since 0.1.1
  */
 internal class KtLintEngineWrapper(
   private val editorConfigPath: File?,
@@ -53,7 +55,11 @@ internal class KtLintEngineWrapper(
 
   private val ecDefaults = ConcurrentHashMap<File, EditorConfigDefaults>()
 
-  /** formats all listed kotlin files */
+  /**
+   * formats all listed kotlin files
+   *
+   * @since 0.1.1
+   */
   fun execute(kotlinFiles: List<File>): KtLintResultList = runBlocking {
 
     val ecDefaults = getEditorConfigDefaults(kotlinFiles)

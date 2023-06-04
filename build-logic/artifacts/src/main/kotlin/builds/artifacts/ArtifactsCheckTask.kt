@@ -31,6 +31,8 @@ import javax.inject.Inject
  * Evaluates all published artifacts in the project and compares the results to `/artifacts.json`.
  *
  * If there are any differences, the task will fail with a descriptive message.
+ *
+ * @since 0.1.1
  */
 open class ArtifactsCheckTask @Inject constructor(
   objectFactory: ObjectFactory,

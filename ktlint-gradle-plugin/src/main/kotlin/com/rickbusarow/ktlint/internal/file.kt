@@ -21,6 +21,8 @@ import java.io.File
  * Makes parent directories, then creates the receiver file. If a
  * [content] argument was provided, it will be written to the newly-created
  * file. If the file already existed, its content will be overwritten.
+ *
+ * @since 0.1.1
  */
 internal fun File.createSafely(content: String? = null): File = apply {
   if (content != null) {
@@ -35,6 +37,7 @@ internal fun File.createSafely(content: String? = null): File = apply {
  *
  * @see File.mkdirs
  * @see File.makeParentDir
+ * @since 0.1.1
  */
 internal fun File.mkdirsInline(): File = apply(File::mkdirs)
 
@@ -43,6 +46,7 @@ internal fun File.mkdirsInline(): File = apply(File::mkdirs)
  *
  * @see File.mkdirsInline
  * @see File.mkdirs
+ * @since 0.1.1
  */
 internal fun File.makeParentDir(): File = apply {
   val fileParent = requireNotNull(parentFile) { "File's `parentFile` must not be null." }
@@ -65,6 +69,7 @@ internal fun File.makeParentDir(): File = apply {
  * @returns the first path to contain an [existent][File.exists]
  *   File for [relativePath], or `null` if it could not be resolved
  * @see resolveInParent for a version which throws if nothing is resolved
+ * @since 0.1.1
  */
 internal fun File.resolveInParentOrNull(relativePath: String): File? {
   return resolve(relativePath).existsOrNull()?.normalize()
@@ -75,6 +80,7 @@ internal fun File.resolveInParentOrNull(relativePath: String): File? {
  * Non-nullable version of [resolveInParentOrNull]
  *
  * @see resolveInParentOrNull for a nullable, non-throwing variant
+ * @since 0.1.1
  * @throws IllegalArgumentException if a file cannot be resolved
  */
 internal fun File.resolveInParent(relativePath: String): File {
@@ -85,7 +91,10 @@ internal fun File.resolveInParent(relativePath: String): File {
   }
 }
 
-/** @return the receiver [File] if it exists in the file system, otherwise null */
+/**
+ * @return the receiver [File] if it exists in the file system, otherwise null
+ * @since 0.1.1
+ */
 internal fun File.existsOrNull(): File? = takeIf { it.exists() }
 
 /**
@@ -96,6 +105,7 @@ internal fun File.existsOrNull(): File? = takeIf { it.exists() }
  *
  * @receiver List of [File]s for which to find the common parent directory.
  * @return The most specific common parent directory as a [File].
+ * @since 0.1.1
  * @throws IllegalArgumentException if the receiver [List] is empty.
  */
 internal fun List<File>.commonParent(): File {
@@ -112,11 +122,23 @@ internal fun List<File>.commonParent(): File {
   return commonParent
 }
 
-/** `file.resolve(child)` */
+/**
+ * `file.resolve(child)`
+ *
+ * @since 0.1.1
+ */
 operator fun File.div(child: String): File = resolve(child)
 
-/** `File("a/b/c/d.txt").segments() == ["a", "b", "c", "d.txt"]` */
+/**
+ * `File("a/b/c/d.txt").segments() == ["a", "b", "c", "d.txt"]`
+ *
+ * @since 0.1.1
+ */
 fun File.segments(): List<String> = path.split(File.separatorChar)
 
-/** all parents starting from the direct parent. Does not include the receiver file.*/
+/**
+ * all parents starting from the direct parent. Does not include the receiver file.
+ *
+ * @since 0.1.1
+ */
 fun File.parents(): Sequence<File> = generateSequence(parentFile) { it.parentFile }

@@ -22,13 +22,19 @@ import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 
-/** code golf for `matching { it.name == taskName }` */
+/**
+ * code golf for `matching { it.name == taskName }`
+ *
+ * @since 0.1.1
+ */
 internal fun TaskContainer.matchingName(
   taskName: String
 ): TaskCollection<Task> = matching { it.name == taskName }
 
 /**
  * adds all [objects] as dependencies to every task in the collection, inside a `configureEach { }`
+ *
+ * @since 0.1.1
  */
 internal fun <T : Task> TaskCollection<T>.dependOn(vararg objects: Any): TaskCollection<T> {
   return also { taskCollection ->
@@ -36,7 +42,11 @@ internal fun <T : Task> TaskCollection<T>.dependOn(vararg objects: Any): TaskCol
   }
 }
 
-/** adds all [objects] as dependencies inside a configuration block, inside a `configure { }` */
+/**
+ * adds all [objects] as dependencies inside a configuration block, inside a `configure { }`
+ *
+ * @since 0.1.1
+ */
 internal fun <T : Task> TaskProvider<T>.dependsOn(vararg objects: Any): TaskProvider<T> {
   return also { provider ->
     provider.configure { task ->
@@ -45,14 +55,22 @@ internal fun <T : Task> TaskProvider<T>.dependsOn(vararg objects: Any): TaskProv
   }
 }
 
-/** makes the receiver task a dependency of the [dependentTask] parameter. */
+/**
+ * makes the receiver task a dependency of the [dependentTask] parameter.
+ *
+ * @since 0.1.1
+ */
 internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTask: TaskProvider<*>): TaskProvider<T> {
   return also { receiver ->
     dependentTask.dependsOn(receiver)
   }
 }
 
-/** makes the receiver task a dependency of the tasks in the [dependentTasks] collection. */
+/**
+ * makes the receiver task a dependency of the tasks in the [dependentTasks] collection.
+ *
+ * @since 0.1.1
+ */
 internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTasks: TaskCollection<*>): TaskProvider<T> {
   return also { receiver ->
     dependentTasks.dependOn(receiver)
@@ -67,6 +85,7 @@ internal fun <T : Task> TaskProvider<T>.addAsDependencyTo(dependentTasks: TaskCo
  * @return The matching objects. Returns an empty collection
  *   if there are no such objects in this collection.
  * @see DomainObjectCollection.withType
+ * @since 0.1.1
  */
 internal inline fun <reified S : Any> DomainObjectCollection<in S>.withType(
   noinline configuration: (S) -> Unit
@@ -80,6 +99,7 @@ internal inline fun <reified S : Any> DomainObjectCollection<in S>.withType(
  * @return The matching objects. Returns an empty collection
  *   if there are no such objects in this collection.
  * @see DomainObjectCollection.withType
+ * @since 0.1.1
  */
 internal inline fun <reified S : Any> DomainObjectCollection<in S>.withType(): DomainObjectCollection<S> =
   withType(S::class.java)
@@ -93,6 +113,7 @@ internal inline fun <reified S : Any> DomainObjectCollection<in S>.withType(): D
  * @param type The class object representing the type of task.
  * @param configurationAction The action that configures the task.
  * @return The task provider for the registered task.
+ * @since 0.1.1
  */
 internal fun <T : Task> TaskContainer.registerOnce(
   name: String,

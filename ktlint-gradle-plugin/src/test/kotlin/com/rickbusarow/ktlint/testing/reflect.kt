@@ -21,6 +21,8 @@ package com.rickbusarow.ktlint.testing
  *
  * In practical terms, this strips away Kotlin's anonymous lambda
  * "classes" and other compatibility shims, returning the real class.
+ *
+ * @since 0.1.1
  */
 tailrec fun Class<*>.firstNonSyntheticClass(): Class<*> {
   return when {

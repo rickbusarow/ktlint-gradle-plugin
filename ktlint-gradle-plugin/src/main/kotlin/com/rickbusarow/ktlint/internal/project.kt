@@ -22,6 +22,7 @@ import org.gradle.api.internal.GradleInternal
  * composite build, as opposed to the root projects of included builds.
  *
  * @see isRootProject to check if the project is the root of any build in a composite build
+ * @since 0.1.1
  */
 internal fun GradleProject.isRealRootProject(): Boolean {
   return (gradle as GradleInternal).isRootBuild && this == rootProject
@@ -33,5 +34,6 @@ internal fun GradleProject.isRealRootProject(): Boolean {
  * For composite builds, this will return true for the root of each included build.
  *
  * @see isRealRootProject to check if the project is the ultimate root of a composite build
+ * @since 0.1.1
  */
 internal fun GradleProject.isRootProject() = this == rootProject

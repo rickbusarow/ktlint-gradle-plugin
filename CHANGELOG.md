@@ -4,8 +4,6 @@
 
 ## [0.1.1] - 2023-06-04
 
-## What's Changed
-
 ### 🧰 Maintenance
 
 - Format scripts in https://github.com/RBusarow/ktlint-gradle-plugin/pull/56

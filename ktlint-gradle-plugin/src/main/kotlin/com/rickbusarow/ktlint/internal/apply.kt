@@ -17,7 +17,11 @@ package com.rickbusarow.ktlint.internal
 
 import kotlin.contracts.contract
 
-/** from Kotlin's addToStdlib.kt */
+/**
+ * from Kotlin's addToStdlib.kt
+ *
+ * @since 0.1.1
+ */
 internal inline fun <T> T.letIf(predicate: Boolean, body: T.() -> T): T {
   return if (predicate) body() else this
 }
@@ -25,6 +29,7 @@ internal inline fun <T> T.letIf(predicate: Boolean, body: T.() -> T): T {
 /**
  * shorthand for `requireNotNull(this, lazyMessage)`
  *
+ * @since 0.1.1
  * @throws IllegalArgumentException if receiver is null
  */
 internal inline fun <T : Any> T?.requireNotNull(lazyMessage: () -> Any): T {
@@ -37,6 +42,7 @@ internal inline fun <T : Any> T?.requireNotNull(lazyMessage: () -> Any): T {
 /**
  * shorthand for `requireNotNull(this)`
  *
+ * @since 0.1.1
  * @throws IllegalArgumentException if receiver is null
  */
 @Suppress("NOTHING_TO_INLINE")

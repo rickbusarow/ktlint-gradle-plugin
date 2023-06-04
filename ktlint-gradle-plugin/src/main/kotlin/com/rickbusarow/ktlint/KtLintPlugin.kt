@@ -33,7 +33,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-/** */
+/** @since 0.1.1 */
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintPlugin : Plugin<GradleProject> {
   override fun apply(target: GradleProject) {

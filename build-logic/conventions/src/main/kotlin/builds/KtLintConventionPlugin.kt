@@ -48,7 +48,7 @@ abstract class KtLintConventionPlugin : Plugin<Project> {
         task.doLast {
           val oldText = file.readText()
 
-          val reg = """^(project_version *?= *?)\S*$""".toRegex(MULTILINE)
+          val reg = """^(ktlint_kt-rules_project_version *?= *?)\S*$""".toRegex(MULTILINE)
 
           val newText = oldText.replace(reg, "$1${target.VERSION_NAME}")
 
@@ -173,6 +173,8 @@ abstract class KtLintConventionPlugin : Plugin<Project> {
   /**
    * These exclude anything in `$projectDir/build/generated/` from Kotlinter's
    * checks. Globs are relative to the **source set's** kotlin root.
+   *
+   * @since 0.1.1
    */
   private fun excludeGenerated(task: ConfigurableKtLintTask, project: Project) {
     task.setSource(task.source - project.fileTree("${project.buildDir}/generated"))

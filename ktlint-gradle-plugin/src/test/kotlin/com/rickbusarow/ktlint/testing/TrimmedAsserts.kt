@@ -24,11 +24,17 @@ import io.kotest.matchers.shouldBe as kotestShouldBe
 /**
  * Contains wrappers for Kotest's assertions which catch
  * AssertionErrors and clean up stack traces before rethrowing.
+ *
+ * @since 0.1.1
  */
 @SkipInStackTrace
 interface TrimmedAsserts {
 
-  /** reads the file's text and asserts */
+  /**
+   * reads the file's text and asserts
+   *
+   * @since 0.1.1
+   */
   infix fun File.shouldHaveText(expected: String) {
     asClueCatching {
       readText() shouldBe expected
@@ -47,6 +53,7 @@ interface TrimmedAsserts {
    * @see io.kotest.matchers.shouldBe
    * @see trimmedAssert
    * @see trimmedShouldBe
+   * @since 0.1.1
    */
   infix fun <T, U : T> T.shouldBe(expected: U?) {
     trimmedShouldBe(expected)
@@ -64,6 +71,7 @@ interface TrimmedAsserts {
    * @see io.kotest.matchers.shouldBe
    * @see trimmedAssert
    * @see trimmedShouldBe
+   * @since 0.1.1
    */
   fun <T, U : T> T.trimmedShouldBe(expected: U?, vararg excludeFromStack: KClass<*>) {
     trimmedAssert(*excludeFromStack) {
@@ -71,13 +79,21 @@ interface TrimmedAsserts {
     }
   }
 
-  /** Treat sequences like lists when asserting. */
+  /**
+   * Treat sequences like lists when asserting.
+   *
+   * @since 0.1.1
+   */
   infix fun Sequence<*>.shouldBe(expected: List<*>) {
     toList().shouldBe(expected)
   }
 }
 
-/** Removes the noise at the beginning of a stacktrace, in the event that [assertion] fails. */
+/**
+ * Removes the noise at the beginning of a stacktrace, in the event that [assertion] fails.
+ *
+ * @since 0.1.1
+ */
 inline fun <T, R> T.trimmedAssert(
   vararg excludeFromStack: KClass<*>,
   crossinline assertion: suspend T.() -> R
