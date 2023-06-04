@@ -16,6 +16,7 @@
 plugins {
   kotlin("jvm")
   alias(libs.plugins.google.ksp)
+  alias(libs.plugins.ktlint)
   id("java-gradle-plugin")
 }
 
@@ -93,7 +94,6 @@ dependencies {
   implementation(libs.google.ksp)
   implementation(libs.gradle.plugin.publish)
   implementation(libs.jetbrains.markdown)
-  implementation(libs.jmailen.kotlinter)
   implementation(libs.johnrengelman.shadowJar)
   implementation(libs.kotlin.compiler)
   implementation(libs.kotlin.gradle.plugin)
@@ -105,6 +105,7 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.kotlinx.serialization.json.jvm)
   implementation(libs.kotlinx.serialization.protobuf)
+  implementation(libs.rickBusarow.ktlint)
   implementation(libs.rickBusarow.moduleCheck.gradle.plugin)
   implementation(libs.vanniktech.publish)
 

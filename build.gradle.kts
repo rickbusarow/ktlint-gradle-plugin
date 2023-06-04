@@ -16,7 +16,6 @@
 import builds.VERSION_NAME
 import modulecheck.gradle.task.AbstractModuleCheckTask
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   id("root")
   alias(libs.plugins.moduleCheck)

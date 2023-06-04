@@ -59,9 +59,13 @@ ktlint_experimental_class-naming = disabled
 ktlint_experimental_function-naming = disabled
 ktlint_experimental_function-signature = disabled
 ktlint_experimental_property-naming = disabled
+ktlint_standard_class-naming = disabled
 ktlint_standard_filename = disabled
+ktlint_standard_function-naming = disabled
+ktlint_standard_function-signature = disabled
 ktlint_standard_max-line-length = disabled
 ktlint_standard_no-empty-first-line-in-method-block = disabled
+ktlint_standard_property-naming = disabled
 
 [{*.kt,*.kts}]
 ij_continuation_indent_size = 2
@@ -437,6 +441,12 @@ ij_xml_space_around_equals_in_attribute = false
 ij_xml_space_inside_empty_tag = false
 ij_xml_text_wrap = normal
 ij_xml_use_custom_settings = true
+
+[*.toml]
+ij_toml_continuation_indent_size = 2
+ij_toml_indent_size = 2
+ij_toml_tab_width = 2
+ij_toml_keep_indents_on_empty_lines = false
 
 [{*.bash,*.sh,*.zsh}]
 ij_shell_binary_ops_start_line = false
