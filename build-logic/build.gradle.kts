@@ -22,11 +22,11 @@ buildscript {
   }
 }
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   base
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.moduleCheck)
+  alias(libs.plugins.ktlint)
 }
 
 moduleCheck {

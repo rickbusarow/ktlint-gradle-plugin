@@ -18,7 +18,6 @@ integration-test = "1.4.5"
 jUnit = "5.9.3"
 java-diff-utils = "4.12"
 jetbrains-markdown = "0.4.1"
-jmailen-kotlinter = "3.14.0"
 johnrengelman-shadow = "8.1.1"
 # the jdk used to build the project
 jdk = "11"
@@ -56,7 +55,6 @@ google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 integration-test = { id = "com.coditory.integration-test", version.ref = "integration-test" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlinter = { id = "org.jmailen.kotlinter", version.ref = "jmailen-kotlinter" }
 kotlinx-binaryCompatibility = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinx-binaryCompatibility" }
 ktlint = { id = "com.rickbusarow.ktlint", version.ref = "rickBusarow-ktlint" }
 moduleCheck = { id = "com.rickbusarow.module-check", version.ref = "rickBusarow-moduleCheck" }
@@ -104,8 +102,6 @@ google-guava = { module = "com.google.guava:guava", version.ref = "google-guava"
 java-diff-utils = { module = "io.github.java-diff-utils:java-diff-utils", version.ref = "java-diff-utils" }
 
 jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrains-markdown" }
-
-jmailen-kotlinter = { module = "org.jmailen.gradle:kotlinter-gradle", version.ref = "jmailen-kotlinter" }
 
 johnrengelman-shadowJar = { module = "com.github.johnrengelman:shadow", version.ref = "johnrengelman-shadow" }
 
@@ -169,6 +165,8 @@ ktlint-rule-engine = { module = "com.pinterest.ktlint:ktlint-rule-engine", versi
 ktlint-ruleset-experimental = { module = "com.pinterest.ktlint:ktlint-ruleset-experimental", version.ref = "ktlint-lib" }
 ktlint-ruleset-standard = { module = "com.pinterest.ktlint:ktlint-ruleset-standard", version.ref = "ktlint-lib" }
 ktlint-test = { module = "com.pinterest.ktlint:ktlint-test", version.ref = "ktlint-lib" }
+
+rickBusarow-ktlint = { module = "com.rickbusarow.ktlint:ktlint-gradle-plugin", version.ref = "rickBusarow-ktlint" }
 
 rickBusarow-ktrules = { module = "com.rickbusarow.ktrules:ktrules", version.ref = "rickBusarow-ktrules" }
 rickBusarow-ktrules48 = { module = "com.rickbusarow.ktrules:ktrules-48", version.ref = "rickBusarow-ktrules" }

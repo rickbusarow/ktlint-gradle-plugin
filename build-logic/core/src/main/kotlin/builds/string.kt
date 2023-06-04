@@ -55,11 +55,9 @@ fun String.mapLines(
 ): String = lineSequence()
   .joinToString("\n", transform = transform)
 
-fun String.normaliseLineSeparators(): String =
-  TextUtil.convertLineSeparatorsToUnix(this)
+fun String.normaliseLineSeparators(): String = TextUtil.convertLineSeparatorsToUnix(this)
 
-fun String.prefixIfNot(prefix: String) =
-  if (this.startsWith(prefix)) this else "$prefix$this"
+fun String.prefixIfNot(prefix: String) = if (this.startsWith(prefix)) this else "$prefix$this"
 
 fun CharSequence.normaliseLineSeparators(): String {
   return when (this) {

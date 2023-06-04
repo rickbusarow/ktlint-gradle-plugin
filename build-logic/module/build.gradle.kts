@@ -15,6 +15,7 @@
 
 plugins {
   kotlin("jvm")
+  alias(libs.plugins.ktlint)
   id("java-gradle-plugin")
 }
 
@@ -51,8 +52,8 @@ dependencies {
   implementation(libs.dokka.gradle)
   implementation(libs.dokka.versioning)
   implementation(libs.dropbox.dependencyGuard)
-  implementation(libs.jmailen.kotlinter)
   implementation(libs.johnrengelman.shadowJar)
   implementation(libs.kotlinx.binaryCompatibility)
+  implementation(libs.rickBusarow.ktlint)
   implementation(libs.rickBusarow.moduleCheck.gradle.plugin)
 }
