@@ -54,21 +54,21 @@ internal class KtLintResultBlockTest {
     val expected = """
       |   file: src/Subject.kt
       |         RULE ID  DETAIL  FILE
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:-2147483648:100
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:0:0
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:0:1
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:-2147483648
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:100
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:2147483647
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:-1
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:1
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:3
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:405:100
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:2147483647:100
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:-2147483648:100:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:0:0:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:0:1:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:-2147483648:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:100:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:2147483647:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:-1:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:1:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:3:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:405:100:
+      |      ✔  rule-id  detail  file://root/src/Subject.kt:2147483647:100:
       |
     """.trimMargin()
 
-    results.block(File("root"), 60).noAnsi() shouldBe expected
+    block(results, maxDetailWidth = 60) shouldBe expected
   }
 
   @Nested
@@ -90,7 +90,7 @@ internal class KtLintResultBlockTest {
       block(result, maxDetailWidth = 60) shouldBe """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                                                       FILE
-        |      ✔  rule-id  aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa  file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa  file://root/src/Subject.kt:1:1:
         |                  aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa
         |
       """.trimMargin()
@@ -111,7 +111,7 @@ internal class KtLintResultBlockTest {
       val expected = """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                                                       FILE
-        |      ✔  rule-id  aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa  file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa  file://root/src/Subject.kt:1:1:
         |                  aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
         |
       """.trimMargin()
@@ -134,7 +134,7 @@ internal class KtLintResultBlockTest {
       val expected = """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                         FILE
-        |      ✔  rule-id  a a a a a a a a a a a a a a a  file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  a a a a a a a a a a a a a a a  file://root/src/Subject.kt:1:1:
         |                  a a a a a a a a a a a a a a a
         |
       """.trimMargin()
@@ -157,7 +157,7 @@ internal class KtLintResultBlockTest {
       val expected = """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                         FILE
-        |      ✔  rule-id  a a a a a a a a a a a a a a a  file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  a a a a a a a a a a a a a a a  file://root/src/Subject.kt:1:1:
         |                  a a a a
         |
       """.trimMargin()
@@ -180,7 +180,7 @@ internal class KtLintResultBlockTest {
       val expected = """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                         FILE
-        |      ✔  rule-id  aaaaaaaaaaaaaaaaaaaaaaaaaaaaa  file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  aaaaaaaaaaaaaaaaaaaaaaaaaaaaa  file://root/src/Subject.kt:1:1:
         |
       """.trimMargin()
 
@@ -202,7 +202,7 @@ internal class KtLintResultBlockTest {
       val expected = """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                          FILE
-        |      ✔  rule-id  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  file://root/src/Subject.kt:1:1:
         |
       """.trimMargin()
 
@@ -224,7 +224,7 @@ internal class KtLintResultBlockTest {
       val expected = """
         |   file: src/Subject.kt
         |         RULE ID  DETAIL                           FILE
-        |      ✔  rule-id  aaa                              file://root/src/Subject.kt:1:1
+        |      ✔  rule-id  aaa                              file://root/src/Subject.kt:1:1:
         |                  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         |
       """.trimMargin()
@@ -242,5 +242,18 @@ internal class KtLintResultBlockTest {
       .block(root = root, maxDetailWidth = maxDetailWidth)
       .also(::println)
       .noAnsi()
+      .replace(File.separator, "/")
+  }
+
+  private fun block(
+    results: List<KtLintResult>,
+    maxDetailWidth: Int,
+    root: File = File("root")
+  ): String {
+    return KtLintResultList(results)
+      .block(root = root, maxDetailWidth = maxDetailWidth)
+      .also(::println)
+      .noAnsi()
+      .replace(File.separator, "/")
   }
 }
