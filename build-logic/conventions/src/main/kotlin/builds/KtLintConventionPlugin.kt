@@ -30,7 +30,7 @@ abstract class KtLintConventionPlugin : Plugin<Project> {
     target.dependencies
       .add("ktlint", target.libsCatalog.dependency("rickBusarow-ktrules"))
 
-    target.tasks.withType(KtLintTask::class.java) { task ->
+    target.tasks.withType(KtLintTask::class.java).configureEach { task ->
       task.dependsOn(":updateEditorConfigVersion")
       task.mustRunAfter(
         target.tasks.matchingName("dependencyGuard"),

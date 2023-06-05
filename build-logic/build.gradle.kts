@@ -52,6 +52,10 @@ allprojects {
       @Suppress("MagicNumber")
       toolchain.languageVersion.set(JavaLanguageVersion.of(11))
     }
+
+    dependencies {
+      ktlint(libs.rickBusarow.ktrules)
+    }
   }
 
   tasks.withType<KotlinCompile>().configureEach {
