@@ -52,6 +52,41 @@ internal class LifecycleTest : BaseGradleTest {
   }
 
   @Test
+  fun `ktlintCheck and ktlintFormat exist even if the project does not have a Kotlin plugin`() =
+    test {
+
+      buildFile {
+        """
+        plugins {
+          id("com.rickbusarow.ktlint")
+        }
+        """
+      }
+
+      shouldSucceed("ktlintCheck", "ktlintFormat") {
+        task(":ktlintFormat")?.outcome shouldBe SUCCESS
+        task(":ktlintCheck")?.outcome shouldBe SUCCESS
+      }
+    }
+
+  @Test
+  fun `gradle scripts tasks exist even if the project does not have a Kotlin plugin`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+      """
+    }
+
+    shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe SUCCESS
+    }
+  }
+
+  @Test
   fun `the fix lifecycle task invokes ktlintFormat`() = test {
 
     buildFile {

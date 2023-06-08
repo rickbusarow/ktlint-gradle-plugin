@@ -36,6 +36,11 @@ tasks.withType(AbstractModuleCheckTask::class.java)
     )
   }
 
+val badTask by tasks.registering(SourceTask::class) {
+  source(buildFile)
+  outputs.dir(projectDir)
+  onlyIf { true }
+}
 // TODO move this to a convention plugin
 githubRelease {
 

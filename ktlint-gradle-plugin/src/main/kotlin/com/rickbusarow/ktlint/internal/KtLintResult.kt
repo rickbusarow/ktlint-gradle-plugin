@@ -30,49 +30,6 @@ internal data class KtLintResult(
 
   val fileWithPosition by lazy(NONE) { "file://$file:$line:$col:" }
 
-  private val wrappedDetails by lazy(NONE) { mutableMapOf<Int, String>() }
-  internal fun detailWrapped(maxDetailWidth: Int): String {
-    return wrappedDetails.getOrPut(maxDetailWidth) {
-      detail.wrap(maxDetailWidth)
-    }
-  }
-
-  private fun String.wrap(maxWidth: Int): String {
-    if (length <= maxWidth) return this@wrap
-    if (isBlank()) return this@wrap
-
-    val words = split(Regex("""\s+""")).filter { it.isNotBlank() }
-
-    val wrapped = StringBuilder()
-
-    var currentLine = StringBuilder(words.first())
-
-    for (word in words.drop(1)) {
-      val currentWordLength = word.length
-      val currentLineLength = currentLine.length
-
-      when {
-        currentLineLength + 1 + currentWordLength <= maxWidth -> {
-          // The word fits on the current line with a space before it.
-          currentLine.append(" ")
-          currentLine.append(word)
-        }
-
-        else -> {
-          // The word does not fit on the current line, so start a new line.
-          wrapped.append(currentLine)
-          wrapped.appendLine()
-          currentLine = StringBuilder(word)
-        }
-      }
-    }
-
-    // Add the last line to the wrapped text.
-    wrapped.append(currentLine)
-
-    return wrapped.toString()
-  }
-
   override fun compareTo(other: KtLintResult): Int {
     return compareValuesBy(
       this,
@@ -92,63 +49,25 @@ internal data class KtLintResultList(
 ) : List<KtLintResult> by results {
   constructor(vararg results: KtLintResult) : this(results.toList())
 
-  val hasFailures: Boolean by lazy(NONE) { results.any { !it.fixed } }
-
   fun isNotEmpty(): Boolean = results.isNotEmpty()
 
-  fun block(root: File, maxDetailWidth: Int): String {
+  fun block(): String {
 
     return groupBy { it.file }
       .entries
       .sortedBy { it.key }
-      .joinToString("\n") { (file, group) ->
+      .joinToString("\n") { (_, group) ->
 
-        val ruleWidth = group.maxOf { it.ruleId.length } + 2
-        val detailWidth = group
-          .flatMap { it.detailWrapped(maxDetailWidth).lineSequence() }
-          .maxOf { it.length }
-          .plus(2)
-
-        buildString {
-
-          append(" ".repeat(INDENT / 2))
-          append("file: ${file.relativeTo(root)}".ansi(Ansi.Color.BRIGHT_YELLOW))
-          appendLine()
-
-          append(" ".repeat(INDENT))
-          append(" ".repeat(FIX_ICON_LENGTH))
-          append("RULE ID".ansi(Ansi.Style.UNDERLINE, Ansi.Style.BOLD, padEnd = ruleWidth))
-          append("DETAIL".ansi(Ansi.Style.UNDERLINE, Ansi.Style.BOLD, padEnd = detailWidth))
-          append("FILE".ansi(Ansi.Style.UNDERLINE, Ansi.Style.BOLD))
-          appendLine()
-
-          group.sorted()
-            .forEach {
-              append(
-                it.reportLine(
-                  indent = INDENT,
-                  ruleWidth = ruleWidth,
-                  detailWidth = detailWidth,
-                  maxDetailWidth = maxDetailWidth
-                )
-              )
-            }
-        }
+        group.sorted()
+          .joinToString("\n") {
+            it.reportLine()
+          }
       }
   }
 
-  private fun KtLintResult.reportLine(
-    indent: Int,
-    ruleWidth: Int,
-    detailWidth: Int,
-    maxDetailWidth: Int
-  ): String {
+  private fun KtLintResult.reportLine(): String {
 
-    val icon = if (fixed) {
-      "✔".ansi(Ansi.Color.BRIGHT_GREEN, padEnd = FIX_ICON_LENGTH)
-    } else {
-      "X".ansi(Ansi.Color.BRIGHT_RED, padEnd = FIX_ICON_LENGTH)
-    }
+    val symbol = if (fixed) '✅' else '❌'
 
     val ruleColor = if (fixed) {
       Ansi.Color.BRIGHT_GREEN
@@ -156,29 +75,19 @@ internal data class KtLintResultList(
       Ansi.Color.BRIGHT_RED
     }
 
-    val wrappedDetailLines = detailWrapped(maxDetailWidth).lines()
-
     return buildString {
-      append(" ".repeat(indent))
-      append(icon.padEnd(FIX_ICON_LENGTH))
-      append(ruleId.ansi(ruleColor, padEnd = ruleWidth))
 
-      append(wrappedDetailLines[0].padEnd(detailWidth))
+      append(" ")
       append(fileWithPosition)
-      appendLine()
+      append(" ")
 
-      for (line in wrappedDetailLines.drop(1)) {
-        append(" ".repeat(indent))
-        append(" ".repeat(FIX_ICON_LENGTH))
-        append(" ".repeat(ruleWidth))
-        append(line)
-        appendLine()
-      }
+      append(symbol)
+      append(" ")
+
+      append(ruleId.ansi(ruleColor))
+      append(" ╌ ")
+
+      append(detail.trim())
     }
-  }
-
-  companion object {
-    private const val INDENT = 6
-    private const val FIX_ICON_LENGTH = 3
   }
 }
