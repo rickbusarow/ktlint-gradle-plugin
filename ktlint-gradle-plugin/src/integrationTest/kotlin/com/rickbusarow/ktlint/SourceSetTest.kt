@@ -28,12 +28,50 @@ import org.junit.jupiter.api.Test
 internal class SourceSetTest : BaseGradleTest {
 
   @Test
+  fun `script tasks explicit inputs for only script files`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+
+      val badTask by tasks.registering(SourceTask::class) {
+        source(buildFile)
+        outputs.file(projectDir.resolve("api/api.txt"))
+        onlyIf { true }
+      }
+      """
+    }
+
+    // creating an issue for KtLint to find
+    settingsFile { settingsFile.readText().trim() }
+
+    shouldSucceed(
+      "ktlintCheckGradleScripts",
+      "ktlintFormatGradleScripts",
+      "badTask",
+      "--rerun-tasks"
+    ) {
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :badTask UP-TO-DATE
+
+        > Task :ktlintFormatGradleScripts
+         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+  }
+
+  @Test
   fun `ktlintCheck lints Gradle script files`() = test {
 
     buildFile {
       """
       plugins {
-        kotlin("jvm")
         id("com.rickbusarow.ktlint")
 
       }
@@ -49,7 +87,7 @@ internal class SourceSetTest : BaseGradleTest {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
         > Task :ktlintCheckGradleScripts FAILED
-         file:///build.gradle.kts:4:1: ❌ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
+         file:///build.gradle.kts:3:1: ❌ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
          file:///settings.gradle.kts:1:1: ❌ standard:final-newline ╌ File must end with a newline (\n)
       """.trimIndent()
     }
@@ -61,7 +99,6 @@ internal class SourceSetTest : BaseGradleTest {
     buildFile {
       """
       plugins {
-        kotlin("jvm")
         id("com.rickbusarow.ktlint")
 
       }
@@ -77,7 +114,7 @@ internal class SourceSetTest : BaseGradleTest {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
         > Task :ktlintFormatGradleScripts
-         file:///build.gradle.kts:4:1: ✅ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
+         file:///build.gradle.kts:3:1: ✅ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
          file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
       """.trimIndent()
     }
