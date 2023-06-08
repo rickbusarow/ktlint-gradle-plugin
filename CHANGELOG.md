@@ -2,6 +2,11 @@
 
 ## 0.1.2-SNAPSHOT (unreleased)
 
+### Fixed
+
+- `ktlintCheck`, `ktlintFormat`, `ktlintCheckGradleScripts`, and `ktlintFormatGradleScripts` are now registered regardless of whether the target project has a Kotlin plugin applied
+- `ktlintCheckGradleScripts` and `ktlintFormatGradleScripts` will no longer have the entire target project directory as their input
+
 ## [0.1.1] - 2023-06-04
 
 ### 🧰 Maintenance
