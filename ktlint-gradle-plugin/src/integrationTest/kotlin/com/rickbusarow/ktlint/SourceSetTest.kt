@@ -49,13 +49,8 @@ internal class SourceSetTest : BaseGradleTest {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
         > Task :ktlintCheckGradleScripts FAILED
-           file: build.gradle.kts
-                 RULE ID                               DETAIL                               FILE
-              X  standard:no-blank-line-before-rbrace  Unexpected blank line(s) before "}"  file:///build.gradle.kts:4:1:
-
-           file: settings.gradle.kts
-                 RULE ID                 DETAIL                             FILE
-              X  standard:final-newline  File must end with a newline (\n)  file:///settings.gradle.kts:1:1:
+         file:///build.gradle.kts:4:1: ❌ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
+         file:///settings.gradle.kts:1:1: ❌ standard:final-newline ╌ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -82,13 +77,8 @@ internal class SourceSetTest : BaseGradleTest {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
         > Task :ktlintFormatGradleScripts
-           file: build.gradle.kts
-                 RULE ID                               DETAIL                               FILE
-              ✔  standard:no-blank-line-before-rbrace  Unexpected blank line(s) before "}"  file:///build.gradle.kts:4:1:
-
-           file: settings.gradle.kts
-                 RULE ID                 DETAIL                             FILE
-              ✔  standard:final-newline  File must end with a newline (\n)  file:///settings.gradle.kts:1:1:
+         file:///build.gradle.kts:4:1: ✅ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
+         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
       """.trimIndent()
     }
   }

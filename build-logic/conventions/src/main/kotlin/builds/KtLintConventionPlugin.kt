@@ -33,6 +33,7 @@ abstract class KtLintConventionPlugin : Plugin<Project> {
     target.tasks.withType(KtLintTask::class.java).configureEach { task ->
       task.dependsOn(":updateEditorConfigVersion")
       task.mustRunAfter(
+        target.tasks.matchingName("apiDump"),
         target.tasks.matchingName("dependencyGuard"),
         target.tasks.matchingName("dependencyGuardBaseline"),
         target.tasks.withType(KotlinApiBuildTask::class.java),

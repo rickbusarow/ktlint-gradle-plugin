@@ -106,7 +106,7 @@ internal class KtLintEngineWrapperTest {
         .toList()
     ): KtLintResultList {
       return KtLintEngineWrapper(editorConfigPath, autoCorrect = false).execute(files)
-        .also { println(it.block(root = workingDir, maxDetailWidth = 60)) }
+        .also { println(it.block()) }
     }
 
     fun format(
@@ -116,7 +116,7 @@ internal class KtLintEngineWrapperTest {
         .toList()
     ): KtLintResultList {
       return KtLintEngineWrapper(editorConfigPath, autoCorrect = true).execute(files)
-        .also { println(it.block(root = workingDir, maxDetailWidth = 60)) }
+        .also { println(it.block()) }
     }
   }
 }
