@@ -91,5 +91,5 @@ githubRelease {
 
   overwrite.set(false)
   dryRun.set(false)
-  draft.set(true)
+  draft.set(false)
 }
