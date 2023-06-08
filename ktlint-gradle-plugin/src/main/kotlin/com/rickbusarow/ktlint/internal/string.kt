@@ -49,11 +49,19 @@ fun String.remove(vararg regex: Regex): String = regex.fold(this) { acc, reg ->
   acc.replace(reg, "")
 }
 
-/** replace ` ` with `·` */
+/**
+ * replace ` ` with `·`
+ *
+ * @since 0.1.2
+ */
 internal val String.dots: String
   get() = replace(" ", "·")
 
-/** replace `·` with ` ` */
+/**
+ * replace `·` with ` `
+ *
+ * @since 0.1.2
+ */
 internal val String.noDots: String
   get() = replace("·", " ")
 

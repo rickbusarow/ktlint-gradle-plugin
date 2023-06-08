@@ -15,13 +15,21 @@
 
 package com.rickbusarow.ktlint.internal
 
-/** shorthand for `mapTo(mutableSetOf()) { ... }` */
+/**
+ * shorthand for `mapTo(mutableSetOf()) { ... }`
+ *
+ * @since 0.1.2
+ */
 inline fun <C : Iterable<T>, T, R> C.mapToSet(
   destination: MutableSet<R> = mutableSetOf(),
   transform: (T) -> R
 ): MutableSet<R> = mapTo(destination, transform)
 
-/** shorthand for `flatMapTo(mutableSetOf()) { ... }` */
+/**
+ * shorthand for `flatMapTo(mutableSetOf()) { ... }`
+ *
+ * @since 0.1.2
+ */
 inline fun <T, R> Iterable<T>.flatMapToSet(
   destination: MutableSet<R> = mutableSetOf(),
   transform: (T) -> Iterable<R>
