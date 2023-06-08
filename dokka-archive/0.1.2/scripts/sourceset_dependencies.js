@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":ktlint-gradle-plugin:dokkaHtmlPartial/main":[]}'

@@ -48,16 +48,8 @@ public final class com/rickbusarow/ktlint/internal/ApplyKt {
 public final class com/rickbusarow/ktlint/internal/CollectionsKt {
 	public static final fun flatMapToSet (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;)Ljava/util/Set;
 	public static synthetic fun flatMapToSet$default (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Set;
-	public static final fun ifNullOrEmpty (Ljava/util/Collection;Lkotlin/jvm/functions/Function0;)Ljava/util/Collection;
 	public static final fun mapToSet (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;)Ljava/util/Set;
-	public static final fun mapToSet ([Ljava/lang/Object;Ljava/util/Set;Lkotlin/jvm/functions/Function1;)Ljava/util/Set;
 	public static synthetic fun mapToSet$default (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Set;
-	public static synthetic fun mapToSet$default ([Ljava/lang/Object;Ljava/util/Set;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Set;
-	public static final fun sequenceOfNotNull ([Ljava/lang/Object;)Lkotlin/sequences/Sequence;
-	public static final fun singleNotNullOf (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun singleNotNullOf (Lkotlin/sequences/Sequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun sortedWith (Ljava/lang/Iterable;[Lkotlin/jvm/functions/Function1;)Ljava/util/List;
-	public static final fun stateful (Lkotlin/sequences/Sequence;)Lkotlin/sequences/Sequence;
 }
 
 public final class com/rickbusarow/ktlint/internal/FileKt {
