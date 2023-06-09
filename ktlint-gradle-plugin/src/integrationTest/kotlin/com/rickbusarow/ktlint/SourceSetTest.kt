@@ -56,13 +56,8 @@ internal class SourceSetTest : BaseGradleTest {
     ) {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :badTask UP-TO-DATE
-
-        > Task :ktlintFormatGradleScripts
-         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-
-        > Task :ktlintCheckGradleScripts
+        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -96,10 +91,7 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :ktlintFormatGradleScripts
-         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-
-        > Task :ktlintCheckGradleScripts
+        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -136,11 +128,8 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :ktlintFormatGradleScripts
-         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-
-        > Task :ktlintCheckGradleScripts
+        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
 
@@ -156,10 +145,7 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :ktlintFormatGradleScripts
-         file:///build-logic/build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-
-        > Task :ktlintCheckGradleScripts
+        file:///build-logic/build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -191,11 +177,8 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :ktlintFormatGradleScripts
-         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-
-        > Task :ktlintCheckGradleScripts
+        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
 
@@ -209,10 +192,7 @@ internal class SourceSetTest : BaseGradleTest {
       task(":lib:ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :lib:ktlintFormatGradleScripts
-         file:///lib/build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
-
-        > Task :lib:ktlintCheckGradleScripts
+        file:///lib/build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -237,9 +217,8 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.FAILED
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :ktlintCheckGradleScripts FAILED
-         file:///build.gradle.kts:3:1: ❌ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
-         file:///settings.gradle.kts:1:1: ❌ standard:final-newline ╌ File must end with a newline (\n)
+        file:///build.gradle.kts:3:1 ❌ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
+        file:///settings.gradle.kts:1:1 ❌ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -264,9 +243,8 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        > Task :ktlintFormatGradleScripts
-         file:///build.gradle.kts:3:1: ✅ standard:no-blank-line-before-rbrace ╌ Unexpected blank line(s) before "}"
-         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+        file:///build.gradle.kts:3:1 ✅ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
+        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
