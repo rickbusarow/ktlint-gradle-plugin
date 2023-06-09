@@ -19,12 +19,12 @@
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.ktlint.internal.createSafely
-import com.rickbusarow.ktlint.internal.div
 import com.rickbusarow.ktlint.internal.letIf
 import com.rickbusarow.ktlint.internal.suffixIfNot
 import com.rickbusarow.ktlint.testing.HasWorkingDir
 import com.rickbusarow.ktlint.testing.HasWorkingDir.Companion.testStackTraceElement
 import com.rickbusarow.ktlint.testing.SkipInStackTrace
+import com.rickbusarow.ktlint.testing.TrimmedAsserts
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldNotBe
 import org.gradle.testkit.runner.BuildResult
@@ -34,13 +34,14 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD
 import java.io.File
+import io.kotest.matchers.string.shouldInclude as kotestShouldInclude
 
 @Execution(SAME_THREAD)
-internal interface BaseGradleTest {
+internal interface BaseGradleTest : TrimmedAsserts {
 
-  open class GradleTestEnvironment(
+  class GradleTestEnvironment(
     testStackFrame: StackTraceElement
-  ) : HasWorkingDir(createWorkingDir(testStackFrame)) {
+  ) : HasWorkingDir(createWorkingDir(testStackFrame)), TrimmedAsserts {
 
     val buildFile by lazy {
       workingDir.resolve("build.gradle.kts").createSafely(
@@ -120,7 +121,7 @@ internal interface BaseGradleTest {
         }
     }
 
-    fun shouldSucceed(
+    inline fun shouldSucceed(
       vararg tasks: String,
       withPluginClasspath: Boolean = false,
       stacktrace: Boolean = true,
@@ -151,7 +152,7 @@ internal interface BaseGradleTest {
         .forEach { println("file://$it") }
     }
 
-    fun shouldFail(
+    inline fun shouldFail(
       vararg tasks: String,
       withPluginClasspath: Boolean = false,
       stacktrace: Boolean = true,
@@ -164,6 +165,15 @@ internal interface BaseGradleTest {
         shouldFail = true
       ).also { result ->
         result.assertions()
+      }
+    }
+
+    infix fun String.shouldInclude(expected: String) {
+
+      if (File.separatorChar != '/') {
+        replace(File.separator, "/").replace("(/n)","(\\n)") kotestShouldInclude expected
+      } else {
+        this@shouldInclude kotestShouldInclude expected
       }
     }
 
