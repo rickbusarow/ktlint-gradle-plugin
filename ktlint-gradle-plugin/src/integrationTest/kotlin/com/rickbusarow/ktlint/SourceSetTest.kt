@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test
 internal class SourceSetTest : BaseGradleTest {
 
   @Test
-  fun `script tasks explicit inputs for only script files`() = test {
+  fun `script tasks have explicit inputs for only script files`() = test {
 
     buildFile {
       """
@@ -60,6 +60,43 @@ internal class SourceSetTest : BaseGradleTest {
         > Task :ktlintFormatGradleScripts
          file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
          file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+  }
+
+  @Test
+  fun `script tasks ignore script files in a build directory`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+      """
+    }
+
+    @Suppress("RemoveEmptyClassBody")
+    workingDir
+      .resolve("build/generated/my-plugin.gradle.kts")
+      .kotlin(
+        """
+        package com.test
+
+        class MyPlugin { }
+
+        """
+      )
+
+    shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
+
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :ktlintFormatGradleScripts
+         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
 
         > Task :ktlintCheckGradleScripts
       """.trimIndent()

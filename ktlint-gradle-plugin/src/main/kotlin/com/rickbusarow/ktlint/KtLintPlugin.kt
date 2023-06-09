@@ -87,10 +87,15 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         target.files(
           target.projectDir
             .walkTopDown()
-            .onEnter { it != target.buildDir }
-            .onEnter { it != target.file("src") }
-            .onEnter { it !in subProjectDirs }
-            .onEnter { it !in srcDirs }
+            .onEnter {
+              when (it) {
+                target.buildDir -> false
+                target.file("src") -> false
+                in subProjectDirs -> false
+                in srcDirs -> false
+                else -> true
+              }
+            }
             .filter { it.name.matches(reg) }.toList()
         )
       },
