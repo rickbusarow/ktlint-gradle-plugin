@@ -29,12 +29,8 @@ public abstract class com/rickbusarow/ktlint/KtLintTask : org/gradle/api/Default
 }
 
 public abstract class com/rickbusarow/ktlint/KtLintWorkAction : org/gradle/workers/WorkAction {
-	public static final field Companion Lcom/rickbusarow/ktlint/KtLintWorkAction$Companion;
 	public fun <init> ()V
 	public fun execute ()V
-}
-
-public final class com/rickbusarow/ktlint/KtLintWorkAction$Companion {
 }
 
 public abstract interface class com/rickbusarow/ktlint/KtLintWorkAction$KtLintWorkParameters : org/gradle/workers/WorkParameters {
@@ -47,6 +43,13 @@ public abstract interface class com/rickbusarow/ktlint/KtLintWorkAction$KtLintWo
 
 public final class com/rickbusarow/ktlint/internal/ApplyKt {
 	public static final fun requireNotNull (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/rickbusarow/ktlint/internal/CollectionsKt {
+	public static final fun flatMapToSet (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;)Ljava/util/Set;
+	public static synthetic fun flatMapToSet$default (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Set;
+	public static final fun mapToSet (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;)Ljava/util/Set;
+	public static synthetic fun mapToSet$default (Ljava/lang/Iterable;Ljava/util/Set;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Set;
 }
 
 public final class com/rickbusarow/ktlint/internal/FileKt {

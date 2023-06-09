@@ -21,7 +21,9 @@ import com.rickbusarow.ktlint.internal.GradleProvider
 import com.rickbusarow.ktlint.internal.addAsDependencyTo
 import com.rickbusarow.ktlint.internal.capitalize
 import com.rickbusarow.ktlint.internal.dependsOn
+import com.rickbusarow.ktlint.internal.flatMapToSet
 import com.rickbusarow.ktlint.internal.isRootProject
+import com.rickbusarow.ktlint.internal.mapToSet
 import com.rickbusarow.ktlint.internal.matchingName
 import com.rickbusarow.ktlint.internal.registerOnce
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
@@ -31,6 +33,7 @@ import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
 
 /** @since 0.1.1 */
@@ -56,17 +59,66 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       target.projectDir.resolveInParentOrNull(".editorconfig")
     }
 
+    val sourceSets = getSourceSets(target)
+
+    var rootName = "root"
+    while (sourceSets.containsKey(rootName)) {
+      rootName += "_"
+    }
+
+    val rootTaskPair = registerFormatCheckPair(
+      target = target,
+      taskNameSuffix = "",
+      sourceFileShadowDirectory = target.sourceFileShadowDirectory(rootName),
+      sourceDirectorySet = null,
+      editorConfigFile = editorConfigFile,
+      configProvider = configProvider
+    )
+
+    val scriptTaskPair = registerFormatCheckPair(
+      target = target,
+      taskNameSuffix = "GradleScripts",
+      sourceFileShadowDirectory = target.sourceFileShadowDirectory("gradleScripts"),
+      sourceDirectorySet = target.provider {
+
+        val includedBuildDirs = target.gradle.includedBuilds.map { it.projectDir }
+        val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
+        val srcDirs = sourceSets.values.flatMapToSet { it.get().kotlin.srcDirs }
+        val reg = Regex(""".*\.gradle\.kts$""")
+        target.files(
+          target.projectDir
+            .walkTopDown()
+            .onEnter {
+              when (it) {
+                target.buildDir -> false
+                target.file("src") -> false
+                in includedBuildDirs -> false
+                in subProjectDirs -> false
+                in srcDirs -> false
+                else -> true
+              }
+            }
+            .filter { it.name.matches(reg) }.toList()
+        )
+      },
+      editorConfigFile = editorConfigFile,
+      configProvider = configProvider
+    )
+
+    rootTaskPair.first.dependsOn(scriptTaskPair.first)
+    rootTaskPair.second.dependsOn(scriptTaskPair.second)
+
     target.plugins.withId("org.jetbrains.kotlin.jvm") {
-      registerKotlinTasks(target, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.android") {
-      registerKotlinTasks(target, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.js") {
-      registerKotlinTasks(target, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
-      registerKotlinTasks(target, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
     }
 
     if (target.isRootProject()) {
@@ -76,86 +128,46 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
   private fun registerKotlinTasks(
     target: GradleProject,
+    rootTaskPair: Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>>,
+    sourceSets: Map<String, NamedDomainObjectProvider<KotlinSourceSet>>,
     editorConfigFile: Lazy<File?>,
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ) {
 
-    val kotlinExtension = try {
-      val extension = target.extensions.findByName("kotlin") ?: return
-
-      extension as? org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer ?: return
-    } catch (_: ClassNotFoundException) {
-      return
-    } catch (_: NoClassDefFoundError) {
-      return
-    }
-
-    val sourceSetNames = kotlinExtension.sourceSets.names
-
-    val pairs = sourceSetNames.map { sourceSetName ->
+    val pairs = sourceSets.map { (sourceSetName, sourceSet) ->
       registerFormatCheckPair(
         target = target,
         taskNameSuffix = sourceSetName.capitalize(),
         sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
-        sourceDirectorySet = kotlinExtension.sourceSets.named(sourceSetName)
-          .map { sourceSet ->
-            sourceSet.kotlin.minus(target.fileTree(target.buildDir))
-          },
+        sourceDirectorySet = sourceSet.map { it.kotlin.minus(target.fileTree(target.buildDir)) },
         editorConfigFile = editorConfigFile,
         configProvider = configProvider
       )
-    }.plus(
-      registerFormatCheckPair(
-        target = target,
-        taskNameSuffix = "GradleScripts",
-        sourceFileShadowDirectory = target.sourceFileShadowDirectory("gradleScripts"),
-        sourceDirectorySet = target.provider {
-          target.fileTree(target.projectDir) { fileTree ->
-            fileTree.exclude("build/**")
-            fileTree.exclude("**/src/**")
-
-            fileTree.exclude(
-              target.subprojects
-                .map { it.projectDir.relativeTo(target.projectDir).path + "/**" }
-            )
-            fileTree.exclude(
-              target.gradle
-                .includedBuilds.map { it.projectDir.relativeTo(target.projectDir).path + "/**" }
-            )
-
-            fileTree.exclude(
-              kotlinExtension.sourceSets
-                .flatMap { it.kotlin.srcDirs }
-                .map { it.path }
-            )
-
-            fileTree.include("**/*.gradle.kts")
-          }
-        },
-        editorConfigFile = editorConfigFile,
-        configProvider = configProvider
-      )
-    )
+    }
 
     val formatTasks = pairs.map { it.first }
     val lintTasks = pairs.map { it.second }
 
-    var rootName = "root"
-    while (rootName in sourceSetNames) {
-      rootName += "_"
+    rootTaskPair.first.dependsOn(formatTasks)
+    rootTaskPair.second.dependsOn(lintTasks)
+  }
+
+  private fun getSourceSets(target: GradleProject): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
+
+    val kotlinExtension = try {
+      val extension = target.extensions.findByName("kotlin")
+
+      extension as? org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
+    } catch (_: ClassNotFoundException) {
+      return emptyMap()
+    } catch (_: NoClassDefFoundError) {
+      return emptyMap()
     }
 
-    val (format, check) = registerFormatCheckPair(
-      target = target,
-      taskNameSuffix = "",
-      sourceFileShadowDirectory = target.sourceFileShadowDirectory(rootName),
-      sourceDirectorySet = null,
-      editorConfigFile = editorConfigFile,
-      configProvider = configProvider
-    )
-
-    format.dependsOn(formatTasks)
-    check.dependsOn(lintTasks)
+    return kotlinExtension?.sourceSets
+      ?.names
+      ?.associateWith { kotlinExtension.sourceSets.named(it) }
+      .orEmpty()
   }
 
   private fun registerFormatCheckPair(

@@ -48,3 +48,27 @@ fun String.remove(vararg strings: String): String = strings.fold(this) { acc, st
 fun String.remove(vararg regex: Regex): String = regex.fold(this) { acc, reg ->
   acc.replace(reg, "")
 }
+
+/**
+ * replace ` ` with `·`
+ *
+ * @since 0.1.2
+ */
+internal val String.dots: String
+  get() = replace(" ", "·")
+
+/**
+ * replace `·` with ` `
+ *
+ * @since 0.1.2
+ */
+internal val String.noDots: String
+  get() = replace("·", " ")
+
+/**
+ * `"$prefix$this$suffix"`
+ *
+ * @since 1.0.4
+ */
+internal fun CharSequence.wrapIn(prefix: String, suffix: String = prefix): String =
+  "$prefix$this$suffix"
