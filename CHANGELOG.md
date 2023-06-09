@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.1.4-SNAPSHOT (unreleased)
+## 0.1.5-SNAPSHOT (unreleased)
+
+## [0.1.4] - 2023-06-09
 
 ### Fixed
 
@@ -40,3 +42,4 @@ Hello World
 [0.1.1]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.1
 [0.1.2]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.2
 [0.1.3]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.3
+[0.1.4]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.4
