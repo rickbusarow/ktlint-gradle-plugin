@@ -81,6 +81,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       sourceFileShadowDirectory = target.sourceFileShadowDirectory("gradleScripts"),
       sourceDirectorySet = target.provider {
 
+        val includedBuildDirs = target.gradle.includedBuilds.map { it.projectDir }
         val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
         val srcDirs = sourceSets.values.flatMapToSet { it.get().kotlin.srcDirs }
         val reg = Regex(""".*\.gradle\.kts$""")
@@ -91,6 +92,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
               when (it) {
                 target.buildDir -> false
                 target.file("src") -> false
+                in includedBuildDirs -> false
                 in subProjectDirs -> false
                 in srcDirs -> false
                 else -> true

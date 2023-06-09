@@ -2,6 +2,10 @@
 
 ## 0.1.4-SNAPSHOT (unreleased)
 
+### Fixed
+
+- `ktlintCheckGradleScripts` and `ktlintFormatGradleScripts` will no longer check files in included builds
+
 ## [0.1.3] - 2023-06-09
 
 ### Fixed
