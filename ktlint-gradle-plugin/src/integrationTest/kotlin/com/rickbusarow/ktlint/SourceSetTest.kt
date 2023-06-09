@@ -19,6 +19,7 @@
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
+import com.rickbusarow.ktlint.internal.createSafely
 import com.rickbusarow.ktlint.internal.remove
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldInclude
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test
 internal class SourceSetTest : BaseGradleTest {
 
   @Test
-  fun `script tasks explicit inputs for only script files`() = test {
+  fun `script tasks have explicit inputs for only script files`() = test {
 
     buildFile {
       """
@@ -62,6 +63,156 @@ internal class SourceSetTest : BaseGradleTest {
          file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
 
         > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+  }
+
+  @Test
+  fun `script tasks ignore script files in a build directory`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+      """
+    }
+
+    @Suppress("RemoveEmptyClassBody")
+    workingDir
+      .resolve("build/generated/my-plugin.gradle.kts")
+      .kotlin(
+        """
+        package com.test
+
+        class MyPlugin { }
+
+        """
+      )
+
+    shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
+
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :ktlintFormatGradleScripts
+         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+  }
+
+  @Test
+  fun `script tasks ignore script files in an included build directory`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+      """
+    }
+
+    with(workingDir.resolve("build-logic")) {
+      resolve("build.gradle.kts")
+        .createSafely(buildFile.readText())
+      resolve("settings.gradle.kts")
+        .createSafely(settingsFile.readText().lineSequence().drop(1).joinToString("\n"))
+    }
+
+    settingsFile {
+      settingsFile.readText()
+        .replace(
+          "pluginManagement {",
+          "pluginManagement {\n  includeBuild(\"build-logic\")"
+        )
+    }
+
+    shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
+
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :ktlintFormatGradleScripts
+         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+
+    // ensure that tasks against the build-logic directory would find more stuff
+    shouldSucceed(
+      "-p",
+      "build-logic",
+      "ktlintCheckGradleScripts",
+      "ktlintFormatGradleScripts"
+    ) {
+
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :ktlintFormatGradleScripts
+         file:///build-logic/build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+  }
+
+  @Test
+  fun `script tasks ignore script files in a sub project directory`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+      """
+    }
+
+    with(workingDir.resolve("lib")) {
+      resolve("build.gradle.kts")
+        .createSafely(buildFile.readText())
+    }
+
+    settingsFile {
+      settingsFile.readText()
+        .plus("include(\"lib\")")
+    }
+
+    shouldSucceed(":ktlintCheckGradleScripts", ":ktlintFormatGradleScripts") {
+
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :ktlintFormatGradleScripts
+         file:///build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+         file:///settings.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :ktlintCheckGradleScripts
+      """.trimIndent()
+    }
+
+    // ensure that tasks against the lib would find more stuff
+    shouldSucceed(
+      ":lib:ktlintCheckGradleScripts",
+      ":lib:ktlintFormatGradleScripts"
+    ) {
+
+      task(":lib:ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":lib:ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        > Task :lib:ktlintFormatGradleScripts
+         file:///lib/build.gradle.kts:1:1: ✅ standard:final-newline ╌ File must end with a newline (\n)
+
+        > Task :lib:ktlintCheckGradleScripts
       """.trimIndent()
     }
   }

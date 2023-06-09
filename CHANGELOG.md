@@ -1,6 +1,18 @@
 # Changelog
 
-## 0.1.3-SNAPSHOT (unreleased)
+## 0.1.5-SNAPSHOT (unreleased)
+
+## [0.1.4] - 2023-06-09
+
+### Fixed
+
+- `ktlintCheckGradleScripts` and `ktlintFormatGradleScripts` will no longer check files in included builds
+
+## [0.1.3] - 2023-06-09
+
+### Fixed
+
+- `ktlintCheckGradleScripts` and `ktlintFormatGradleScripts` will no longer check generated script files in `build` directories
 
 ## [0.1.2] - 2023-06-08
 
@@ -29,3 +41,5 @@ Hello World
 [0.1.0]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.0
 [0.1.1]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.1
 [0.1.2]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.2
+[0.1.3]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.3
+[0.1.4]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.4
