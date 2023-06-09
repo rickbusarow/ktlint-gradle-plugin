@@ -89,7 +89,11 @@ buildConfig {
     className("BuildConfig")
 
     buildConfigField("String", "gradleVersion", "\"${gradle.gradleVersion}\"")
-    buildConfigField("String", "gradleUserHomeDir", "\"${gradle.gradleUserHomeDir}\"")
+    buildConfigField(
+      type = "String",
+      name = "gradleUserHomeDir",
+      value = "\"${gradle.gradleUserHomeDir.invariantSeparatorsPath}\""
+    )
     buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
     buildConfigField("String", "ktlintVersion", "\"${libs.versions.ktlint.lib.get()}\"")
     buildConfigField("String", "pluginId", "\"$pluginId\"")

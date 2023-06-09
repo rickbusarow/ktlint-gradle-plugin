@@ -28,7 +28,7 @@ internal data class KtLintResult(
   val ruleId: String
 ) : Comparable<KtLintResult> {
 
-  val fileWithPosition by lazy(NONE) { "file://$file:$line:$col:" }
+  val fileWithPosition by lazy(NONE) { "file://$file:$line:$col" }
 
   override fun compareTo(other: KtLintResult): Int {
     return compareValuesBy(
@@ -77,7 +77,6 @@ internal data class KtLintResultList(
 
     return buildString {
 
-      append(" ")
       append(fileWithPosition)
       append(" ")
 
@@ -85,7 +84,7 @@ internal data class KtLintResultList(
       append(" ")
 
       append(ruleId.ansi(ruleColor))
-      append(" ╌ ")
+      append(" ═ ")
 
       append(detail.trim())
     }
