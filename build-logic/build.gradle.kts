@@ -35,17 +35,6 @@ moduleCheck {
 }
 
 allprojects {
-  configurations.all {
-    resolutionStrategy {
-      eachDependency {
-        when {
-          requested.name.startsWith("kotlinx-serialization") -> {
-            useVersion(libs.versions.kotlinx.serialization.get())
-          }
-        }
-      }
-    }
-  }
 
   afterEvaluate {
     configure<JavaPluginExtension> {

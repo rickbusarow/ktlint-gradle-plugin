@@ -44,8 +44,6 @@ dependencies {
 
   compileOnly(gradleApi())
 
-  compileOnly(libs.google.auto.service.annotations)
-
   implementation(libs.benManes.versions)
   implementation(libs.dependency.analysis.gradle.plugin)
   implementation(libs.detekt.gradle)
