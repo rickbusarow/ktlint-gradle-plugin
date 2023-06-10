@@ -20,6 +20,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -36,6 +37,7 @@ import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
 /** @since 0.1.1 */
+@CacheableTask
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintTask(
   private val workerExecutor: WorkerExecutor,
@@ -128,6 +130,7 @@ abstract class KtLintTask(
 }
 
 /** @since 0.1.1 */
+@CacheableTask
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintFormatTask @Inject constructor(
   workerExecutor: WorkerExecutor
@@ -139,6 +142,7 @@ abstract class KtLintFormatTask @Inject constructor(
 }
 
 /** @since 0.1.1 */
+@CacheableTask
 abstract class KtLintCheckTask @Inject constructor(
   workerExecutor: WorkerExecutor
 ) : KtLintTask(workerExecutor, autoCorrect = false) {
