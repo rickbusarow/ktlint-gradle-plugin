@@ -19,6 +19,7 @@
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.ktlint.internal.createSafely
+import com.rickbusarow.ktlint.internal.div
 import com.rickbusarow.ktlint.internal.letIf
 import com.rickbusarow.ktlint.internal.suffixIfNot
 import com.rickbusarow.ktlint.testing.HasWorkingDir
@@ -91,7 +92,6 @@ internal interface BaseGradleTest : TrimmedAsserts {
       GradleRunner.create()
         .forwardOutput()
         .withGradleVersion(BuildConfig.gradleVersion)
-        // .withTestKitDir(workingDir / "testKit")
         .withDebug(true)
         .withProjectDir(workingDir)
     }
@@ -99,12 +99,14 @@ internal interface BaseGradleTest : TrimmedAsserts {
     private fun build(
       tasks: List<String>,
       withPluginClasspath: Boolean,
+      withHermeticTestKit: Boolean,
       stacktrace: Boolean,
-      shouldFail: Boolean = false
+      shouldFail: Boolean
     ): BuildResult {
       ensureFilesAreWritten()
       return gradleRunner
         .letIf(withPluginClasspath) { withPluginClasspath() }
+        .letIf(withHermeticTestKit) { withTestKitDir(workingDir / "testKit") }
         .withArguments(tasks.letIf(stacktrace) { plus("--stacktrace") })
         .let { runner ->
           if (shouldFail) {
@@ -124,6 +126,7 @@ internal interface BaseGradleTest : TrimmedAsserts {
     inline fun shouldSucceed(
       vararg tasks: String,
       withPluginClasspath: Boolean = false,
+      withHermeticTestKit: Boolean = false,
       stacktrace: Boolean = true,
       assertions: BuildResult.() -> Unit = {}
     ): BuildResult {
@@ -131,6 +134,7 @@ internal interface BaseGradleTest : TrimmedAsserts {
       return build(
         tasks.toList(),
         withPluginClasspath = withPluginClasspath,
+        withHermeticTestKit = withHermeticTestKit,
         stacktrace = stacktrace,
         shouldFail = false
       ).also { result ->
@@ -155,12 +159,14 @@ internal interface BaseGradleTest : TrimmedAsserts {
     inline fun shouldFail(
       vararg tasks: String,
       withPluginClasspath: Boolean = false,
+      withHermeticTestKit: Boolean = false,
       stacktrace: Boolean = true,
       assertions: BuildResult.() -> Unit = {}
     ): BuildResult {
       return build(
         tasks.toList(),
         withPluginClasspath = withPluginClasspath,
+        withHermeticTestKit = withHermeticTestKit,
         stacktrace = stacktrace,
         shouldFail = true
       ).also { result ->
@@ -171,7 +177,7 @@ internal interface BaseGradleTest : TrimmedAsserts {
     infix fun String.shouldInclude(expected: String) {
 
       if (File.separatorChar != '/') {
-        replace(File.separator, "/").replace("(/n)","(\\n)") kotestShouldInclude expected
+        replace(File.separator, "/").replace("(/n)", "(\\n)") kotestShouldInclude expected
       } else {
         this@shouldInclude kotestShouldInclude expected
       }
