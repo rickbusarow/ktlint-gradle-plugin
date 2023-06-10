@@ -52,18 +52,18 @@ internal class KtLintResultBlockTest : Tests {
     )
 
     val expected = """
-      | file:///root/src/Subject.kt:-2147483648:100: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:0:0: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:0:1: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:174:-2147483648: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:174:100: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:174:2147483647: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:213:-1: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:213:1: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:213:3: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:405:100: ✅ rule-id ╌ detail
-      | file:///root/src/Subject.kt:2147483647:100: ✅ rule-id ╌ detail
-    """.trimMargin()
+      file:///root/src/Subject.kt:-2147483648:100 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:0:0 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:0:1 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:174:-2147483648 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:174:100 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:174:2147483647 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:213:-1 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:213:1 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:213:3 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:405:100 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:2147483647:100 ✅ rule-id ═ detail
+    """.trimIndent()
 
     block(results) shouldBe expected
   }
@@ -85,8 +85,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       block(result) shouldBe """
-      | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa
-      """.trimMargin()
+      file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa
+      """.trimIndent()
     }
 
     @Test
@@ -102,8 +102,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       val expected = """
-        | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+      """.trimIndent()
 
       block(result) shouldBe expected
     }
@@ -121,8 +121,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       val expected = """
-        | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a
+      """.trimIndent()
 
       block(result) shouldBe expected
     }
@@ -140,8 +140,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       val expected = """
-        | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ a a a a a a a a a a a a a a a a a a a
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ a a a a a a a a a a a a a a a a a a a
+      """.trimIndent()
 
       block(result) shouldBe expected
     }
@@ -159,8 +159,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       val expected = """
-        | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      """.trimIndent()
 
       block(result) shouldBe expected
     }
@@ -178,8 +178,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       val expected = """
-        | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      """.trimIndent()
 
       block(result) shouldBe expected
     }
@@ -197,8 +197,8 @@ internal class KtLintResultBlockTest : Tests {
       )
 
       val expected = """
-        | file:///root/src/Subject.kt:1:1: ✅ rule-id ╌ aaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      """.trimIndent()
 
       block(result) shouldBe expected
     }
