@@ -16,8 +16,8 @@
 package com.rickbusarow.ktlint
 
 import io.kotest.matchers.collections.shouldContainInOrder
-import io.kotest.matchers.shouldBe
 import org.gradle.testkit.runner.TaskOutcome.FAILED
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.Test
 
@@ -68,6 +68,28 @@ internal class LifecycleTest : BaseGradleTest {
         task(":ktlintCheck")?.outcome shouldBe SUCCESS
       }
     }
+
+  @Test
+  fun `ktlintFormat is cacheable`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+      }
+      """
+    }
+
+    shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
+      task(":ktlintFormat")?.outcome shouldBe SUCCESS
+    }
+
+    workingDir.resolve("build").deleteRecursively()
+
+    shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
+      task(":ktlintFormat")?.outcome shouldBe FROM_CACHE
+    }
+  }
 
   @Test
   fun `gradle scripts tasks exist even if the project does not have a Kotlin plugin`() = test {
