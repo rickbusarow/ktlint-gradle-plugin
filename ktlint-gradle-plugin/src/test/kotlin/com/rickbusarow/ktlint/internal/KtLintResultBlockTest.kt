@@ -16,13 +16,12 @@
 package com.rickbusarow.ktlint.internal
 
 import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
-import io.kotest.matchers.shouldBe
-import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
+import com.rickbusarow.ktlint.testing.Tests
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
 
-internal class KtLintResultBlockTest {
+internal class KtLintResultBlockTest : Tests {
 
   @Test
   fun `results for the same file are sorted by position`() {
@@ -43,7 +42,7 @@ internal class KtLintResultBlockTest {
       ).map { (line, col) ->
         KtLintResult(
           true,
-          file = File("root/src/Subject.kt"),
+          file = File("/root/src/Subject.kt"),
           line = line,
           col = col,
           detail = "detail",
@@ -53,23 +52,20 @@ internal class KtLintResultBlockTest {
     )
 
     val expected = """
-      |   file: src/Subject.kt
-      |         RULE ID  DETAIL  FILE
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:-2147483648:100:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:0:0:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:0:1:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:-2147483648:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:100:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:174:2147483647:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:-1:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:1:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:213:3:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:405:100:
-      |      ✔  rule-id  detail  file://root/src/Subject.kt:2147483647:100:
-      |
-    """.trimMargin()
+      file:///root/src/Subject.kt:-2147483648:100 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:0:0 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:0:1 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:174:-2147483648 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:174:100 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:174:2147483647 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:213:-1 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:213:1 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:213:3 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:405:100 ✅ rule-id ═ detail
+      file:///root/src/Subject.kt:2147483647:100 ✅ rule-id ═ detail
+    """.trimIndent()
 
-    block(results, maxDetailWidth = 60) shouldBe expected
+    block(results) shouldBe expected
   }
 
   @Nested
@@ -81,20 +77,16 @@ internal class KtLintResultBlockTest {
       val detail = ("a" + "a a".repeat(40)).dropLast(1)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
         ruleId = "rule-id"
       )
 
-      block(result, maxDetailWidth = 60) shouldBe """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                                                       FILE
-        |      ✔  rule-id  aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa  file://root/src/Subject.kt:1:1:
-        |                  aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa
-        |
-      """.trimMargin()
+      block(result) shouldBe """
+      file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa
+      """.trimIndent()
     }
 
     @Test
@@ -102,7 +94,7 @@ internal class KtLintResultBlockTest {
       val detail = "aaa ".repeat(15) + "aaa ".repeat(15)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
@@ -110,14 +102,10 @@ internal class KtLintResultBlockTest {
       )
 
       val expected = """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                                                       FILE
-        |      ✔  rule-id  aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa  file://root/src/Subject.kt:1:1:
-        |                  aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
-        |
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+      """.trimIndent()
 
-      block(result, maxDetailWidth = 60) shouldBe expected
+      block(result) shouldBe expected
     }
 
     @Test
@@ -125,7 +113,7 @@ internal class KtLintResultBlockTest {
       val detail = "a ".repeat(15) + "a ".repeat(15)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
@@ -133,14 +121,10 @@ internal class KtLintResultBlockTest {
       )
 
       val expected = """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                         FILE
-        |      ✔  rule-id  a a a a a a a a a a a a a a a  file://root/src/Subject.kt:1:1:
-        |                  a a a a a a a a a a a a a a a
-        |
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a
+      """.trimIndent()
 
-      block(result, maxDetailWidth = 30) shouldBe expected
+      block(result) shouldBe expected
     }
 
     @Test
@@ -148,7 +132,7 @@ internal class KtLintResultBlockTest {
       val detail = "a ".repeat(15) + "a ".repeat(4)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
@@ -156,14 +140,10 @@ internal class KtLintResultBlockTest {
       )
 
       val expected = """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                         FILE
-        |      ✔  rule-id  a a a a a a a a a a a a a a a  file://root/src/Subject.kt:1:1:
-        |                  a a a a
-        |
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ a a a a a a a a a a a a a a a a a a a
+      """.trimIndent()
 
-      block(result, maxDetailWidth = 30) shouldBe expected
+      block(result) shouldBe expected
     }
 
     @Test
@@ -171,7 +151,7 @@ internal class KtLintResultBlockTest {
       val detail = "a".repeat(29)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
@@ -179,13 +159,10 @@ internal class KtLintResultBlockTest {
       )
 
       val expected = """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                         FILE
-        |      ✔  rule-id  aaaaaaaaaaaaaaaaaaaaaaaaaaaaa  file://root/src/Subject.kt:1:1:
-        |
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      """.trimIndent()
 
-      block(result, maxDetailWidth = 30) shouldBe expected
+      block(result) shouldBe expected
     }
 
     @Test
@@ -193,7 +170,7 @@ internal class KtLintResultBlockTest {
       val detail = "a".repeat(30)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
@@ -201,13 +178,10 @@ internal class KtLintResultBlockTest {
       )
 
       val expected = """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                          FILE
-        |      ✔  rule-id  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  file://root/src/Subject.kt:1:1:
-        |
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      """.trimIndent()
 
-      block(result, maxDetailWidth = 60) shouldBe expected
+      block(result) shouldBe expected
     }
 
     @Test
@@ -215,7 +189,7 @@ internal class KtLintResultBlockTest {
       val detail = "aaa " + "a".repeat(31)
       val result = KtLintResult(
         true,
-        file = File("root/src/Subject.kt"),
+        file = File("/root/src/Subject.kt"),
         line = 1,
         col = 1,
         detail = detail,
@@ -223,36 +197,24 @@ internal class KtLintResultBlockTest {
       )
 
       val expected = """
-        |   file: src/Subject.kt
-        |         RULE ID  DETAIL                           FILE
-        |      ✔  rule-id  aaa                              file://root/src/Subject.kt:1:1:
-        |                  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        |
-      """.trimMargin()
+        file:///root/src/Subject.kt:1:1 ✅ rule-id ═ aaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      """.trimIndent()
 
-      block(result, maxDetailWidth = 30) shouldBe expected
+      block(result) shouldBe expected
     }
   }
 
-  private fun block(
-    result: KtLintResult,
-    maxDetailWidth: Int,
-    root: File = File("root")
-  ): String {
+  private fun block(result: KtLintResult): String {
     return KtLintResultList(result)
-      .block(root = root, maxDetailWidth = maxDetailWidth)
+      .block()
       .also(::println)
       .noAnsi()
       .replace(File.separator, "/")
   }
 
-  private fun block(
-    results: List<KtLintResult>,
-    maxDetailWidth: Int,
-    root: File = File("root")
-  ): String {
+  private fun block(results: List<KtLintResult>): String {
     return KtLintResultList(results)
-      .block(root = root, maxDetailWidth = maxDetailWidth)
+      .block()
       .also(::println)
       .noAnsi()
       .replace(File.separator, "/")

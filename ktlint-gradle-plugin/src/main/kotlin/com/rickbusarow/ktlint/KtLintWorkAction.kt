@@ -64,10 +64,7 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
 
     if (results.isNotEmpty()) {
       logger.lifecycle(
-        results.block(
-          root = parameters.rootDir.get().asFile,
-          maxDetailWidth = MAX_DETAIL_COLUMN_WIDTH
-        )
+        results.block()
       )
 
       val errors = results.filter { !it.fixed }
@@ -98,9 +95,5 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
 
     /** @since 0.1.1 */
     val rootDir: DirectoryProperty
-  }
-
-  companion object {
-    private const val MAX_DETAIL_COLUMN_WIDTH = 60
   }
 }
