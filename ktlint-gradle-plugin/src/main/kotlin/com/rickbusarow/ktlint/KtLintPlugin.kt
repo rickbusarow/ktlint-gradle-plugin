@@ -52,24 +52,17 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     BuildConfig.deps.split(",")
       .map { it.trim() }
       .forEach { coords ->
-        target.dependencies.add("ktlint", coords)
+        target.dependencies.add("ktlintAllDependencies", coords)
       }
 
     val editorConfigFile = lazy {
       target.projectDir.resolveInParentOrNull(".editorconfig")
     }
 
-    val sourceSets = getSourceSets(target)
-
-    var rootName = "root"
-    while (sourceSets.containsKey(rootName)) {
-      rootName += "_"
-    }
-
     val rootTaskPair = registerFormatCheckPair(
       target = target,
       taskNameSuffix = "",
-      sourceFileShadowDirectory = target.sourceFileShadowDirectory(rootName),
+      sourceFileShadowDirectory = target.sourceFileShadowDirectory("ktlintRoot"),
       sourceDirectorySet = null,
       editorConfigFile = editorConfigFile,
       configProvider = configProvider
@@ -83,7 +76,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
         val includedBuildDirs = target.gradle.includedBuilds.map { it.projectDir }
         val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
-        val srcDirs = sourceSets.values.flatMapToSet { it.get().kotlin.srcDirs }
+        val srcDirs = target.getSourceSets().values.flatMapToSet { it.get().kotlin.srcDirs }
         val reg = Regex(""".*\.gradle\.kts$""")
         target.files(
           target.projectDir
@@ -109,41 +102,41 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     rootTaskPair.second.dependsOn(scriptTaskPair.second)
 
     target.plugins.withId("org.jetbrains.kotlin.jvm") {
-      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.android") {
-      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.js") {
-      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
-      registerKotlinTasks(target, rootTaskPair, sourceSets, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
     }
 
     if (target.isRootProject()) {
-      target.registerSyncRuleSetJars(configProvider)
+      target.registerSyncRuleSetJars(rulesetConfig)
     }
   }
 
   private fun registerKotlinTasks(
     target: GradleProject,
     rootTaskPair: Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>>,
-    sourceSets: Map<String, NamedDomainObjectProvider<KotlinSourceSet>>,
     editorConfigFile: Lazy<File?>,
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ) {
 
-    val pairs = sourceSets.map { (sourceSetName, sourceSet) ->
-      registerFormatCheckPair(
-        target = target,
-        taskNameSuffix = sourceSetName.capitalize(),
-        sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
-        sourceDirectorySet = sourceSet.map { it.kotlin.minus(target.fileTree(target.buildDir)) },
-        editorConfigFile = editorConfigFile,
-        configProvider = configProvider
-      )
-    }
+    val pairs = target.getSourceSets()
+      .map { (sourceSetName, sourceSet) ->
+        registerFormatCheckPair(
+          target = target,
+          taskNameSuffix = sourceSetName.capitalize(),
+          sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
+          sourceDirectorySet = sourceSet.map { it.kotlin.minus(target.fileTree(target.buildDir)) },
+          editorConfigFile = editorConfigFile,
+          configProvider = configProvider
+        )
+      }
 
     val formatTasks = pairs.map { it.first }
     val lintTasks = pairs.map { it.second }
@@ -152,10 +145,10 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     rootTaskPair.second.dependsOn(lintTasks)
   }
 
-  private fun getSourceSets(target: GradleProject): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
+  private fun GradleProject.getSourceSets(): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
 
     val kotlinExtension = try {
-      val extension = target.extensions.findByName("kotlin")
+      val extension = extensions.findByName("kotlin")
 
       extension as? org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
     } catch (_: ClassNotFoundException) {

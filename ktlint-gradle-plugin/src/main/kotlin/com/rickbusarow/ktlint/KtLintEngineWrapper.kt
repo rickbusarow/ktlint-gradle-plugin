@@ -25,12 +25,6 @@ import com.rickbusarow.ktlint.internal.KtLintResult
 import com.rickbusarow.ktlint.internal.KtLintResultList
 import com.rickbusarow.ktlint.internal.commonParent
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.ServiceLoader
 import java.util.concurrent.ConcurrentHashMap
@@ -60,7 +54,7 @@ internal class KtLintEngineWrapper(
    *
    * @since 0.1.1
    */
-  fun execute(kotlinFiles: List<File>): KtLintResultList = runBlocking {
+  fun execute(kotlinFiles: List<File>): KtLintResultList {
 
     val ecDefaults = getEditorConfigDefaults(kotlinFiles)
 
@@ -76,7 +70,7 @@ internal class KtLintEngineWrapper(
         isInvokedFromCli = false
       )
     }
-    kotlinFiles.map { kotlinFile ->
+    return kotlinFiles.flatMap { kotlinFile ->
 
       if (autoCorrect) {
         formatFile(kotlinFile, engine)
@@ -84,8 +78,6 @@ internal class KtLintEngineWrapper(
         lintFile(kotlinFile, engine)
       }
     }
-      .awaitAll()
-      .flatten()
       .let { KtLintResultList(it) }
   }
 
@@ -118,10 +110,10 @@ internal class KtLintEngineWrapper(
     }
   }
 
-  private fun CoroutineScope.lintFile(
+  private fun lintFile(
     kotlinFile: File,
     engine: KtLintRuleEngine
-  ): Deferred<MutableList<KtLintResult>> = async(Dispatchers.Default) {
+  ): MutableList<KtLintResult> {
 
     val results = mutableListOf<KtLintResult>()
 
@@ -139,13 +131,13 @@ internal class KtLintEngineWrapper(
       )
     }
 
-    results
+    return results
   }
 
-  private fun CoroutineScope.formatFile(
+  private fun formatFile(
     kotlinFile: File,
     engine: KtLintRuleEngine
-  ): Deferred<MutableList<KtLintResult>> = async(Dispatchers.Default) {
+  ): MutableList<KtLintResult> {
 
     val inContent by lazy(NONE) { kotlinFile.readText() }
 
@@ -168,6 +160,7 @@ internal class KtLintEngineWrapper(
     if (results.isNotEmpty() && outContent != inContent) {
       kotlinFile.writeText(outContent)
     }
-    results
+
+    return results
   }
 }
