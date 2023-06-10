@@ -248,4 +248,36 @@ internal class SourceSetTest : BaseGradleTest {
       """.trimIndent()
     }
   }
+
+  @Test
+  fun `source set tasks are registered if the Kotlin plugin is applied after ktlint`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+        kotlin("jvm")
+      }
+      """
+    }
+
+    workingDir
+      .resolve("src/main/kotlin/com/test/File.kt")
+      .kotlin(
+        """
+        package com.test
+
+        class File { }
+
+        """
+      )
+
+    shouldSucceed("ktlintFormat") {
+      task(":ktlintFormatMain")?.outcome shouldBe TaskOutcome.SUCCESS
+
+      output.remove(workingDir.path).noAnsi() shouldInclude """
+        file:///src/main/kotlin/com/test/File.kt:3:12 ✅ standard:no-empty-class-body ═ Unnecessary block ("{}")
+      """.trimIndent()
+    }
+  }
 }
