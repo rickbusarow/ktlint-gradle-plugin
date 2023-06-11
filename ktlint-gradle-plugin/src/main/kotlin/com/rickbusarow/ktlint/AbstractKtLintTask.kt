@@ -19,7 +19,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
@@ -30,16 +29,22 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.TaskAction
 import org.gradle.work.Incremental
-import org.gradle.work.InputChanges
 import org.gradle.workers.WorkerExecutor
+import java.io.File
 import javax.inject.Inject
+
+/** @since 0.1.1 */
+@Deprecated(
+  "renamed to AbstractKtLintTask",
+  ReplaceWith("AbstractKtLintTask", "com.rickbusarow.ktlint.AbstractKtLintTask")
+)
+typealias KtLintTask = AbstractKtLintTask
 
 /** @since 0.1.1 */
 @CacheableTask
 @Suppress("UnnecessaryAbstractClass")
-abstract class KtLintTask(
+abstract class AbstractKtLintTask(
   private val workerExecutor: WorkerExecutor,
   /**
    * If `true`, the task will run KtLint's "format" functionality (`--format` or `-F` in the
@@ -101,18 +106,9 @@ abstract class KtLintTask(
   @get:Internal
   internal abstract val rootDir: DirectoryProperty
 
-  @TaskAction
-  fun execute(inputChanges: InputChanges) {
+  protected fun lint(files: List<File>) {
 
-    val extensions = setOf("kt", "kts")
-
-    val fileChanges = inputChanges.getFileChanges(sourceFiles)
-      .mapNotNull { fileChange ->
-        fileChange.file
-          .takeIf { it.isFile && it.extension in extensions }
-      }
-
-    if (fileChanges.isEmpty()) return
+    if (files.isEmpty()) return
 
     val workQueue = workerExecutor.classLoaderIsolation {
       it.classpath.setFrom(ktlintClasspath)
@@ -120,7 +116,7 @@ abstract class KtLintTask(
 
     workQueue.submit(KtLintWorkAction::class.java) { params ->
       params.editorConfig.fileValue(editorConfig.orNull?.asFile)
-      params.sourceFiles.set(fileChanges)
+      params.sourceFiles.set(files)
       params.autoCorrect.set(autoCorrect)
       params.rootDir.set(rootDir)
 
@@ -133,24 +129,12 @@ abstract class KtLintTask(
 
 /** @since 0.1.1 */
 @CacheableTask
-@Suppress("UnnecessaryAbstractClass")
-abstract class KtLintFormatTask @Inject constructor(
-  workerExecutor: WorkerExecutor
-) : KtLintTask(workerExecutor, autoCorrect = true) {
-  init {
-    group = "KtLint"
-    description = "Checks Kotlin code for correctness and fixes what it can"
-  }
-}
-
-/** @since 0.1.1 */
-@CacheableTask
 abstract class KtLintCheckTask @Inject constructor(
   workerExecutor: WorkerExecutor
-) : KtLintTask(workerExecutor, autoCorrect = false) {
+) : AbstractKtLintTask(workerExecutor, autoCorrect = false) {
 
   init {
-    group = JavaBasePlugin.VERIFICATION_GROUP
+    group = "KtLint"
     description = "Checks Kotlin code for correctness"
   }
 

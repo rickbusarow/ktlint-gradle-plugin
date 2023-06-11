@@ -52,7 +52,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     BuildConfig.deps.split(",")
       .map { it.trim() }
       .forEach { coords ->
-        target.dependencies.add("ktlint", coords)
+        target.dependencies.add("ktlintAllDependencies", coords)
       }
 
     val editorConfigFile = lazy {
@@ -115,7 +115,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     }
 
     if (target.isRootProject()) {
-      target.registerSyncRuleSetJars(configProvider)
+      target.registerSyncRuleSetJars(rulesetConfig)
     }
   }
 
