@@ -42,6 +42,29 @@ runs:
           echo "can_push=true" >> $GITHUB_OUTPUT
         fi
 
+    - name: check out with branch
+      uses: actions/checkout@v3
+      with:
+        ref : ${{ github.head_ref }}
+        fetch-depth: 0
+
+    - name: Check push permissions
+      id: check_push
+      shell: bash
+      run: |
+        git push --dry-run
+        echo ::set-output name=push_succeeded::$?
+
+    - name : Check if the current credentials can push to this branch
+      id : can-push2
+      shell : bash
+      run : |
+        if [[ "${{ steps.check_push.outputs.push_succeeded }}" == "0" ]]; then
+          echo "----------------------------------------------- can_push=true"
+        else
+          echo "----------------------------------------------- can_push=false"
+        fi
+
     - name: check out with PAT
       uses: actions/checkout@v3
       if: steps.can-push.outputs.can_push == 'true'
