@@ -38,10 +38,7 @@ interface BuildLogicShadowExtension {
         task.configurations = listOf(shadowConfiguration)
 
         listOf(
-          "kotlinx.coroutines",
-          "org.intellij.markdown",
-          // "org.jetbrains.kotlin",
-          "uk.co.mainwave.regextoolboxkotlin"
+          "org.intellij.markdown"
         ).forEach {
           task.relocate(it, "com.rickbusarow.ktlint.$it")
         }

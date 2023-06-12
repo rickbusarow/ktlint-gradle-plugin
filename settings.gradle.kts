@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+rootProject.name = "ktlint-gradle-plugin"
+
 pluginManagement {
   repositories {
     gradlePluginPortal()
@@ -62,11 +64,7 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "ktlint-gradle-plugin"
-
-include(
-  ":ktlint-gradle-plugin"
-)
+include(":ktlint-gradle-plugin")
 
 // If this project is the real root of the build, copy the root project's properties file to included
 // builds, to ensure that Gradle settings are identical and there's only 1 daemon.

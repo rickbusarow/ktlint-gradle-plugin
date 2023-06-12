@@ -20,6 +20,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileType.FILE
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
@@ -29,13 +30,11 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.ChangeType.REMOVED
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
-import org.gradle.workers.WorkerExecutor
 
 /** */
+@CacheableTask
 @Suppress("UnnecessaryAbstractClass")
-abstract class KtLintFormatIntermediateTask(
-  private val workerExecutor: WorkerExecutor
-) : DefaultTask() {
+abstract class KtLintFormatIntermediateTask : DefaultTask() {
 
   init {
     group = "KtLint"

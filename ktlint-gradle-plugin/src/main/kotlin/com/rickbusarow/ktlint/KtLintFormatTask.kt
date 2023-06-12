@@ -15,8 +15,11 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.internal.GradleProperty
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -41,15 +44,30 @@ abstract class KtLintFormatTask @Inject constructor(
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val intermediateFiles: ConfigurableFileCollection
 
+  /** @since 0.1.1 */
+  // @get:OutputFiles
+  // abstract val sourceFiles: ConfigurableFileCollection
+  @get:OutputDirectories
+  abstract val sourceFiles: GradleProperty<FileCollection>
+
   @TaskAction
   fun execute(inputChanges: InputChanges) {
 
-    val extensions = setOf("kt", "kts")
+    val root = rootDir.get().asFile
 
-    val fileChanges = inputChanges.getFileChanges(sourceFiles)
-      .mapNotNull { fileChange ->
-        fileChange.file
-          .takeIf { it.isFile && it.extension in extensions }
+    val fileChanges = inputChanges.getFileChanges(intermediateFiles)
+      .filter { it.file.isFile }
+      .map { fileChange ->
+
+        root.resolve(fileChange.file.readLines().first())
+      }
+      .mapNotNull { file ->
+
+        if (!file.exists()) {
+          println("file doesn't exist: $file")
+        }
+
+        file.takeIf { file.isFile }
       }
 
     lint(fileChanges)

@@ -26,20 +26,12 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.gradle.work.Incremental
+import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import java.io.File
 import javax.inject.Inject
-
-/** @since 0.1.1 */
-@Deprecated(
-  "renamed to AbstractKtLintTask",
-  ReplaceWith("AbstractKtLintTask", "com.rickbusarow.ktlint.AbstractKtLintTask")
-)
-typealias KtLintTask = AbstractKtLintTask
 
 /** @since 0.1.1 */
 @CacheableTask
@@ -72,37 +64,6 @@ abstract class AbstractKtLintTask(
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val editorConfig: RegularFileProperty
 
-  /** @since 0.1.1 */
-  @get:Incremental
-  @get:InputFiles
-  @get:PathSensitive(PathSensitivity.RELATIVE)
-  abstract val sourceFiles: ConfigurableFileCollection
-
-  /**
-   * The directory where the updated documentation files
-   * will be written during the execution of this task.
-   *
-   * This property serves as a workaround for the limitations of incremental tasks, which can't
-   * have the same inputs as their outputs. Since this task is a formatting task that modifies
-   * input files, we can't use the actual input files as outputs without risking that they
-   * will be deleted by Gradle in case of a binary change to the plugin or build environment.
-   * Instead, we use this property to declare a separate directory as the output of this task.
-   *
-   * Any time this task writes changes to an input file, it also creates a stub file with the
-   * same relative path inside the sourceFilesShadow directory. During the next incremental
-   * build, the task will only need to update the real input files that have changed since
-   * the last build, and the contents of the sourceFilesShadow directory will be ignored.
-   *
-   * Note that the contents of the sourceFilesShadow directory are not meant
-   * to be used by other tasks or processes, and should not be relied on as a
-   * source of truth. Its sole purpose is to allow this task to run incrementally
-   * without interfering with other tasks that might need to use the same files.
-   *
-   * @since 0.1.1
-   */
-  @get:OutputDirectory
-  internal abstract val sourceFilesShadow: DirectoryProperty
-
   @get:Internal
   internal abstract val rootDir: DirectoryProperty
 
@@ -119,8 +80,6 @@ abstract class AbstractKtLintTask(
       params.sourceFiles.set(files)
       params.autoCorrect.set(autoCorrect)
       params.rootDir.set(rootDir)
-
-      params.sourceFilesShadow.set(sourceFilesShadow)
     }
 
     workQueue.await()
@@ -139,6 +98,12 @@ abstract class KtLintCheckTask @Inject constructor(
   }
 
   /** @since 0.1.1 */
-  // @get:OutputFile
-  // abstract val htmlReportFile: RegularFileProperty
+  @get:InputFiles
+  @get:PathSensitive(PathSensitivity.RELATIVE)
+  abstract val sourceFiles: ConfigurableFileCollection
+
+  @TaskAction
+  fun execute() {
+    lint(sourceFiles.files.toList())
+  }
 }

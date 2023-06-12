@@ -19,6 +19,7 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 import org.junit.jupiter.api.Test
 
 @Suppress("RemoveEmptyClassBody")
@@ -87,7 +88,8 @@ internal class LifecycleTest : BaseGradleTest {
     workingDir.resolve("build").deleteRecursively()
 
     shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormat")?.outcome shouldBe FROM_CACHE
+      task(":ktlintFormatIntermediate")?.outcome shouldBe FROM_CACHE
+      task(":ktlintFormat")?.outcome shouldBe UP_TO_DATE
     }
   }
 

@@ -30,7 +30,6 @@ import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -62,8 +61,8 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     val rootTaskPair = registerFormatCheckPair(
       target = target,
       taskNameSuffix = "",
-      sourceFileShadowDirectory = target.sourceFileShadowDirectory("ktlintRoot"),
-      sourceDirectorySet = null,
+      sourceDirectories = null,
+      sourceFiles = null,
       editorConfigFile = editorConfigFile,
       configProvider = configProvider
     )
@@ -71,8 +70,8 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     val scriptTaskPair = registerFormatCheckPair(
       target = target,
       taskNameSuffix = "GradleScripts",
-      sourceFileShadowDirectory = target.sourceFileShadowDirectory("gradleScripts"),
-      sourceDirectorySet = target.provider {
+      sourceDirectories = null,
+      sourceFiles = target.provider {
 
         val includedBuildDirs = target.gradle.includedBuilds.map { it.projectDir }
         val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
@@ -131,8 +130,8 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         registerFormatCheckPair(
           target = target,
           taskNameSuffix = sourceSetName.capitalize(),
-          sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
-          sourceDirectorySet = sourceSet.map {
+          sourceDirectories = sourceSet.map { it.kotlin.sourceDirectories },
+          sourceFiles = sourceSet.map {
             it.kotlin.filter { file -> !file.startsWith(target.buildDir) }
           },
           editorConfigFile = editorConfigFile,
@@ -168,42 +167,62 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
   private fun registerFormatCheckPair(
     target: GradleProject,
     taskNameSuffix: String,
-    sourceFileShadowDirectory: GradleProvider<Directory>,
-    sourceDirectorySet: GradleProvider<FileCollection>?,
+    sourceDirectories: GradleProvider<FileCollection>?,
+    sourceFiles: GradleProvider<FileCollection>?,
     editorConfigFile: Lazy<File?>,
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {
 
-    val formatTaskName = "ktlintFormat${taskNameSuffix.capitalize()}"
+    val intermediateFilesDir = target.layout.buildDirectory.dir("ktlint")
 
-    val formatTask =
-      target.tasks.registerOnce(formatTaskName, KtLintFormatTask::class.java) { task ->
+    val rootDir = target.projectDir
 
-        task.sourceFiles.from(sourceDirectorySet)
+    val formatIntermediateTask = target.tasks
+      .registerOnce(
+        "ktlintFormatIntermediate${taskNameSuffix.capitalize()}",
+        KtLintFormatIntermediateTask::class.java
+      ) { task ->
+
+        task.sourceFiles.from(sourceFiles)
+        task.intermediateDirectory.set(intermediateFilesDir)
+        task.projectRootDirectory.set(rootDir)
+      }
+
+    val formatTask = target.tasks
+      .registerOnce(
+        "ktlintFormat${taskNameSuffix.capitalize()}",
+        KtLintFormatTask::class.java
+      ) { task ->
+
+        task.sourceFiles.set(sourceDirectories)
+        // task.sourceFiles.from(sourceFiles)
 
         task.ktlintClasspath.setFrom(configProvider)
 
-        task.sourceFilesShadow.set(sourceFileShadowDirectory)
-        task.rootDir.set(target.rootProject.layout.projectDirectory)
+        task.dependsOn(formatIntermediateTask)
+        task.intermediateFiles.from(formatIntermediateTask)
+        task.rootDir.set(rootDir)
         task.editorConfig.fileValue(editorConfigFile.value)
       }
-        .addAsDependencyTo(target.tasks.matchingName("fix"))
+      .addAsDependencyTo(target.tasks.matchingName("fix"))
 
-    val checkTaskName = "ktlintCheck${taskNameSuffix.capitalize()}"
+    val lintTask = target.tasks
+      .registerOnce(
+        "ktlintCheck${taskNameSuffix.capitalize()}",
+        KtLintCheckTask::class.java
+      ) { task ->
 
-    val lintTask = target.tasks.registerOnce(checkTaskName, KtLintCheckTask::class.java) { task ->
+        task.sourceFiles.from(sourceFiles)
 
-      task.sourceFiles.from(sourceDirectorySet)
+        task.ktlintClasspath.setFrom(configProvider)
 
-      task.ktlintClasspath.setFrom(configProvider)
+        // If both tasks are running in the same invocation,
+        // make sure that the format task runs first.
+        task.mustRunAfter(formatTask)
 
-      // If both tasks are running in the same invocation, make sure that the format task runs first.
-      task.mustRunAfter(formatTask)
-
-      task.sourceFilesShadow.set(sourceFileShadowDirectory)
-      task.rootDir.set(target.rootProject.layout.projectDirectory)
-      task.editorConfig.fileValue(editorConfigFile.value)
-    }
+        task.rootDir.set(rootDir)
+        task.editorConfig.fileValue(editorConfigFile.value)
+      }
       .addAsDependencyTo(target.tasks.matchingName("check"))
 
     return formatTask to lintTask
@@ -243,8 +262,4 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     }
       .addAsDependencyTo(tasks.named("prepareKotlinBuildScriptModel"))
   }
-
-  private fun GradleProject.sourceFileShadowDirectory(
-    sourceSetName: String
-  ): GradleProvider<Directory> = layout.buildDirectory.dir("outputs/ktlint/$sourceSetName")
 }

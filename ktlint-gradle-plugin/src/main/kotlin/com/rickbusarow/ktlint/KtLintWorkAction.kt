@@ -18,7 +18,6 @@ package com.rickbusarow.ktlint
 import com.rickbusarow.ktlint.internal.GradleLogger
 import com.rickbusarow.ktlint.internal.GradleLogging
 import com.rickbusarow.ktlint.internal.GradleProperty
-import com.rickbusarow.ktlint.internal.createSafely
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -40,39 +39,15 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
 
     val results = engine.execute(parameters.sourceFiles.get())
 
-    if (parameters.autoCorrect.get()) {
-      parameters.sourceFilesShadow.orNull?.asFile?.let { shadow ->
-
-        for (result in results) {
-
-          val file = result.file
-
-          val relative = file.relativeTo(shadow)
-            .normalize()
-            .path
-            .removePrefix(shadow.path)
-            .split(File.separator)
-            .dropWhile { it == ".." && it.isNotBlank() }
-            .joinToString(File.separator)
-            .replace(file.extension, "txt")
-
-          shadow.resolve(relative)
-            .createSafely(result.hashCode().toString())
-        }
-      }
-    }
-
     if (results.isNotEmpty()) {
-      logger.lifecycle(
-        results.block()
-      )
+      logger.lifecycle(results.block())
 
       val errors = results.filter { !it.fixed }
 
       if (errors.isNotEmpty()) {
 
         throw GradleException(
-          "Ktlint format finished with ${errors.size} errors which were not fixed.  " +
+          "KtLint format finished with ${errors.size} errors which were not fixed.  " +
             "Check log for details."
         )
       }
@@ -89,9 +64,6 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
 
     /** @since 0.1.1 */
     val editorConfig: RegularFileProperty
-
-    /** @since 0.1.1 */
-    val sourceFilesShadow: DirectoryProperty
 
     /** @since 0.1.1 */
     val rootDir: DirectoryProperty
