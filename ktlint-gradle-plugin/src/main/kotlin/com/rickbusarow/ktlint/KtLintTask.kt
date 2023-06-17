@@ -126,6 +126,8 @@ abstract class KtLintTask(
 
       params.sourceFilesShadow.set(sourceFilesShadow)
     }
+
+    workQueue.await()
   }
 }
 
@@ -136,7 +138,7 @@ abstract class KtLintFormatTask @Inject constructor(
   workerExecutor: WorkerExecutor
 ) : KtLintTask(workerExecutor, autoCorrect = true) {
   init {
-    group = JavaBasePlugin.VERIFICATION_GROUP
+    group = "KtLint"
     description = "Checks Kotlin code for correctness and fixes what it can"
   }
 }
