@@ -1,6 +1,7 @@
 # Changelog
 
-## 0.1.6-SNAPSHOT (unreleased)
+## 0.1.7-SNAPSHOT (unreleased)
+## [0.1.6] - 2023-06-17
 ### Fixed
 
 - Tasks will now `await()` their worker before completing their action.  This considerably reduces memory usage.
@@ -61,3 +62,4 @@ Hello World
 [0.1.3]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.3
 [0.1.4]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.4
 [0.1.5]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.5
+[0.1.6]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.6
