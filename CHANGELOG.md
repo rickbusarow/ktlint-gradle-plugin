@@ -1,6 +1,9 @@
 # Changelog
 
 ## 0.1.6-SNAPSHOT (unreleased)
+### Fixed
+
+- Tasks will now `await()` their worker before completing their action.  This considerably reduces memory usage.
 
 ## [0.1.5] - 2023-06-13
 
