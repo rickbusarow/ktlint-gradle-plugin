@@ -1,7 +1,7 @@
 [versions]
 autoManifest = "2.0"
 benManes-versions = "0.47.0"
-buildconfig = "4.0.4"
+buildconfig = "4.1.1"
 commons-io = "2.13.0"
 dependencyAnalysis = "1.20.0"
 detekt = "1.23.0"
