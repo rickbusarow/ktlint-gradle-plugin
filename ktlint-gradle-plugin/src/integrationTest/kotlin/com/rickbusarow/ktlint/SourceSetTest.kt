@@ -21,8 +21,7 @@ package com.rickbusarow.ktlint
 import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
 import com.rickbusarow.ktlint.internal.createSafely
 import com.rickbusarow.ktlint.internal.remove
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldInclude
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
 
@@ -279,5 +278,48 @@ internal class SourceSetTest : BaseGradleTest {
         file:///src/main/kotlin/com/test/File.kt:3:12 ✅ standard:no-empty-class-body ═ Unnecessary block ("{}")
       """.trimIndent()
     }
+  }
+
+  @Test
+  fun `generated files are not checked`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id("com.rickbusarow.ktlint")
+        kotlin("jvm")
+        `kotlin-dsl`
+      }
+
+      dependencies {
+        compileOnly(gradleApi())
+      }
+
+      """
+    }
+
+    workingDir
+      .resolve("src/main/kotlin/convention.gradle.kts")
+      .kotlin(
+        """
+        fun foo() { }
+
+        """
+      )
+
+    // first, generate the code with kotlin-dsl
+    shouldSucceed("assemble")
+
+    // If the plugin were to check the generated code, it would happen here.
+    shouldSucceed("ktlintCheck")
+
+    val generatedFile = workingDir
+      .resolve("build/generated-sources/kotlin-dsl-plugins/kotlin")
+      .resolve("ConventionPlugin.kt")
+
+    val engineWrapper = KtLintEngineWrapper(editorConfigPath = null, autoCorrect = false)
+
+    // Manually check the generated convention plugin and confirm that KtLint throws errors for it.
+    engineWrapper.execute(listOf(generatedFile)).shouldNotBeEmpty()
   }
 }

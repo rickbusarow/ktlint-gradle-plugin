@@ -132,7 +132,9 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
           target = target,
           taskNameSuffix = sourceSetName.capitalize(),
           sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
-          sourceDirectorySet = sourceSet.map { it.kotlin.minus(target.fileTree(target.buildDir)) },
+          sourceDirectorySet = sourceSet.map {
+            it.kotlin.filter { file -> !file.startsWith(target.buildDir) }
+          },
           editorConfigFile = editorConfigFile,
           configProvider = configProvider
         )
