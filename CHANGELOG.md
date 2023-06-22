@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.1.8-SNAPSHOT (unreleased)
+
 ## [0.1.7] - 2023-06-22
 
 ### Fixed
