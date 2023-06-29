@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.1.8-SNAPSHOT (unreleased)
+## 0.1.9-SNAPSHOT (unreleased)
+
+## [0.1.8] - 2023-06-29
+
+- updated to [KtLint 0.50.0](https://github.com/pinterest/ktlint/releases/tag/0.50.0)
+
+**Full Changelog**: https://github.com/RBusarow/ktlint-gradle-plugin/compare/0.1.7...0.1.8
 
 ## [0.1.7] - 2023-06-22
 
@@ -81,3 +87,4 @@ Hello World
 [0.1.5]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.5
 [0.1.6]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.6
 [0.1.7]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.7
+[0.1.8]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.8
