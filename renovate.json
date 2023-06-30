@@ -13,9 +13,12 @@
       ]
     },
     {
-      "matchPackagePatterns": ["^com\\.pinterest\\.ktlint:ktlint-"],
-      "matchCurrentVersion": "/0\\.(?:47|48)\\..*/",
-      "enabled": false
+      "matchPackagePatterns": [
+        "^com\\.pinterest\\.ktlint:(?:[\\w-]+)$",
+        "^com\\.rickbusarow\\.ktlint:(?:[\\w-]+)$",
+        "^com\\.rickbusarow\\.ktrules:(?:[\\w-]+)$"
+      ],
+      "groupName": "KtLint things"
     }
   ],
   "labels": [
