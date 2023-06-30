@@ -94,7 +94,9 @@ private fun Project.configurePublishPlugin(
 
       requireNotNull(declaration.description) { "A plugin description is required." }
 
-      extensions.configure(GradlePluginDevelopmentExtension::class.java) { pluginDevelopmentExtension ->
+      extensions.configure(
+        GradlePluginDevelopmentExtension::class.java
+      ) { pluginDevelopmentExtension ->
 
         @Suppress("UnstableApiUsage")
         pluginDevelopmentExtension.website.set("https://github.com/rbusarow/ktlint-gradle-plugin")
