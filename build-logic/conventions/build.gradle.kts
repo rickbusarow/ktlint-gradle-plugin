@@ -75,10 +75,7 @@ gradlePlugin {
 
 dependencies {
 
-  api(libs.ktlint48.core)
-  api(libs.ktlint48.ruleset.experimental)
-  api(libs.ktlint48.ruleset.standard)
-  api(libs.rickBusarow.ktrules48)
+  api(libs.rickBusarow.ktrules)
   api(libs.slf4j.api)
   api(libs.square.moshi)
 
