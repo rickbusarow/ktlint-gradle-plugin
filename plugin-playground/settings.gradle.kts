@@ -43,7 +43,7 @@ dependencyResolutionManagement {
 rootProject.name = "plugin-playground"
 
 plugins {
-  id("com.gradle.enterprise") version "3.13.4"
+  id("com.gradle.enterprise") version "3.14.1"
 }
 
 gradleEnterprise {
