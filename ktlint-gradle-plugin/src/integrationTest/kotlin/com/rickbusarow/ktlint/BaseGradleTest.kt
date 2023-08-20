@@ -31,6 +31,7 @@ import io.kotest.matchers.shouldNotBe
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD
@@ -92,7 +93,7 @@ internal interface BaseGradleTest : TrimmedAsserts {
       GradleRunner.create()
         .forwardOutput()
         .withGradleVersion(BuildConfig.gradleVersion)
-        .withDebug(true)
+        .withDebug(false)
         .withProjectDir(workingDir)
     }
 
@@ -104,23 +105,39 @@ internal interface BaseGradleTest : TrimmedAsserts {
       shouldFail: Boolean
     ): BuildResult {
       ensureFilesAreWritten()
-      return gradleRunner
+
+      val runner = gradleRunner
         .letIf(withPluginClasspath) { withPluginClasspath() }
         .letIf(withHermeticTestKit) { withTestKitDir(workingDir / "testKit") }
         .withArguments(tasks.letIf(stacktrace) { plus("--stacktrace") })
-        .let { runner ->
-          if (shouldFail) {
-            runner.buildAndFail()
-          } else {
-            runner.build()
-              .also { result ->
-                result.tasks
-                  .forAll { buildTask ->
-                    buildTask.outcome shouldNotBe TaskOutcome.FAILED
-                  }
+
+      runner as DefaultGradleRunner
+
+      println(
+        """
+          |═══════════════════════════════ GradleRunner ═══════════════════════════════
+          |gradle version - ${BuildConfig.gradleVersion}
+          |     arguments - ${runner.arguments.joinToString(" ")}
+          |  jvmArguments - ${runner.jvmArguments.joinToString(" ")}
+          |   environment - ${runner.environment?.toList()}
+          |    testKitDir - ${runner.testKitDirProvider.dir}
+          |         debug - ${runner.isDebug}
+          |     classpath - ${runner.pluginClasspath.joinToString("\n")}
+          |════════════════════════════════════════════════════════════════════════════
+        """.trimMargin()
+      )
+
+      return if (shouldFail) {
+        runner.buildAndFail()
+      } else {
+        runner.build()
+          .also { result ->
+            result.tasks
+              .forAll { buildTask ->
+                buildTask.outcome shouldNotBe TaskOutcome.FAILED
               }
           }
-        }
+      }
     }
 
     inline fun shouldSucceed(

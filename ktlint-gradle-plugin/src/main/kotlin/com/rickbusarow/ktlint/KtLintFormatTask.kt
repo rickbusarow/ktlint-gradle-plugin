@@ -26,6 +26,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
 import org.gradle.workers.WorkerExecutor
+import java.io.File
 import javax.inject.Inject
 
 /** @since 0.1.1 */
@@ -59,12 +60,15 @@ abstract class KtLintFormatTask @Inject constructor(
       .filter { it.file.isFile }
       .map { fileChange ->
 
-        root.resolve(fileChange.file.readLines().first())
+        val relativePath = fileChange.file.toRelativeString(File(intermediateFiles.asPath))
+          .removeSuffix(".txt")
+
+        root.resolve(File(relativePath))
       }
       .mapNotNull { file ->
 
         if (!file.exists()) {
-          println("file doesn't exist: $file")
+          logger.lifecycle("file doesn't exist: $file")
         }
 
         file.takeIf { file.isFile }

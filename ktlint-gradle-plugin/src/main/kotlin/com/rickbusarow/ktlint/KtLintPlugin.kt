@@ -58,16 +58,19 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       target.projectDir.resolveInParentOrNull(".editorconfig")
     }
 
-    val rootTaskPair = registerFormatCheckPair(
+    val rootTasks = registerFormatCheckTasks(
       target = target,
       taskNameSuffix = "",
       sourceDirectories = null,
       sourceFiles = null,
       editorConfigFile = editorConfigFile,
+      intermediateSubdir = "root",
       configProvider = configProvider
     )
 
-    val scriptTaskPair = registerFormatCheckPair(
+    val reg = Regex(""".*\.gradle\.kts$""")
+
+    val scriptTasks = registerFormatCheckTasks(
       target = target,
       taskNameSuffix = "GradleScripts",
       sourceDirectories = null,
@@ -76,7 +79,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         val includedBuildDirs = target.gradle.includedBuilds.map { it.projectDir }
         val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
         val srcDirs = target.getSourceSets().values.flatMapToSet { it.get().kotlin.srcDirs }
-        val reg = Regex(""".*\.gradle\.kts$""")
+
         target.files(
           target.projectDir
             .walkTopDown()
@@ -94,23 +97,25 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         )
       },
       editorConfigFile = editorConfigFile,
+      intermediateSubdir = "scripts",
       configProvider = configProvider
     )
 
-    rootTaskPair.first.dependsOn(scriptTaskPair.first)
-    rootTaskPair.second.dependsOn(scriptTaskPair.second)
+    rootTasks.intermediateTask.dependsOn(scriptTasks.intermediateTask)
+    rootTasks.formatTask.dependsOn(scriptTasks.formatTask)
+    rootTasks.checkTask.dependsOn(scriptTasks.checkTask)
 
     target.plugins.withId("org.jetbrains.kotlin.jvm") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTasks, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.android") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTasks, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.js") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTasks, editorConfigFile, configProvider)
     }
     target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
+      registerKotlinTasks(target, rootTasks, editorConfigFile, configProvider)
     }
 
     if (target.isRootProject()) {
@@ -120,14 +125,14 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
   private fun registerKotlinTasks(
     target: GradleProject,
-    rootTaskPair: Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>>,
+    rootTasks: FormatCheckTasks,
     editorConfigFile: Lazy<File?>,
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ) {
 
     val pairs = target.getSourceSets()
       .map { (sourceSetName, sourceSet) ->
-        registerFormatCheckPair(
+        registerFormatCheckTasks(
           target = target,
           taskNameSuffix = sourceSetName.capitalize(),
           sourceDirectories = sourceSet.map { it.kotlin.sourceDirectories },
@@ -135,15 +140,18 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
             it.kotlin.filter { file -> !file.startsWith(target.buildDir) }
           },
           editorConfigFile = editorConfigFile,
+          intermediateSubdir = sourceSetName,
           configProvider = configProvider
         )
       }
 
-    val formatTasks = pairs.map { it.first }
-    val lintTasks = pairs.map { it.second }
+    val intermediateTasks = pairs.map { it.intermediateTask }
+    val formatTasks = pairs.map { it.formatTask }
+    val lintTasks = pairs.map { it.checkTask }
 
-    rootTaskPair.first.dependsOn(formatTasks)
-    rootTaskPair.second.dependsOn(lintTasks)
+    rootTasks.intermediateTask.dependsOn(intermediateTasks)
+    rootTasks.formatTask.dependsOn(formatTasks)
+    rootTasks.checkTask.dependsOn(lintTasks)
   }
 
   private fun GradleProject.getSourceSets(): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
@@ -164,16 +172,24 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       .orEmpty()
   }
 
-  private fun registerFormatCheckPair(
+  class FormatCheckTasks(
+    val intermediateTask: TaskProvider<KtLintFormatIntermediateTask>,
+    val formatTask: TaskProvider<KtLintFormatTask>,
+    val checkTask: TaskProvider<KtLintCheckTask>
+  )
+
+  private fun registerFormatCheckTasks(
     target: GradleProject,
     taskNameSuffix: String,
     sourceDirectories: GradleProvider<FileCollection>?,
     sourceFiles: GradleProvider<FileCollection>?,
     editorConfigFile: Lazy<File?>,
+    intermediateSubdir: String,
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
-  ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {
+  ): FormatCheckTasks {
 
-    val intermediateFilesDir = target.layout.buildDirectory.dir("ktlint")
+    val intermediateFilesDir = target.layout.buildDirectory
+      .dir("ktlint${File.separatorChar}$intermediateSubdir")
 
     val rootDir = target.projectDir
 
@@ -194,8 +210,11 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         KtLintFormatTask::class.java
       ) { task ->
 
-        task.sourceFiles.set(sourceDirectories)
-        // task.sourceFiles.from(sourceFiles)
+        if (sourceDirectories != null) {
+          task.sourceFiles.set(sourceDirectories)
+        } else {
+          task.sourceFiles.set(target.files())
+        }
 
         task.ktlintClasspath.setFrom(configProvider)
 
@@ -225,7 +244,11 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       }
       .addAsDependencyTo(target.tasks.matchingName("check"))
 
-    return formatTask to lintTask
+    return FormatCheckTasks(
+      intermediateTask = formatIntermediateTask,
+      formatTask = formatTask,
+      checkTask = lintTask
+    )
   }
 
   private fun GradleProject.registerSyncRuleSetJars(

@@ -72,14 +72,14 @@ abstract class KtLintFormatIntermediateTask : DefaultTask() {
       .forEach { change ->
 
         val relativePathKt = change.file.toRelativeString(projectRoot)
-        val relativePathTxt = relativePathKt.replaceAfterLast('.', "txt")
+        val relativePathTxt = "$relativePathKt.txt"
 
         val textFile = intermediateRoot.resolve(relativePathTxt)
 
         textFile.delete()
 
         if (change.changeType != REMOVED) {
-          textFile.createSafely(relativePathKt)
+          textFile.createSafely(change.file.readText())
         }
       }
   }
