@@ -18,7 +18,8 @@ package com.rickbusarow.ktlint
 import com.rickbusarow.ktlint.internal.GradleLogger
 import com.rickbusarow.ktlint.internal.GradleLogging
 import com.rickbusarow.ktlint.internal.GradleProperty
-import com.rickbusarow.ktlint.internal.createSafely
+import com.rickbusarow.ktlint.internal.existsOrNull
+import com.rickbusarow.ktlint.internal.md5
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -41,25 +42,32 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
     val results = engine.execute(parameters.sourceFiles.get())
 
     if (parameters.autoCorrect.get()) {
-      parameters.sourceFilesShadow.orNull?.asFile?.let { shadow ->
+
+      val projectDir = parameters.projectRoot.get().asFile
+
+      val mapFile = parameters.outputMap.get().asFile
+
+      val oldMap = mapFile.existsOrNull()?.readMap().orEmpty()
+
+      val newMap = buildMap {
+
+        putAll(oldMap.filter { (relative, _) -> projectDir.resolve(relative).exists() })
 
         for (result in results) {
-
           val file = result.file
 
-          val relative = file.relativeTo(shadow)
-            .normalize()
-            .path
-            .removePrefix(shadow.path)
-            .split(File.separator)
-            .dropWhile { it == ".." && it.isNotBlank() }
-            .joinToString(File.separator)
-            .replace(file.extension, "txt")
+          val relative = file.toRelativeString(projectDir)
 
-          shadow.resolve(relative)
-            .createSafely(result.hashCode().toString())
+          put(relative, file.md5())
         }
+
+        val changed = results.filter { it.fixed }
+          .map { it.file.toRelativeString(projectDir) }
+
+        put("changed-files", changed.joinToString(","))
       }
+
+      mapFile.writeMap(newMap)
     }
 
     if (results.isNotEmpty()) {
@@ -91,9 +99,9 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
     val editorConfig: RegularFileProperty
 
     /** @since 0.1.1 */
-    val sourceFilesShadow: DirectoryProperty
+    val outputMap: RegularFileProperty
 
     /** @since 0.1.1 */
-    val rootDir: DirectoryProperty
+    val projectRoot: DirectoryProperty
   }
 }

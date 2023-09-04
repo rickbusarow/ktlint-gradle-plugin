@@ -15,9 +15,11 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.internal.existsOrNull
+import com.rickbusarow.ktlint.internal.md5
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.CacheableTask
@@ -25,21 +27,27 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
 import org.gradle.workers.WorkerExecutor
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import javax.inject.Inject
 
 /** @since 0.1.1 */
 @CacheableTask
 @Suppress("UnnecessaryAbstractClass")
-abstract class KtLintTask(
+abstract class AbstractKtLintTask(
+  private val layout: ProjectLayout,
   private val workerExecutor: WorkerExecutor,
   /**
    * If `true`, the task will run KtLint's "format" functionality (`--format` or `-F` in the
@@ -67,7 +75,7 @@ abstract class KtLintTask(
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val editorConfig: RegularFileProperty
 
-  /** @since 0.1.1 */
+  /**   */
   @get:Incremental
   @get:InputFiles
   @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -95,22 +103,34 @@ abstract class KtLintTask(
    *
    * @since 0.1.1
    */
-  @get:OutputDirectory
-  internal abstract val sourceFilesShadow: DirectoryProperty
-
-  @get:Internal
-  internal abstract val rootDir: DirectoryProperty
+  @get:OutputFile
+  internal abstract val outputMap: RegularFileProperty
 
   @TaskAction
   fun execute(inputChanges: InputChanges) {
 
     val extensions = setOf("kt", "kts")
 
+    val projectDir = layout.projectDirectory.asFile
+
+    val lastChanged = outputMap.asFile.get()
+      .existsOrNull()?.readMap()
+      ?.let { map ->
+
+        map["changed-files"]
+          ?.split(',')
+          ?.map { layout.projectDirectory.file(it).asFile }
+          .orEmpty()
+          .filter { it.md5() != map[it.toRelativeString(projectDir)] }
+      }
+      .orEmpty()
+
     val fileChanges = inputChanges.getFileChanges(sourceFiles)
       .mapNotNull { fileChange ->
         fileChange.file
           .takeIf { it.isFile && it.extension in extensions }
       }
+      .plus(lastChanged)
 
     if (fileChanges.isEmpty()) return
 
@@ -122,21 +142,62 @@ abstract class KtLintTask(
       params.editorConfig.fileValue(editorConfig.orNull?.asFile)
       params.sourceFiles.set(fileChanges)
       params.autoCorrect.set(autoCorrect)
-      params.rootDir.set(rootDir)
+      params.projectRoot.set(projectDir)
 
-      params.sourceFilesShadow.set(sourceFilesShadow)
+      params.outputMap.set(outputMap)
     }
 
     workQueue.await()
   }
+
+  internal fun changedFilesAreUnchanged(): Boolean {
+    val map = outputMap.asFile.get().existsOrNull()?.readMap()
+      ?: return true
+
+    val projectDir = layout.projectDirectory.asFile
+
+    return map["changed-files"]
+      ?.takeIf { it.isNotBlank() }
+      ?.split(',')
+      ?.map { projectDir.resolve(it) }
+      .orEmpty()
+      .none { it.md5() != map[it.toRelativeString(projectDir)] }
+  }
+}
+
+internal fun File.readMap(): Map<String, String> {
+  val mapAsObject = ObjectInputStream(
+    ByteArrayInputStream(
+      FileInputStream(this@readMap).use { fis -> fis.readBytes() }
+    )
+  )
+    .readObject()
+
+  @Suppress("UNCHECKED_CAST")
+  return mapAsObject as Map<String, String>
+}
+
+internal fun File.writeMap(newMap: Map<String, String>) {
+
+  val newMapBytes = ByteArrayOutputStream().use { byteStream ->
+    ObjectOutputStream(byteStream).use { objectStream ->
+      objectStream.writeObject(newMap)
+    }
+    byteStream.toByteArray()
+  }
+
+  parentFile.mkdirs()
+
+  writeBytes(newMapBytes)
 }
 
 /** @since 0.1.1 */
 @CacheableTask
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintFormatTask @Inject constructor(
+  layout: ProjectLayout,
   workerExecutor: WorkerExecutor
-) : KtLintTask(workerExecutor, autoCorrect = true) {
+) : AbstractKtLintTask(layout, workerExecutor, autoCorrect = true) {
   init {
     group = "KtLint"
     description = "Checks Kotlin code for correctness and fixes what it can"
@@ -146,15 +207,12 @@ abstract class KtLintFormatTask @Inject constructor(
 /** @since 0.1.1 */
 @CacheableTask
 abstract class KtLintCheckTask @Inject constructor(
+  layout: ProjectLayout,
   workerExecutor: WorkerExecutor
-) : KtLintTask(workerExecutor, autoCorrect = false) {
+) : AbstractKtLintTask(layout, workerExecutor, autoCorrect = false) {
 
   init {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Checks Kotlin code for correctness"
   }
-
-  /** @since 0.1.1 */
-  // @get:OutputFile
-  // abstract val htmlReportFile: RegularFileProperty
 }

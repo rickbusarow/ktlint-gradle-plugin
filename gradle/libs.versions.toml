@@ -68,6 +68,8 @@ breadmoirai-github-release = { module = "com.github.breadmoirai:github-release",
 
 buildconfig = { module = "com.github.gmazzo:gradle-buildconfig-plugin", version.ref = "buildconfig" }
 
+breadmoirai-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "github-release" }
+
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 
 dependency-analysis-gradle-plugin = { module = "com.autonomousapps:dependency-analysis-gradle-plugin", version.ref = "dependencyAnalysis" }
@@ -162,16 +164,16 @@ zacSweers-auto-service-ksp = "dev.zacsweers.autoservice:auto-service-ksp:1.1.0"
 
 [bundles]
 jUnit = [
-  "junit-engine",
-  "junit-jupiter",
-  "junit-jupiter-api",
-  "junit-params",
+    "junit-engine",
+    "junit-jupiter",
+    "junit-jupiter-api",
+    "junit-params",
 ]
 kotest = [
-  "kotest-assertions-api",
-  "kotest-assertions-core-jvm",
-  "kotest-assertions-shared",
-  "kotest-common",
-  "kotest-extensions",
-  "kotest-property-jvm",
+    "kotest-assertions-api",
+    "kotest-assertions-core-jvm",
+    "kotest-assertions-shared",
+    "kotest-common",
+    "kotest-extensions",
+    "kotest-property-jvm",
 ]

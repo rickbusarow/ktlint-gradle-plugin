@@ -16,6 +16,7 @@
 package com.rickbusarow.ktlint.internal
 
 import java.io.File
+import java.security.MessageDigest
 
 /**
  * Makes parent directories, then creates the receiver file. If a
@@ -30,6 +31,13 @@ internal fun File.createSafely(content: String? = null): File = apply {
   } else {
     makeParentDir().createNewFile()
   }
+}
+
+/** */
+internal fun File.md5(): String {
+  return MessageDigest.getInstance("md5")
+    .digest(readBytes())
+    .joinToString("") { "%02x".format(it) }
 }
 
 /**

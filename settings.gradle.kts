@@ -27,6 +27,7 @@ pluginManagement {
     mavenCentral()
     google()
   }
+
   includeBuild("build-logic")
 }
 

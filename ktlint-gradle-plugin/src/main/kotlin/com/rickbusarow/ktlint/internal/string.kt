@@ -26,6 +26,11 @@ internal fun String.capitalize(): String = replaceFirstChar {
   if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
 }
 
+/** Replaces the deprecated Kotlin version, but hard-codes `Locale.US` */
+internal fun String.decapitalize(): String = replaceFirstChar {
+  if (it.isUpperCase()) it.lowercase(Locale.US) else it.toString()
+}
+
 /** @since 0.1.1 */
 internal fun String.suffixIfNot(suffix: String): String {
   return if (this.endsWith(suffix)) this else "$this$suffix"
