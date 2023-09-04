@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: build build-logic
         uses: ./.github/actions/gradle-task
@@ -26,7 +26,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: main build
         uses: ./.github/actions/gradle-task
@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Dokka & JavadocJar
         uses: ./.github/actions/gradle-task
