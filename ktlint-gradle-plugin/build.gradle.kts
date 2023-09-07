@@ -42,11 +42,7 @@ val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
       this@register.tags.set(listOf("markdown", "documentation"))
     }
 
-val shade by configurations.register("shadowCompileOnly")
-
 module {
-
-  shadow(shade)
 
   published(
     artifactId = pluginArtifactId,
@@ -136,7 +132,7 @@ kotlin {
 }
 
 val mainConfig: Configuration = when {
-  rootProject.isRealRootProject() -> shade
+  rootProject.isRealRootProject() -> configurations.compileOnly.get()
   else -> configurations.getByName("implementation")
 }
 
@@ -160,7 +156,9 @@ dependencies {
 
   compileOnly(gradleApi())
 
-  compileOnly(libs.kotlin.gradle.plugin.api)
+  implementation(libs.rickBusarow.kgx) {
+    exclude(group = "org.jetbrains.kotlin")
+  }
 
   testImplementation(libs.jetbrains.markdown)
   testImplementation(libs.junit.engine)
@@ -173,10 +171,13 @@ dependencies {
   testImplementation(libs.kotest.common)
   testImplementation(libs.kotest.extensions)
   testImplementation(libs.kotest.property.jvm)
+  testImplementation(libs.kotlin.gradle.plugin)
   testImplementation(libs.ktlint.ruleset.standard)
   testImplementation(libs.ktlint.test)
 
   worker(libs.ec4j.core)
+  worker(libs.kotlin.gradle.plugin)
+  worker(libs.kotlin.gradle.plugin.api)
   worker(libs.ktlint.cli.ruleset.core)
   worker(libs.ktlint.rule.engine)
   worker(libs.ktlint.rule.engine.core)

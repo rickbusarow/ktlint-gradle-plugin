@@ -14,7 +14,15 @@
  */
 
 pluginManagement {
+  val allowMavenLocal = providers
+    .gradleProperty("ktlint-gradle-plugin.allow-maven-local")
+    .orNull.toBoolean()
+
   repositories {
+    if (allowMavenLocal) {
+      logger.lifecycle("${rootProject.name} -- allowing mavenLocal for plugins")
+      mavenLocal()
+    }
     gradlePluginPortal()
     mavenCentral()
     google()
@@ -53,9 +61,16 @@ gradleEnterprise {
   }
 }
 
+val allowMavenLocal = providers
+  .gradleProperty("ktlint-gradle-plugin.allow-maven-local")
+  .orNull.toBoolean()
 dependencyResolutionManagement {
   @Suppress("UnstableApiUsage")
   repositories {
+    if (allowMavenLocal) {
+      logger.lifecycle("${rootProject.name} -- allowing mavenLocal for dependencies")
+      mavenLocal()
+    }
     google()
     mavenCentral()
     maven("https://plugins.gradle.org/m2/")

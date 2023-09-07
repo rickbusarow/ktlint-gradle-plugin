@@ -14,16 +14,31 @@
  */
 
 pluginManagement {
+  val allowMavenLocal = providers
+    .gradleProperty("ktlint-gradle-plugin.allow-maven-local")
+    .orNull.toBoolean()
+
   repositories {
+    if (allowMavenLocal) {
+      logger.lifecycle("${rootProject.name} -- allowing mavenLocal for plugins")
+      mavenLocal()
+    }
     google()
     mavenCentral()
     maven("https://plugins.gradle.org/m2/")
   }
 }
+val allowMavenLocal = providers
+  .gradleProperty("ktlint-gradle-plugin.allow-maven-local")
+  .orNull.toBoolean()
 
-@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
+  @Suppress("UnstableApiUsage")
   repositories {
+    if (allowMavenLocal) {
+      logger.lifecycle("${rootProject.name} -- allowing mavenLocal for dependencies")
+      mavenLocal()
+    }
     google()
     mavenCentral()
     maven("https://plugins.gradle.org/m2/")

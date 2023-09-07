@@ -16,7 +16,6 @@
 package builds
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
@@ -24,13 +23,11 @@ interface BuildLogicShadowExtension {
 
   fun Project.shadow(shadowConfiguration: Configuration? = null) {
 
-    plugins.applyOnce("com.github.johnrengelman.shadow")
-
-    val classifier = if (plugins.hasPlugin("java-gradle-plugin")) "" else "all"
-
     if (shadowConfiguration != null) {
       configurations.named("compileOnly") { it.extendsFrom(shadowConfiguration) }
     }
+
+    plugins.applyOnce("com.github.johnrengelman.shadow")
 
     val shadowJar = tasks.named("shadowJar", ShadowJar::class.java) { task ->
 
@@ -38,25 +35,25 @@ interface BuildLogicShadowExtension {
         task.configurations = listOf(shadowConfiguration)
 
         listOf(
-          "kotlinx.coroutines",
           "org.intellij.markdown",
-          // "org.jetbrains.kotlin",
-          "uk.co.mainwave.regextoolboxkotlin"
+          "org.jetbrains.kotlin"
         ).forEach {
           task.relocate(it, "com.rickbusarow.ktlint.$it")
         }
 
-        task.archiveClassifier.convention(classifier)
+        val classifier = if (plugins.hasPlugin("java-gradle-plugin")) "" else "all"
+
         task.archiveClassifier.set(classifier)
 
-        task.transformers.add(ServiceFileTransformer())
+        // task.transformers.add(ServiceFileTransformer())
 
         task.minimize()
 
-        // Excluding these helps shrink our binary dramatically
-        task.exclude("**/*.kotlin_metadata")
-        task.exclude("**/*.kotlin_module")
-        task.exclude("META-INF/maven/**")
+        task.exclude(
+          "**/*.kotlin_metadata",
+          "**/*.kotlin_module",
+          "META-INF/maven/**"
+        )
       }
     }
 

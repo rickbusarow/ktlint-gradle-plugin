@@ -15,17 +15,18 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.kgx.addAsDependencyTo
+import com.rickbusarow.kgx.dependsOn
+import com.rickbusarow.kgx.internal.InternalGradleApiAccess
+import com.rickbusarow.kgx.internal.whenElementRegistered
+import com.rickbusarow.kgx.isRootProject
+import com.rickbusarow.kgx.withAnyPlugin
 import com.rickbusarow.ktlint.internal.GradleConfiguration
 import com.rickbusarow.ktlint.internal.GradleProject
 import com.rickbusarow.ktlint.internal.GradleProvider
-import com.rickbusarow.ktlint.internal.addAsDependencyTo
 import com.rickbusarow.ktlint.internal.capitalize
-import com.rickbusarow.ktlint.internal.dependsOn
 import com.rickbusarow.ktlint.internal.flatMapToSet
-import com.rickbusarow.ktlint.internal.isRootProject
 import com.rickbusarow.ktlint.internal.mapToSet
-import com.rickbusarow.ktlint.internal.matchingName
-import com.rickbusarow.ktlint.internal.registerOnce
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
@@ -34,6 +35,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 import java.io.File
 
 /** @since 0.1.1 */
@@ -42,18 +44,46 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
   override fun apply(target: GradleProject) {
 
     val rulesetConfig: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
-      .register("ktlint")
+      .register("ktlint") { config ->
+
+        config.dependencies.also { defaultDeps ->
+
+          val deps = BuildConfig.deps
+            .split(",")
+            .map { it.trim() }
+
+          for (coords in deps) {
+            defaultDeps.add(target.dependencies.create(coords))
+          }
+        }
+      }
 
     val configProvider: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
       .register("ktlintAllDependencies") {
         it.extendsFrom(rulesetConfig.get())
       }
 
-    BuildConfig.deps.split(",")
-      .map { it.trim() }
-      .forEach { coords ->
-        target.dependencies.add("ktlint", coords)
+    var kotlinHappened = false
+
+    target.withKotlinPlugin {
+      doApply(target, rulesetConfig, configProvider)
+      kotlinHappened = true
+    }
+
+    if (!kotlinHappened) {
+      target.afterEvaluate {
+        if (!kotlinHappened) {
+          doApply(it, rulesetConfig, configProvider)
+        }
       }
+    }
+  }
+
+  private fun doApply(
+    target: GradleProject,
+    rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>,
+    configProvider: NamedDomainObjectProvider<GradleConfiguration>
+  ) {
 
     val editorConfigFile = lazy {
       target.projectDir.resolveInParentOrNull(".editorconfig")
@@ -65,7 +95,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       sourceFileShadowDirectory = target.sourceFileShadowDirectory("ktlintRoot"),
       sourceDirectorySet = null,
       editorConfigFile = editorConfigFile,
-      configProvider = configProvider
+      configProvider = rulesetConfig
     )
 
     val scriptTaskPair = registerFormatCheckPair(
@@ -95,27 +125,30 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         )
       },
       editorConfigFile = editorConfigFile,
-      configProvider = configProvider
+      configProvider = rulesetConfig
     )
 
     rootTaskPair.first.dependsOn(scriptTaskPair.first)
     rootTaskPair.second.dependsOn(scriptTaskPair.second)
 
-    target.plugins.withId("org.jetbrains.kotlin.jvm") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
-    }
-    target.plugins.withId("org.jetbrains.kotlin.android") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
-    }
-    target.plugins.withId("org.jetbrains.kotlin.js") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
-    }
-    target.plugins.withId("org.jetbrains.kotlin.multiplatform") {
-      registerKotlinTasks(target, rootTaskPair, editorConfigFile, configProvider)
+    target.withKotlinPlugin {
+      registerKotlinTasks(target, rootTaskPair, editorConfigFile, rulesetConfig)
     }
 
     if (target.isRootProject()) {
       target.registerSyncRuleSetJars(configProvider)
+    }
+  }
+
+  private inline fun GradleProject.withKotlinPlugin(crossinline action: () -> Unit) {
+
+    pluginManager.withAnyPlugin(
+      "org.jetbrains.kotlin.jvm",
+      "org.jetbrains.kotlin.android",
+      "org.jetbrains.kotlin.js",
+      "org.jetbrains.kotlin.multiplatform"
+    ) {
+      action()
     }
   }
 
@@ -128,6 +161,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
     val pairs = target.getSourceSets()
       .map { (sourceSetName, sourceSet) ->
+
         registerFormatCheckPair(
           target = target,
           taskNameSuffix = sourceSetName.capitalize(),
@@ -150,9 +184,9 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
   private fun GradleProject.getSourceSets(): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
 
     val kotlinExtension = try {
-      val extension = extensions.findByName("kotlin")
 
-      extension as? org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
+      extensions
+        .findByType(KotlinSourceSetContainer::class.java)
     } catch (_: ClassNotFoundException) {
       return emptyMap()
     } catch (_: NoClassDefFoundError) {
@@ -165,6 +199,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       .orEmpty()
   }
 
+  @OptIn(InternalGradleApiAccess::class)
   private fun registerFormatCheckPair(
     target: GradleProject,
     taskNameSuffix: String,
@@ -175,36 +210,34 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
   ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {
 
     val formatTaskName = "ktlintFormat${taskNameSuffix.capitalize()}"
+    val checkTaskName = "ktlintCheck${taskNameSuffix.capitalize()}"
 
-    val formatTask =
-      target.tasks.registerOnce(formatTaskName, KtLintFormatTask::class.java) { task ->
-
+    fun <T : KtLintTask> TaskProvider<T>.configure() = apply {
+      configure { task ->
         task.sourceFiles.from(sourceDirectorySet)
-
         task.ktlintClasspath.setFrom(configProvider)
-
         task.sourceFilesShadow.set(sourceFileShadowDirectory)
         task.rootDir.set(target.rootProject.layout.projectDirectory)
         task.editorConfig.fileValue(editorConfigFile.value)
       }
-        .addAsDependencyTo(target.tasks.matchingName("fix"))
-
-    val checkTaskName = "ktlintCheck${taskNameSuffix.capitalize()}"
-
-    val lintTask = target.tasks.registerOnce(checkTaskName, KtLintCheckTask::class.java) { task ->
-
-      task.sourceFiles.from(sourceDirectorySet)
-
-      task.ktlintClasspath.setFrom(configProvider)
-
-      // If both tasks are running in the same invocation, make sure that the format task runs first.
-      task.mustRunAfter(formatTask)
-
-      task.sourceFilesShadow.set(sourceFileShadowDirectory)
-      task.rootDir.set(target.rootProject.layout.projectDirectory)
-      task.editorConfig.fileValue(editorConfigFile.value)
     }
-      .addAsDependencyTo(target.tasks.matchingName("check"))
+
+    val formatTask = target.tasks
+      .register(formatTaskName, KtLintFormatTask::class.java)
+      .also { format ->
+        target.tasks.whenElementRegistered("fix") { fix -> fix.dependsOn(format) }
+      }
+      .configure()
+
+    val lintTask = target.tasks
+      .register(checkTaskName, KtLintCheckTask::class.java) {
+        // If both tasks are running in the same invocation, make sure that the format task runs first.
+        it.mustRunAfter(formatTask)
+      }
+      .also { format ->
+        target.tasks.whenElementRegistered("check") { check -> check.dependsOn(format) }
+      }
+      .configure()
 
     return formatTask to lintTask
   }

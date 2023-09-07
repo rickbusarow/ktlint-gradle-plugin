@@ -1,4 +1,13 @@
 [versions]
+jdk = "11" # the jdk used to build the project
+jvmTarget = "1.8" # the jdk used in packaging
+
+kotlin = "1.8.10"
+google-ksp = "1.8.10-1.0.9"
+kotlinApi = "1.7"
+
+ktlint-gradle-plugin = "0.1.9-SNAPSHOT"
+
 autoManifest = "2.0"
 benManes-versions = "0.48.0"
 buildconfig = "4.1.2"
@@ -6,32 +15,25 @@ commons-io = "2.13.0"
 dependencyAnalysis = "1.20.0"
 detekt = "1.23.1"
 diffplug-spotless = "6.21.0"
-ktlint-gradle-plugin = "0.1.9-SNAPSHOT"
 dokka = "1.8.20"
 dropbox-dependencyGuard = "0.4.3"
 ec4j = "0.3.0"
 github-release = "2.4.1"
 google-guava = "32.1.2-jre"
-google-ksp = "1.8.22-1.0.11"
 gradle-plugin-publish = "1.2.1"
 integration-test = "1.4.5"
 jUnit = "5.10.0"
 java-diff-utils = "4.12"
 jetbrains-markdown = "0.4.1"
 johnrengelman-shadow = "8.1.1"
-# the jdk used to build the project
-jdk = "11"
-# the jdk used in packaging
-jvmTarget = "1.8"
 kotest = "5.7.2"
-kotlin = "1.8.22"
-kotlinApi = "1.7"
 kotlinx-binaryCompatibility = "0.13.2"
 kotlinx-knit = "0.4.0"
-ktlint-lib = "0.50.0"
+ktlint-lib = "1.0.0"
 prettier = "2.8.4"
 prettier-plugin-sh = "0.12.8"
 rickBusarow-ktrules = "1.1.3"
+rickBusarow-kgx = "0.1.4"
 rickBusarow-ktlint = "0.1.8"
 rickBusarow-moduleCheck = "0.12.5"
 slf4j = "2.0.9"
@@ -136,6 +138,8 @@ ktlint-rule-engine = { module = "com.pinterest.ktlint:ktlint-rule-engine", versi
 ktlint-ruleset-experimental = { module = "com.pinterest.ktlint:ktlint-ruleset-experimental", version.ref = "ktlint-lib" }
 ktlint-ruleset-standard = { module = "com.pinterest.ktlint:ktlint-ruleset-standard", version.ref = "ktlint-lib" }
 ktlint-test = { module = "com.pinterest.ktlint:ktlint-test", version.ref = "ktlint-lib" }
+
+rickBusarow-kgx = { module = "com.rickbusarow.kgx:kotlin-gradle-extensions", version.ref = "rickBusarow-kgx" }
 
 rickBusarow-ktlint = { module = "com.rickbusarow.ktlint:ktlint-gradle-plugin", version.ref = "rickBusarow-ktlint" }
 

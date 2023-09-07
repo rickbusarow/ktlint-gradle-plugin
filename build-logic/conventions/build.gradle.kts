@@ -97,6 +97,8 @@ dependencies {
   implementation(libs.kotlinx.binaryCompatibility)
   implementation(libs.kotlinx.knit)
   implementation(libs.rickBusarow.ktlint)
-  implementation(libs.rickBusarow.moduleCheck.gradle.plugin)
+  implementation(libs.rickBusarow.moduleCheck.gradle.plugin) {
+    exclude(group = "org.jetbrains.kotlin")
+  }
   implementation(libs.vanniktech.publish)
 }
