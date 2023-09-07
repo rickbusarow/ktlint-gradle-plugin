@@ -45,7 +45,9 @@ dependencies {
   compileOnly(gradleApi())
 
   implementation(libs.benManes.versions)
-  implementation(libs.dependency.analysis.gradle.plugin)
+  implementation(libs.dependency.analysis.gradle.plugin) {
+    exclude(group = "org.jetbrains.kotlin")
+  }
   implementation(libs.detekt.gradle)
   implementation(libs.dokka.gradle)
   implementation(libs.dokka.versioning)
@@ -53,5 +55,7 @@ dependencies {
   implementation(libs.johnrengelman.shadowJar)
   implementation(libs.kotlinx.binaryCompatibility)
   implementation(libs.rickBusarow.ktlint)
-  implementation(libs.rickBusarow.moduleCheck.gradle.plugin)
+  implementation(libs.rickBusarow.moduleCheck.gradle.plugin) {
+    exclude(group = "org.jetbrains.kotlin")
+  }
 }
