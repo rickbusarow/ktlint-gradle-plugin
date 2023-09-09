@@ -1,9 +1,18 @@
-public abstract class com/rickbusarow/ktlint/KtLintCheckTask : com/rickbusarow/ktlint/KtLintTask {
-	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
+public abstract class com/rickbusarow/ktlint/AbstractKtLintTask : org/gradle/api/DefaultTask {
+	public fun <init> (Lorg/gradle/api/file/ProjectLayout;Lorg/gradle/workers/WorkerExecutor;Z)V
+	public final fun execute (Lorg/gradle/work/InputChanges;)V
+	public final fun getAutoCorrect ()Z
+	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getKtlintClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getSourceFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
 }
 
-public abstract class com/rickbusarow/ktlint/KtLintFormatTask : com/rickbusarow/ktlint/KtLintTask {
-	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
+public abstract class com/rickbusarow/ktlint/KtLintCheckTask : com/rickbusarow/ktlint/AbstractKtLintTask {
+	public fun <init> (Lorg/gradle/api/file/ProjectLayout;Lorg/gradle/workers/WorkerExecutor;)V
+}
+
+public abstract class com/rickbusarow/ktlint/KtLintFormatTask : com/rickbusarow/ktlint/AbstractKtLintTask {
+	public fun <init> (Lorg/gradle/api/file/ProjectLayout;Lorg/gradle/workers/WorkerExecutor;)V
 }
 
 public abstract class com/rickbusarow/ktlint/KtLintPlugin : org/gradle/api/Plugin {
@@ -19,15 +28,6 @@ public abstract class com/rickbusarow/ktlint/KtLintSyncRuleSetJarTask : org/grad
 	public abstract fun getXmlFile ()Lorg/gradle/api/file/RegularFileProperty;
 }
 
-public abstract class com/rickbusarow/ktlint/KtLintTask : org/gradle/api/DefaultTask {
-	public fun <init> (Lorg/gradle/workers/WorkerExecutor;Z)V
-	public final fun execute (Lorg/gradle/work/InputChanges;)V
-	public final fun getAutoCorrect ()Z
-	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
-	public abstract fun getKtlintClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
-	public abstract fun getSourceFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
-}
-
 public abstract class com/rickbusarow/ktlint/KtLintWorkAction : org/gradle/workers/WorkAction {
 	public fun <init> ()V
 	public fun execute ()V
@@ -36,9 +36,9 @@ public abstract class com/rickbusarow/ktlint/KtLintWorkAction : org/gradle/worke
 public abstract interface class com/rickbusarow/ktlint/KtLintWorkAction$KtLintWorkParameters : org/gradle/workers/WorkParameters {
 	public abstract fun getAutoCorrect ()Lorg/gradle/api/provider/Property;
 	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
-	public abstract fun getRootDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getOutputMap ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getProjectRoot ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getSourceFiles ()Lorg/gradle/api/provider/ListProperty;
-	public abstract fun getSourceFilesShadow ()Lorg/gradle/api/file/DirectoryProperty;
 }
 
 public final class com/rickbusarow/ktlint/internal/ApplyKt {
@@ -62,3 +62,4 @@ public final class com/rickbusarow/ktlint/internal/StringKt {
 	public static final fun remove (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
 	public static final fun remove (Ljava/lang/String;[Lkotlin/text/Regex;)Ljava/lang/String;
 }
+

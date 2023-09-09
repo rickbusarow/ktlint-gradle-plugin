@@ -161,7 +161,7 @@ abstract class AbstractKtLintTask(
       ?.split(',')
       ?.map { projectDir.resolve(it) }
       .orEmpty()
-      .none { it.md5() != map[it.toRelativeString(projectDir)] }
+      .all { it.md5() == map[it.toRelativeString(projectDir)] }
   }
 }
 

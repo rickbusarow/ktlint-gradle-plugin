@@ -15,79 +15,39 @@
 
 package com.rickbusarow.ktlint
 
-import com.rickbusarow.ktlint.internal.GradleConfiguration
-import com.rickbusarow.ktlint.internal.GradleProject
-import com.rickbusarow.ktlint.internal.GradleProvider
-import com.rickbusarow.ktlint.internal.addAsDependencyTo
-import com.rickbusarow.ktlint.internal.buildDir
-import com.rickbusarow.ktlint.internal.capitalize
-import com.rickbusarow.ktlint.internal.decapitalize
-import com.rickbusarow.ktlint.internal.dependsOn
-import com.rickbusarow.ktlint.internal.existsOrNull
-import com.rickbusarow.ktlint.internal.flatMapToSet
-import com.rickbusarow.ktlint.internal.isRootProject
-import com.rickbusarow.ktlint.internal.mapToSet
-import com.rickbusarow.ktlint.internal.matchingName
-import com.rickbusarow.ktlint.internal.md5
-import com.rickbusarow.ktlint.internal.outputsUpToDateWhen
-import com.rickbusarow.ktlint.internal.registerOnce
-import com.rickbusarow.ktlint.internal.resolveInParentOrNull
-import com.rickbusarow.ktlint.internal.whenElementKnown
-import com.rickbusarow.ktlint.internal.withAny
-import org.gradle.api.NamedDomainObjectProvider
-import org.gradle.api.Plugin
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
-import java.io.File
-
-
 import com.rickbusarow.kgx.addAsDependencyTo
+import com.rickbusarow.kgx.buildDir
 import com.rickbusarow.kgx.dependsOn
 import com.rickbusarow.kgx.internal.InternalGradleApiAccess
+import com.rickbusarow.kgx.internal.whenElementKnown
 import com.rickbusarow.kgx.internal.whenElementRegistered
 import com.rickbusarow.kgx.isRootProject
+import com.rickbusarow.kgx.outputsUpToDateWhen
+import com.rickbusarow.kgx.registerOnce
 import com.rickbusarow.kgx.withAnyPlugin
 import com.rickbusarow.ktlint.internal.GradleConfiguration
 import com.rickbusarow.ktlint.internal.GradleProject
 import com.rickbusarow.ktlint.internal.GradleProvider
 import com.rickbusarow.ktlint.internal.capitalize
+import com.rickbusarow.ktlint.internal.decapitalize
+import com.rickbusarow.ktlint.internal.existsOrNull
 import com.rickbusarow.ktlint.internal.flatMapToSet
+import com.rickbusarow.ktlint.internal.kotlinExtension
 import com.rickbusarow.ktlint.internal.mapToSet
+import com.rickbusarow.ktlint.internal.md5
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
-import org.gradle.api.NamedDomainObjectProvider
-import org.gradle.api.Plugin
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.file.Directory
-import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
-import java.io.File
-
-import com.rickbusarow.kgx.withAnyPlugin
-import com.rickbusarow.ktlint.internal.GradleConfiguration
-import com.rickbusarow.ktlint.internal.GradleProject
-import com.rickbusarow.ktlint.internal.GradleProvider
-import com.rickbusarow.ktlint.internal.capitalize
-import com.rickbusarow.ktlint.internal.flatMapToSet
-import com.rickbusarow.ktlint.internal.mapToSet
-import com.rickbusarow.ktlint.internal.resolveInParentOrNull
-import com.rickbusarow.ktlint.internal.whenElementKnown
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 import java.io.File
 
 /** @since 0.1.1 */
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintPlugin : Plugin<GradleProject> {
+
   override fun apply(target: GradleProject) {
 
     val rulesetConfig: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
@@ -126,6 +86,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     }
   }
 
+  @OptIn(InternalGradleApiAccess::class)
   private fun doApply(
     target: GradleProject,
     rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>,
@@ -181,7 +142,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
     target.withKotlinPlugin {
 
-      val sourceSets = target.kotlin ?.sourceSets
+      val sourceSets = target.kotlinExtension?.sourceSets
       sourceSets?.whenElementKnown { elementInfo ->
         registerKotlinTasks(
           target = target,
@@ -241,18 +202,6 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     rootTaskPair.second.dependsOn(lintTasks)
   }
 
-  private fun GradleProject.getSourceSets(): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
-
-    val kotlinExtension = try {
-
-      extensions
-        .findByType(KotlinSourceSetContainer::class.java)
-    } catch (_: ClassNotFoundException) {
-      null
-    } catch (_: NoClassDefFoundError) {
-      null
-    }
-
   @OptIn(InternalGradleApiAccess::class)
   private fun registerFormatCheckPair(
     target: GradleProject,
@@ -298,7 +247,11 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         task.outputMap.set(outputMapFile)
         task.editorConfig.fileValue(editorConfigFile.value)
       }
-      .addAsDependencyTo(target.tasks.matchingName("fix"))
+      .also { task ->
+        target.tasks.whenElementRegistered("fix") {
+          it.dependsOn(task)
+        }
+      }
 
     val checkTaskName = "ktlintCheck${taskNameSuffix.capitalize()}"
 
@@ -314,7 +267,11 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       task.outputMap.set(outputMapFile)
       task.editorConfig.fileValue(editorConfigFile.value)
     }
-      .addAsDependencyTo(target.tasks.matchingName("check"))
+      .also { task ->
+        target.tasks.whenElementRegistered("check") {
+          it.dependsOn(task)
+        }
+      }
 
     return formatTask to lintTask
   }
