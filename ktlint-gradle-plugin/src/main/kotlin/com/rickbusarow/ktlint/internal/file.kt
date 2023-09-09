@@ -15,6 +15,7 @@
 
 package com.rickbusarow.ktlint.internal
 
+import com.rickbusarow.kgx.existsOrNull
 import java.io.File
 import java.security.MessageDigest
 
@@ -57,8 +58,9 @@ internal fun File.mkdirsInline(): File = apply(File::mkdirs)
  * @since 0.1.1
  */
 internal fun File.makeParentDir(): File = apply {
-  val fileParent = requireNotNull(parentFile) { "File's `parentFile` must not be null." }
-  fileParent.mkdirs()
+  parentFile
+    .requireNotNull { "File's `parentFile` must not be null." }
+    .mkdirs()
 }
 
 /**

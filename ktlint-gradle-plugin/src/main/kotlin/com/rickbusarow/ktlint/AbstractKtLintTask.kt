@@ -118,7 +118,8 @@ abstract class AbstractKtLintTask(
       ?.let { map ->
 
         map["changed-files"]
-          ?.split(',')
+          ?.split("""\s*,\s*""".toRegex())
+          ?.filter { it.isNotBlank() }
           ?.map { layout.projectDirectory.file(it).asFile }
           .orEmpty()
           .filter { it.md5() != map[it.toRelativeString(projectDir)] }
@@ -127,8 +128,7 @@ abstract class AbstractKtLintTask(
 
     val fileChanges = inputChanges.getFileChanges(sourceFiles)
       .mapNotNull { fileChange ->
-        fileChange.file
-          .takeIf { it.isFile && it.extension in extensions }
+        fileChange.file.takeIf { it.isFile && it.extension in extensions }
       }
       .plus(lastChanged)
 

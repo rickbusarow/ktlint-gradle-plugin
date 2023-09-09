@@ -45,14 +45,15 @@ internal interface BaseGradleTest : TrimmedAsserts {
   ) : HasWorkingDir(createWorkingDir(testStackFrame)), TrimmedAsserts {
 
     val buildFile by lazy {
-      workingDir.resolve("build.gradle.kts").createSafely(
-        """
-        plugins {
-          id("com.rickbusarow.ktlint") version "${BuildConfig.version}"
-        }
+      workingDir.resolve("build.gradle.kts")
+        .createSafely(
+          """
+          plugins {
+            id("com.rickbusarow.ktlint") version "${BuildConfig.version}"
+          }
 
-        """.trimIndent()
-      )
+          """.trimIndent()
+        )
     }
 
     val settingsFile by lazy {
@@ -104,23 +105,29 @@ internal interface BaseGradleTest : TrimmedAsserts {
       shouldFail: Boolean
     ): BuildResult {
       ensureFilesAreWritten()
-      return gradleRunner
+
+      val withOptions = gradleRunner
         .letIf(withPluginClasspath) { withPluginClasspath() }
         .letIf(withHermeticTestKit) { withTestKitDir(workingDir / "testKit") }
         .withArguments(tasks.letIf(stacktrace) { plus("--stacktrace") })
-        .let { runner ->
-          if (shouldFail) {
-            runner.buildAndFail()
-          } else {
-            runner.build()
-              .also { result ->
-                result.tasks
-                  .forAll { buildTask ->
-                    buildTask.outcome shouldNotBe TaskOutcome.FAILED
-                  }
+
+      val result = if (shouldFail) {
+        withOptions.buildAndFail()
+      } else {
+        withOptions.build()
+          .also { result ->
+            result.tasks
+              .forAll { buildTask ->
+                buildTask.outcome shouldNotBe TaskOutcome.FAILED
               }
           }
-        }
+      }
+
+      println("%%%%%%%%% files after")
+      printFiles()
+      println("%%%%%%%%%")
+
+      return result
     }
 
     inline fun shouldSucceed(
@@ -143,15 +150,42 @@ internal interface BaseGradleTest : TrimmedAsserts {
     }
 
     fun clean() {
-
       workingDir.deleteRecursively()
+
+      println(
+        """
+        |            |\|\,'\,'\ ,.
+        |            )        ;' |,'
+        |           /              |,'|,.
+        |          /                  ` /__
+        |         ,'                    ,-'
+        |        ,'                    :
+        |       (_                     '
+        |     ,'                      ;
+        |     |---._ ,'     .        '
+        |     :   o Y---.__  ;      ;
+        |     /`,""-|     o`.|     /
+        |    ,  `._  `.    ,'     ;
+        |    ;         `""'      ;
+        |   /                   -'.
+        |   \                   G  )
+        |    `-.__________,   `._,'
+        |            (`   `     |)\
+        |           / `.       ,'  \
+        |          /    `-----'     \
+        |         /
+        """.trimMargin()
+      )
     }
 
     private fun ensureFilesAreWritten() {
       buildFile
       settingsFile
+    }
+
+    private fun printFiles() {
       workingDir.walkTopDown()
-        .filter { !it.path.contains("/testKit/") }
+        .onEnter { !it.path.contains("/testKit/") && it.name != ".gradle" }
         .filter { it.isFile }
         .forEach { println("file://$it") }
     }
@@ -214,6 +248,11 @@ internal interface BaseGradleTest : TrimmedAsserts {
     val gradleTestEnvironment = GradleTestEnvironment(testStackTraceElement())
 
     gradleTestEnvironment.clean()
+
     gradleTestEnvironment.action()
+
+    println("%%%%%%%%% files after")
+    gradleTestEnvironment.printFiles()
+    println("%%%%%%%%%")
   }
 }

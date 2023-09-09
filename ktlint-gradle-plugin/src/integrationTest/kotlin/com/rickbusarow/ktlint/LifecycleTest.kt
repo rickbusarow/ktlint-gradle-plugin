@@ -77,17 +77,18 @@ internal class LifecycleTest : BaseGradleTest {
       plugins {
         id("com.rickbusarow.ktlint")
       }
+
       """
     }
 
     shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormat")?.outcome shouldBe SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
     }
 
     workingDir.resolve("build").deleteRecursively()
 
     shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormat")?.outcome shouldBe FROM_CACHE
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe FROM_CACHE
     }
   }
 

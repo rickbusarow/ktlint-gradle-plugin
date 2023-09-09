@@ -102,7 +102,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       taskNameSuffix = "",
       sourceFiles = null,
       editorConfigFile = editorConfigFile,
-      configProvider = rulesetConfig
+      rulesetConfig = rulesetConfig
     )
 
     val scriptTaskPair = registerFormatCheckPair(
@@ -134,7 +134,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         )
       },
       editorConfigFile = editorConfigFile,
-      configProvider = rulesetConfig
+      rulesetConfig = rulesetConfig
     )
 
     rootTaskPair.first.dependsOn(scriptTaskPair.first)
@@ -148,7 +148,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
           target = target,
           rootTaskPair = rootTaskPair,
           editorConfigFile = editorConfigFile,
-          configProvider = configProvider,
+          rulesetConfig = rulesetConfig,
           sourceSetName = elementInfo.name,
           sourceSet = sourceSets.named(elementInfo.name)
         )
@@ -176,23 +176,19 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     target: GradleProject,
     rootTaskPair: Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>>,
     editorConfigFile: Lazy<File?>,
-    configProvider: NamedDomainObjectProvider<GradleConfiguration>?,
+    rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>?,
     sourceSetName: String,
     sourceSet: NamedDomainObjectProvider<KotlinSourceSet>
   ) {
-
-    val layout = target.layout
 
     val pair = registerFormatCheckPair(
       target = target,
       taskNameSuffix = sourceSetName.capitalize(),
       sourceFiles = sourceSet.map { ss ->
-        ss.kotlin {
-          exclude(layout.buildDirectory.get().asFile.path)
-        }
+        ss.kotlin.filter { file -> !file.startsWith(target.buildDir()) }
       },
       editorConfigFile = editorConfigFile,
-      configProvider = configProvider
+      rulesetConfig = rulesetConfig
     )
 
     val formatTasks = pair.first
@@ -208,7 +204,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     taskNameSuffix: String,
     sourceFiles: GradleProvider<FileCollection>?,
     editorConfigFile: Lazy<File?>,
-    configProvider: NamedDomainObjectProvider<GradleConfiguration>?
+    rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>?
   ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {
 
     val outputMapFile = target.buildDir()
@@ -242,7 +238,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
         task.sourceFiles.from(sourceFiles)
 
-        task.ktlintClasspath.setFrom(configProvider)
+        task.ktlintClasspath.setFrom(rulesetConfig)
 
         task.outputMap.set(outputMapFile)
         task.editorConfig.fileValue(editorConfigFile.value)
@@ -259,7 +255,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
       task.sourceFiles.from(sourceFiles)
 
-      task.ktlintClasspath.setFrom(configProvider)
+      task.ktlintClasspath.setFrom(rulesetConfig)
 
       // If both tasks are running in the same invocation, make sure that the format task runs first.
       task.mustRunAfter(formatTask)
