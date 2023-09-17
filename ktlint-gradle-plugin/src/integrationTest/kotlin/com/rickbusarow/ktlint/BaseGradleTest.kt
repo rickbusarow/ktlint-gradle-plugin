@@ -151,31 +151,6 @@ internal interface BaseGradleTest : TrimmedAsserts {
 
     fun clean() {
       workingDir.deleteRecursively()
-
-      println(
-        """
-        |            |\|\,'\,'\ ,.
-        |            )        ;' |,'
-        |           /              |,'|,.
-        |          /                  ` /__
-        |         ,'                    ,-'
-        |        ,'                    :
-        |       (_                     '
-        |     ,'                      ;
-        |     |---._ ,'     .        '
-        |     :   o Y---.__  ;      ;
-        |     /`,""-|     o`.|     /
-        |    ,  `._  `.    ,'     ;
-        |    ;         `""'      ;
-        |   /                   -'.
-        |   \                   G  )
-        |    `-.__________,   `._,'
-        |            (`   `     |)\
-        |           / `.       ,'  \
-        |          /    `-----'     \
-        |         /
-        """.trimMargin()
-      )
     }
 
     private fun ensureFilesAreWritten() {
@@ -250,9 +225,5 @@ internal interface BaseGradleTest : TrimmedAsserts {
     gradleTestEnvironment.clean()
 
     gradleTestEnvironment.action()
-
-    println("%%%%%%%%% files after")
-    gradleTestEnvironment.printFiles()
-    println("%%%%%%%%%")
   }
 }

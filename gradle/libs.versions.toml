@@ -6,7 +6,7 @@ kotlin = "1.8.10"
 google-ksp = "1.8.10-1.0.9"
 kotlinApi = "1.7"
 
-ktlint-gradle-plugin = "0.1.9-SNAPSHOT"
+ktlint-gradle-plugin = "0.1.9-LOCAL"
 
 autoManifest = "2.0"
 benManes-versions = "0.48.0"
@@ -67,8 +67,6 @@ benManes-versions = { module = "com.github.ben-manes:gradle-versions-plugin", ve
 breadmoirai-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "github-release" }
 
 buildconfig = { module = "com.github.gmazzo:gradle-buildconfig-plugin", version.ref = "buildconfig" }
-
-breadmoirai-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "github-release" }
 
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 

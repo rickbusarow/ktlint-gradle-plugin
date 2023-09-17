@@ -23,7 +23,7 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.CompileClasspath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -66,7 +66,7 @@ abstract class AbstractKtLintTask(
 
   /** @since 0.1.1 */
   @get:InputFiles
-  @get:Classpath
+  @get:CompileClasspath
   abstract val ktlintClasspath: ConfigurableFileCollection
 
   /** @since 0.1.1 */
