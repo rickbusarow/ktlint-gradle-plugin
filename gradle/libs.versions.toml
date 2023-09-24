@@ -64,6 +64,8 @@ taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 [libraries]
 benManes-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "benManes-versions" }
 
+breadmoirai-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "github-release" }
+
 buildconfig = { module = "com.github.gmazzo:gradle-buildconfig-plugin", version.ref = "buildconfig" }
 
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }

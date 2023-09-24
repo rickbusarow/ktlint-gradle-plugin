@@ -15,11 +15,13 @@
 
 package builds
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
+import kotlin.LazyThreadSafetyMode.NONE
 
 /**
  * Convenience for reading the library version from `libs.versions.toml`
@@ -28,6 +30,9 @@ import org.gradle.api.provider.Provider
  */
 val Project.VERSION_NAME: String
   get() = libsCatalog.version("ktlint-gradle-plugin")
+
+val Project.versionIsSnapshot: Boolean
+  get() = VERSION_NAME.endsWith("-SNAPSHOT")
 
 const val GROUP: String = "com.rickbusarow.ktlint"
 
@@ -112,4 +117,24 @@ fun VersionCatalog.dependency(alias: String): Provider<MinimalExternalModuleDepe
  */
 fun VersionCatalog.version(alias: String): String {
   return findVersion(alias).get().requiredVersion
+}
+
+/**
+ * non-dsl version of `libs.versions._____.get().pluginId`
+ *
+ * ex:
+ *
+ * ```
+ * val anvilId = project.libsCatalog.pluginId("square-anvil")
+ * ```
+ */
+fun VersionCatalog.pluginId(alias: String): String {
+  val errorMessage by lazy(NONE) {
+    "No plugin ID was found in the catalog for the alias '$alias'."
+  }
+  return findPlugin(alias)
+    .orElseThrow { GradleException(errorMessage) }
+    .orNull
+    ?.pluginId
+    ?: throw GradleException(errorMessage)
 }
