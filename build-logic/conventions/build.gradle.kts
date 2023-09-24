@@ -81,12 +81,12 @@ dependencies {
 
   api(project(":core"))
 
+  implementation(libs.benManes.versions)
   implementation(libs.breadmoirai.github.release) {
     // Github-release bundles Gradle, which confuses the IDE when trying to view Gradle source or
     // javadoc.
     exclude(group = "org.gradle")
   }
-  implementation(libs.benManes.versions)
   implementation(libs.detekt.gradle)
   implementation(libs.diffplug.spotless)
   implementation(libs.dokka.gradle)
