@@ -16,6 +16,10 @@
 package builds
 
 import builds.artifacts.ArtifactsPlugin
+import com.rickbusarow.kgx.checkProjectIsRoot
+import com.rickbusarow.kgx.dependsOn
+import com.rickbusarow.kgx.isRealRootProject
+import com.rickbusarow.kgx.register
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

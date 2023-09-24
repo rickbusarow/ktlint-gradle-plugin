@@ -14,9 +14,9 @@
  */
 
 import builds.VERSION_NAME
-import builds.dependsOn
-import builds.isRealRootProject
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
+import com.rickbusarow.kgx.dependsOn
+import com.rickbusarow.kgx.isRealRootProject
 
 plugins {
   id("module")
@@ -156,9 +156,7 @@ dependencies {
 
   compileOnly(gradleApi())
 
-  implementation(libs.rickBusarow.kgx) {
-    exclude(group = "org.jetbrains.kotlin")
-  }
+  implementation(libs.rickBusarow.kgx)
 
   testImplementation(libs.jetbrains.markdown)
   testImplementation(libs.junit.engine)

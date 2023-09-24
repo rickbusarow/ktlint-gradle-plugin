@@ -31,6 +31,8 @@ gradlePlugin {
 
 dependencies {
 
+  api(libs.rickBusarow.kgx)
+
   api(project(":core"))
 
   compileOnly(gradleApi())

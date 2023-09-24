@@ -15,6 +15,7 @@
 
 package builds
 
+import com.rickbusarow.kgx.applyOnce
 import kotlinx.knit.KnitPluginExtension
 import kotlinx.knit.KnitTask
 import org.gradle.api.Plugin

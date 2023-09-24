@@ -15,31 +15,10 @@
 
 package builds
 
+import com.rickbusarow.kgx.isRootProject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.GradleInternal
 import org.gradle.api.plugins.PluginContainer
-
-/**
- * Determines whether the receiver project is the "real" root of this
- * composite build, as opposed to the root projects of included builds.
- *
- * @see isRootProject to check if the project is the root of any build in a composite build
- * @since 0.1.1
- */
-fun Project.isRealRootProject(): Boolean {
-  return (gradle as GradleInternal).isRootBuild && this == rootProject
-}
-
-/**
- * shorthand for `this == rootProject`
- *
- * For composite builds, this will return true for the root of each included build.
- *
- * @see isRealRootProject to check if the project is the ultimate root of a composite build
- * @since 0.1.1
- */
-fun Project.isRootProject() = this == rootProject
 
 /**
  * Add the plugin if it hasn't been applied already.

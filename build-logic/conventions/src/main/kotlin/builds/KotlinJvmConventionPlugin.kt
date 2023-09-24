@@ -15,6 +15,7 @@
 
 package builds
 
+import com.rickbusarow.kgx.applyOnce
 import com.vanniktech.maven.publish.MavenPublishBasePlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
