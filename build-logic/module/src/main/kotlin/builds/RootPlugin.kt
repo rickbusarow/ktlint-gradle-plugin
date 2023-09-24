@@ -35,6 +35,7 @@ abstract class RootPlugin : Plugin<Project> {
 
     target.plugins.apply(ArtifactsPlugin::class.java)
     target.plugins.apply(BenManesVersionsPlugin::class.java)
+    target.plugins.apply(GitHubReleasePlugin::class.java)
     target.plugins.apply(KnitConventionPlugin::class.java)
     target.plugins.apply(SpotlessConventionPlugin::class.java)
 

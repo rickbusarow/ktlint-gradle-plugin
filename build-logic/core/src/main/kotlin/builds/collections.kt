@@ -13,23 +13,31 @@
  * limitations under the License.
  */
 
-import modulecheck.gradle.task.AbstractModuleCheckTask
+package builds
 
-plugins {
-  id("root")
-  alias(libs.plugins.moduleCheck)
-}
+/**   */
+inline fun <E> List<E>.splitInclusive(predicate: (E) -> Boolean): List<List<E>> {
 
-moduleCheck {
-  deleteUnused = true
-  checks.sortDependencies = true
-}
+  val toSplit = this@splitInclusive
 
-tasks.withType(AbstractModuleCheckTask::class.java)
-  .matching { !it.name.endsWith("Auto") }
-  .configureEach {
-    mustRunAfter(
-      tasks.withType(AbstractModuleCheckTask::class.java)
-        .matching { it.name.endsWith("Auto") }
-    )
+  val indices = buildList {
+    add(0)
+
+    for (index in (1 until toSplit.lastIndex - 1)) {
+      if (predicate(toSplit[index])) {
+        add(index)
+      }
+    }
   }
+    .distinct()
+
+  return buildList {
+    for ((i, fromIndex) in indices.withIndex()) {
+      if (i == indices.lastIndex) {
+        add(toSplit.subList(fromIndex, toSplit.lastIndex))
+      } else {
+        add(toSplit.subList(fromIndex, indices[i + 1]))
+      }
+    }
+  }
+}

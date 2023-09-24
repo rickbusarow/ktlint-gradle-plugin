@@ -108,10 +108,6 @@ private fun Project.configurePublishPlugin(
   }
 }
 
-private fun Project.versionIsSnapshot(): Boolean {
-  return VERSION_NAME.endsWith("-SNAPSHOT")
-}
-
 private fun Project.configurePublish(
   artifactId: String,
   pomDescription: String,
@@ -119,8 +115,7 @@ private fun Project.configurePublish(
 ) {
 
   version = VERSION_NAME
-
-  val versionIsSnapshot = versionIsSnapshot()
+  val versionIsSnapshot = versionIsSnapshot
 
   @Suppress("UnstableApiUsage")
   extensions.configure(MavenPublishBaseExtension::class.java) { extension ->
