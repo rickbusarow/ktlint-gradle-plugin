@@ -38,6 +38,8 @@ gradlePlugin {
 
 dependencies {
 
+  api(libs.rickBusarow.kgx)
+
   api(project(":artifacts"))
   api(project(":conventions"))
   api(project(":core"))

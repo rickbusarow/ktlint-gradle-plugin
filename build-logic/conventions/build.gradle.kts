@@ -75,6 +75,7 @@ gradlePlugin {
 
 dependencies {
 
+  api(libs.rickBusarow.kgx)
   api(libs.rickBusarow.ktrules)
   api(libs.slf4j.api)
   api(libs.square.moshi)

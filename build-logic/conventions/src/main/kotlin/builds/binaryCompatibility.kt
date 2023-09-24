@@ -15,6 +15,7 @@
 
 package builds
 
+import com.rickbusarow.kgx.mustRunAfter
 import kotlinx.validation.ApiValidationExtension
 import org.gradle.api.Project
 
@@ -31,7 +32,5 @@ fun Project.applyBinaryCompatibility() {
     extension.ignoredProjects = mutableSetOf()
   }
 
-  tasks.matchingName("apiCheck").configureEach { task ->
-    task.mustRunAfter("apiDump")
-  }
+  tasks.named("apiCheck").mustRunAfter("apiDump")
 }

@@ -20,6 +20,10 @@ import builds.artifacts.ArtifactsDumpTask
 import com.autonomousapps.tasks.BuildHealthTask
 import com.github.jengelman.gradle.plugins.shadow.internal.JavaJarExec
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.rickbusarow.kgx.checkProjectIsRoot
+import com.rickbusarow.kgx.dependsOn
+import com.rickbusarow.kgx.internal.allProjects
+import com.rickbusarow.kgx.undecoratedTypeName
 import com.rickbusarow.ktlint.KtLintCheckTask
 import com.rickbusarow.ktlint.KtLintFormatTask
 import com.rickbusarow.ktlint.KtLintTask
@@ -59,25 +63,41 @@ abstract class CompositePlugin : Plugin<Project> {
 
       val propagatedTaskTypes = listOf(
         /* api validation */
-        KotlinApiBuildTask::class, KotlinApiCompareTask::class,
+        KotlinApiBuildTask::class,
+        KotlinApiCompareTask::class,
         /* artifacts-check */
-        ArtifactsCheckTask::class, ArtifactsDumpTask::class,
+        ArtifactsCheckTask::class,
+        ArtifactsDumpTask::class,
         /* DAGP */
         BuildHealthTask::class,
         /* ModuleCheck */
-        AbstractModuleCheckTask::class, MultiRuleModuleCheckTask::class, SingleRuleModuleCheckTask::class,
+        AbstractModuleCheckTask::class,
+        MultiRuleModuleCheckTask::class,
+        SingleRuleModuleCheckTask::class,
         /* detekt */
         Detekt::class,
         /* dokka */
-        AbstractDokkaTask::class, DokkaMultiModuleTask::class, DokkaTask::class,
+        AbstractDokkaTask::class,
+        DokkaMultiModuleTask::class,
+        DokkaTask::class,
         /* gradle */
-        Copy::class, Delete::class, Exec::class, JavaExec::class, Sync::class, Test::class, Zip::class,
+        Copy::class,
+        Delete::class,
+        Exec::class,
+        JavaExec::class,
+        Sync::class,
+        Test::class,
+        Zip::class,
         /* ktlint */
-        KtLintTask::class, KtLintFormatTask::class, KtLintCheckTask::class,
+        KtLintTask::class,
+        KtLintFormatTask::class,
+        KtLintCheckTask::class,
         /* publishing */
-        AbstractPublishToMaven::class, PublishToMavenLocal::class,
+        AbstractPublishToMaven::class,
+        PublishToMavenLocal::class,
         /* shadow */
-        JavaJarExec::class, ShadowJar::class
+        JavaJarExec::class,
+        ShadowJar::class
       )
       val propagatedTaskTypeNames = propagatedTaskTypes
         .mapTo(mutableSetOf()) { it.qualifiedName!! }

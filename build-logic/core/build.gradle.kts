@@ -21,6 +21,7 @@ plugins {
 dependencies {
 
   api(libs.ec4j.core)
+  api(libs.rickBusarow.kgx)
 
   compileOnly(gradleApi())
 
