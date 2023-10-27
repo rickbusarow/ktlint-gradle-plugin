@@ -36,7 +36,7 @@ public abstract class com/rickbusarow/ktlint/KtLintWorkAction : org/gradle/worke
 public abstract interface class com/rickbusarow/ktlint/KtLintWorkAction$KtLintWorkParameters : org/gradle/workers/WorkParameters {
 	public abstract fun getAutoCorrect ()Lorg/gradle/api/provider/Property;
 	public abstract fun getEditorConfig ()Lorg/gradle/api/file/RegularFileProperty;
-	public abstract fun getOutputMap ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getFormatOutputFile ()Lorg/gradle/api/file/RegularFileProperty;
 	public abstract fun getProjectRoot ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getSourceFiles ()Lorg/gradle/api/provider/ListProperty;
 }
@@ -62,4 +62,3 @@ public final class com/rickbusarow/ktlint/internal/StringKt {
 	public static final fun remove (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
 	public static final fun remove (Ljava/lang/String;[Lkotlin/text/Regex;)Ljava/lang/String;
 }
-

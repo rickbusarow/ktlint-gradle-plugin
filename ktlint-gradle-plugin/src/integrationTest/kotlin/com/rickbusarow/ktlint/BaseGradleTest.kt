@@ -18,6 +18,7 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.kase.TestEnvironment
 import com.rickbusarow.ktlint.internal.createSafely
 import com.rickbusarow.ktlint.internal.div
 import com.rickbusarow.ktlint.internal.letIf
@@ -42,7 +43,7 @@ internal interface BaseGradleTest : TrimmedAsserts {
 
   class GradleTestEnvironment(
     testStackFrame: StackTraceElement
-  ) : HasWorkingDir(createWorkingDir(testStackFrame)), TrimmedAsserts {
+  ) : HasWorkingDir(createWorkingDir(testStackFrame)), TrimmedAsserts, TestEnvironment() {
 
     val buildFile by lazy {
       workingDir.resolve("build.gradle.kts")
@@ -123,9 +124,9 @@ internal interface BaseGradleTest : TrimmedAsserts {
           }
       }
 
-      println("%%%%%%%%% files after")
+      println("%%%% files after")
       printFiles()
-      println("%%%%%%%%%")
+      println("%%%%")
 
       return result
     }
@@ -211,6 +212,9 @@ internal interface BaseGradleTest : TrimmedAsserts {
     fun File.kotlin(
       @Language("kotlin") content: String
     ): File = createSafely(content.trimIndent())
+
+    /** relative to [workingDir] */
+    fun File.relativePath(): String = relativeTo(workingDir).path
 
     operator fun File.invoke(contentBuilder: () -> String) {
       createSafely(contentBuilder().trimIndent())

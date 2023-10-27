@@ -25,7 +25,7 @@ pluginManagement {
     }
     google()
     mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
+    gradlePluginPortal()
   }
 }
 val allowMavenLocal = providers
@@ -42,12 +42,6 @@ dependencyResolutionManagement {
     google()
     mavenCentral()
     maven("https://plugins.gradle.org/m2/")
-  }
-
-  versionCatalogs {
-    create("libs") {
-      from(files("../gradle/libs.versions.toml"))
-    }
   }
 }
 

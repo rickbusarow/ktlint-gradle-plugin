@@ -15,17 +15,35 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.kase.TestEnvironmentFactory
+import com.rickbusarow.kase.asTests
+import com.rickbusarow.kase.gradle.DependencyVersion.Gradle
+import com.rickbusarow.kase.gradle.DependencyVersion.Kotlin
+import com.rickbusarow.kase.gradle.VersionMatrix
+import com.rickbusarow.kase.gradle.kases
+import com.rickbusarow.ktlint.internal.div
 import io.kotest.matchers.collections.shouldContainInOrder
-import org.gradle.testkit.runner.TaskOutcome.FAILED
-import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.gradle.api.internal.provider.ValueSupplier.ValueProducer.task
+import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.kotlin.fir.declarations.builder.buildFile
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 
 @Suppress("RemoveEmptyClassBody")
-internal class LifecycleTest : BaseGradleTest {
+internal class LifecycleTest : BaseGradleTest, TestEnvironmentFactory<TestEnvironment> {
 
-  @Test
-  fun `the check lifecycle task invokes ktlintCheck`() = test {
+  val gradleList = listOf(Gradle("8.3"), Gradle("8.4"))
+  val kotlinList = listOf(
+    Kotlin("1.8.11"),
+    Kotlin("1.8.22"),
+    Kotlin("1.9.0"),
+    Kotlin("1.9.10")
+  )
+  val matrix = VersionMatrix(gradleList + kotlinList)
+  val kases = matrix.kases(Gradle, Kotlin)
+
+  @TestFactory
+  fun `the check lifecycle task invokes ktlintCheck`() = kases.asTests {
 
     buildFile {
       """
@@ -47,7 +65,7 @@ internal class LifecycleTest : BaseGradleTest {
       )
 
     shouldFail("check") {
-      task(":ktlintCheckGradleScripts")?.outcome shouldBe FAILED
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.FAILED
     }
   }
 
@@ -64,8 +82,8 @@ internal class LifecycleTest : BaseGradleTest {
       }
 
       shouldSucceed("ktlintCheck", "ktlintFormat") {
-        task(":ktlintFormat")?.outcome shouldBe SUCCESS
-        task(":ktlintCheck")?.outcome shouldBe SUCCESS
+        task(":ktlintFormat")?.outcome shouldBe TaskOutcome.SUCCESS
+        task(":ktlintCheck")?.outcome shouldBe TaskOutcome.SUCCESS
       }
     }
 
@@ -81,14 +99,52 @@ internal class LifecycleTest : BaseGradleTest {
       """
     }
 
+    val testKitDir = workingDir / "testKit"
+
     shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+    }
+
+    // TODO <Rick> delete me
+    run {
+      println()
+      println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+      println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+      println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+      println()
     }
 
     workingDir.resolve("build").deleteRecursively()
 
-    shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe FROM_CACHE
+    shouldSucceed(
+      "ktlintFormat",
+      "--build-cache",
+      "-i",
+      withHermeticTestKit = true
+    ) {
+
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.FROM_CACHE
+    }
+  }
+
+  @Test
+  fun `ktlintFormat is is up to date immediately after a successful format`() = test {
+
+    buildFile {
+      """
+      plugins {
+        id ("com.rickbusarow.ktlint")
+      }
+
+      """
+    }
+
+    shouldSucceed("ktlintFormat", "--build-cache") {
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+    }
+
+    shouldSucceed("ktlintFormat", "--build-cache") {
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.UP_TO_DATE
     }
   }
 
@@ -104,8 +160,8 @@ internal class LifecycleTest : BaseGradleTest {
     }
 
     shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
-      task(":ktlintCheckGradleScripts")?.outcome shouldBe SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
     }
   }
 
@@ -135,7 +191,7 @@ internal class LifecycleTest : BaseGradleTest {
       )
 
     shouldSucceed("fix") {
-      task(":ktlintFormat")?.outcome shouldBe SUCCESS
+      task(":ktlintFormat")?.outcome shouldBe TaskOutcome.SUCCESS
     }
   }
 
@@ -166,8 +222,8 @@ internal class LifecycleTest : BaseGradleTest {
 
     shouldSucceed("ktlintCheck", "ktlintFormat") {
       tasks.map { it.path } shouldContainInOrder listOf(":ktlintFormat", ":ktlintCheck")
-      task(":ktlintFormat")?.outcome shouldBe SUCCESS
-      task(":ktlintCheck")?.outcome shouldBe SUCCESS
+      task(":ktlintFormat")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintCheck")?.outcome shouldBe TaskOutcome.SUCCESS
     }
   }
 }

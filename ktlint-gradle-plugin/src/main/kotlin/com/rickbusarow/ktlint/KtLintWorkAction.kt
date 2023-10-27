@@ -18,6 +18,8 @@ package com.rickbusarow.ktlint
 import com.rickbusarow.ktlint.internal.GradleLogger
 import com.rickbusarow.ktlint.internal.GradleLogging
 import com.rickbusarow.ktlint.internal.GradleProperty
+import com.rickbusarow.ktlint.internal.KtLintOutputHashes
+import com.rickbusarow.ktlint.internal.KtLintOutputHashes.Companion.readFormatOutput
 import com.rickbusarow.ktlint.internal.existsOrNull
 import com.rickbusarow.ktlint.internal.md5
 import org.gradle.api.GradleException
@@ -45,35 +47,50 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
 
       val projectDir = parameters.projectRoot.get().asFile
 
-      val mapFile = parameters.outputMap.get().asFile
+      val formatOutputFile = parameters.formatOutputFile.get().asFile
 
-      val oldMap = mapFile.existsOrNull()?.readMap().orEmpty()
+      val oldOutput = formatOutputFile.existsOrNull()?.readFormatOutput()
 
-      val newMap = buildMap {
+      val changedFiles = mutableSetOf<File>()
 
-        putAll(oldMap.filter { (relative, _) -> projectDir.resolve(relative).exists() })
+      val newMap = mutableMapOf<File, String>()
 
-        for (result in results) {
-          val file = result.file
-
-          val relative = file.toRelativeString(projectDir)
-
-          put(relative, file.md5())
+      if (oldOutput != null) {
+        for ((relative, md5) in oldOutput.entries) {
+          if (projectDir.resolve(relative).exists()) {
+            newMap[relative] = md5
+          }
         }
-
-        val changed = results.filter { it.fixed }
-          .map { it.file.toRelativeString(projectDir) }
-
-        put("changed-files", changed.joinToString(","))
       }
 
-      mapFile.writeMap(newMap)
+      for (sourceFile in parameters.sourceFiles.get()) {
+        val relative = sourceFile.relativeTo(projectDir)
+        if (!newMap.containsKey(relative)) {
+          newMap[relative] = sourceFile.md5()
+        }
+      }
+
+      for (result in results) {
+        val file = result.file
+
+        val relative = file.relativeTo(projectDir)
+
+        if (result.fixed) {
+          changedFiles.add(file)
+        }
+
+        newMap[relative] = file.md5()
+      }
+
+      KtLintOutputHashes(
+        delegate = newMap.toSortedMap(),
+        changedFilesRelative = changedFiles.sorted()
+      )
+        .writeTo(formatOutputFile)
     }
 
     if (results.isNotEmpty()) {
-      logger.lifecycle(
-        results.block()
-      )
+      logger.lifecycle(results.block())
 
       val errors = results.filter { !it.fixed }
 
@@ -99,7 +116,7 @@ abstract class KtLintWorkAction : WorkAction<KtLintWorkAction.KtLintWorkParamete
     val editorConfig: RegularFileProperty
 
     /** @since 0.1.1 */
-    val outputMap: RegularFileProperty
+    val formatOutputFile: RegularFileProperty
 
     /** @since 0.1.1 */
     val projectRoot: DirectoryProperty

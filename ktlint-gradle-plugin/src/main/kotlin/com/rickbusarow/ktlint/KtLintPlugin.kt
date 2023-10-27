@@ -28,6 +28,7 @@ import com.rickbusarow.kgx.withAnyPlugin
 import com.rickbusarow.ktlint.internal.GradleConfiguration
 import com.rickbusarow.ktlint.internal.GradleProject
 import com.rickbusarow.ktlint.internal.GradleProvider
+import com.rickbusarow.ktlint.internal.KtLintOutputHashes.Companion.readFormatOutput
 import com.rickbusarow.ktlint.internal.capitalize
 import com.rickbusarow.ktlint.internal.decapitalize
 import com.rickbusarow.ktlint.internal.existsOrNull
@@ -35,11 +36,17 @@ import com.rickbusarow.ktlint.internal.flatMapToSet
 import com.rickbusarow.ktlint.internal.kotlinExtension
 import com.rickbusarow.ktlint.internal.mapToSet
 import com.rickbusarow.ktlint.internal.md5
+import com.rickbusarow.ktlint.internal.remove
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.TaskInternal
+import org.gradle.api.internal.tasks.DefaultTaskOutputs
+import org.gradle.api.specs.AndSpec
+import org.gradle.api.specs.Spec
+import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
@@ -207,8 +214,9 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>?
   ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {
 
-    val outputMapFile = target.buildDir()
-      .resolve("ktlint/${taskNameSuffix.decapitalize()}-sha.bin")
+    val outputMapFileName = "ktlint/${taskNameSuffix.decapitalize().ifBlank { "root" }}-sha.bin"
+
+    val outputMapFile = target.buildDir().resolve(outputMapFileName)
 
     val formatTaskName = "ktlintFormat${taskNameSuffix.capitalize()}"
 
@@ -220,27 +228,91 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         task.onlyIf {
           it as AbstractKtLintTask
 
-          val outputMap = it.outputMap.get().asFile.existsOrNull()?.readMap()
-            ?: return@onlyIf true
+          val mapFile = it.outputHashFile.get().asFile
 
-          it.sourceFiles.any { sourceFile ->
-            sourceFile.md5() != outputMap[sourceFile.toRelativeString(projectDir)]
+          val outputMap = mapFile.existsOrNull()?.readFormatOutput()
+
+          when {
+            outputMap == null -> {
+
+              println("########################## onlyIf spec 237 --  true")
+              return@onlyIf true
+            }
+
+            it.sourceFiles.isEmpty -> false
+
+            else -> {
+              it.sourceFiles.any { sourceFile ->
+                println(
+                  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ${sourceFile.path}"
+                )
+                println("source md5 -- ${sourceFile.md5()}")
+                println("output md5 -- ${outputMap[sourceFile.relativeTo(projectDir)]}")
+                println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                sourceFile.md5() != outputMap[sourceFile.relativeTo(projectDir)]
+              }
+                // TODO <Rick> delete me
+                .also { any ->
+                  println("########################## onlyIf spec 253 --  $any")
+                }
+            }
           }
         }
 
-        task.outputsUpToDateWhen {
+        val upToDateSpec: AndSpec<in TaskInternal> = task.outputs.upToDateSpec
+
+        val op = task.outputs as DefaultTaskOutputs
+
+        println(
+          "########################## upToDateSpec specs  --  " + task.outputs.upToDateSpec
+            .specs.map { it.isSatisfiedBy(task) }
+        )
+
+        val union: Spec<TaskInternal> = Specs.union(
+          upToDateSpec.specs +
+            Spec { (it as? KtLintFormatTask)?.changedFilesAreUnchanged() ?: false }
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        val specs = upToDateSpec.specs as MutableList<Spec<in TaskInternal>>
+
+        // specs.clear()
+        // specs.add(union)
+
+        task.outputsUpToDateWhen { task2 ->
+
+          val pof = try {
+            task2.outputs.previousOutputFiles
+          } catch (e: IllegalStateException) {
+            println("~~~~~~ no previous output files ~~~~~~")
+            emptySet<File>()
+          }
+
+          """
+            #############################################
+                                 exists -- ${outputMapFile.exists()}
+                     outputHashFile property -- ${task2.outputHashFile.get()}
+              outputHashFile property exists -- ${task2.outputHashFile.get().asFile.exists()}
+                        output map file -- $outputMapFile
+                           output files -- ${task2.outputs.files.files}
+                  previous output files -- $pof
+            #############################################
+          """.trimIndent()
+            .remove(projectDir.path)
+            .also { println(it) }
+
           if (!outputMapFile.exists()) {
             return@outputsUpToDateWhen false
           }
 
-          it.changedFilesAreUnchanged()
+          task2.changedFilesAreUnchanged()
         }
 
         task.sourceFiles.from(sourceFiles)
 
         task.ktlintClasspath.setFrom(rulesetConfig)
 
-        task.outputMap.set(outputMapFile)
+        task.outputHashFile.set(outputMapFile)
         task.editorConfig.fileValue(editorConfigFile.value)
       }
       .also { task ->
@@ -260,7 +332,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       // If both tasks are running in the same invocation, make sure that the format task runs first.
       task.mustRunAfter(formatTask)
 
-      task.outputMap.set(outputMapFile)
+      task.outputHashFile.set(outputMapFile)
       task.editorConfig.fileValue(editorConfigFile.value)
     }
       .also { task ->
@@ -305,5 +377,9 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       sync.into(jarFolder)
     }
       .addAsDependencyTo(tasks.named("prepareKotlinBuildScriptModel"))
+  }
+
+  internal companion object {
+    const val TASK_GROUP = "KtLint"
   }
 }
