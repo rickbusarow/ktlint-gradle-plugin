@@ -25,6 +25,43 @@ import org.junit.jupiter.api.Test
 internal class LifecycleTest : BaseGradleTest {
 
   @Test
+  fun `tasks are compatible with configuration caching`() = test {
+    buildFile {
+      """
+      plugins {
+        kotlin("jvm")
+        id("com.rickbusarow.ktlint")
+      }
+
+      """
+    }
+
+    workingDir.resolve("src/main/kotlin/com/test/File.kt")
+      .kotlin(
+        """
+        package com.test
+
+        class File
+
+        """
+      )
+
+    shouldSucceed("ktlintCheck", "--configuration-cache") {
+      output shouldInclude "0 problems were found storing the configuration cache."
+    }
+    shouldSucceed("ktlintCheck", "--configuration-cache") {
+      output shouldInclude "Reusing configuration cache."
+    }
+
+    shouldSucceed("ktlintFormat", "--configuration-cache") {
+      output shouldInclude "0 problems were found storing the configuration cache."
+    }
+    shouldSucceed("ktlintFormat", "--configuration-cache") {
+      output shouldInclude "Reusing configuration cache."
+    }
+  }
+
+  @Test
   fun `the check lifecycle task invokes ktlintCheck`() = test {
 
     buildFile {

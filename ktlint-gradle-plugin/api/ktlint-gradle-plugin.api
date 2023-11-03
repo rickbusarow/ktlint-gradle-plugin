@@ -62,3 +62,4 @@ public final class com/rickbusarow/ktlint/internal/StringKt {
 	public static final fun remove (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
 	public static final fun remove (Ljava/lang/String;[Lkotlin/text/Regex;)Ljava/lang/String;
 }
+
