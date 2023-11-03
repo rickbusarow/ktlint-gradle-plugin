@@ -16,6 +16,7 @@
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.kgx.addAsDependencyTo
+import com.rickbusarow.kgx.buildDir
 import com.rickbusarow.kgx.dependsOn
 import com.rickbusarow.kgx.internal.InternalGradleApiAccess
 import com.rickbusarow.kgx.internal.whenElementRegistered
@@ -31,10 +32,10 @@ import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 import java.io.File
 
@@ -93,37 +94,38 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       target = target,
       taskNameSuffix = "",
       sourceFileShadowDirectory = target.sourceFileShadowDirectory("ktlintRoot"),
-      sourceDirectorySet = null,
+      sourceDirectorySet = target.files(),
       editorConfigFile = editorConfigFile,
       configProvider = rulesetConfig
     )
 
+    val projectDir = target.projectDir
+
+    val buildDir = target.buildDir()
+    val includedBuildDirs = target.gradle.includedBuilds.mapToSet { it.projectDir }
+    val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
+
+    val srcDirs = target.getSourceDirectories().values.flatMapToSet { it }
+
+    val gradleReg = Regex(""".*\.gradle\.kts$""")
     val scriptTaskPair = registerFormatCheckPair(
       target = target,
       taskNameSuffix = "GradleScripts",
       sourceFileShadowDirectory = target.sourceFileShadowDirectory("gradleScripts"),
-      sourceDirectorySet = target.provider {
-
-        val includedBuildDirs = target.gradle.includedBuilds.map { it.projectDir }
-        val subProjectDirs = target.subprojects.mapToSet { it.projectDir }
-        val srcDirs = target.getSourceSets().values.flatMapToSet { it.get().kotlin.srcDirs }
-        val reg = Regex(""".*\.gradle\.kts$""")
-        target.files(
-          target.projectDir
-            .walkTopDown()
-            .onEnter {
-              when (it) {
-                target.buildDir -> false
-                target.file("src") -> false
-                in includedBuildDirs -> false
-                in subProjectDirs -> false
-                in srcDirs -> false
-                else -> true
-              }
+      sourceDirectorySet = target.files(
+        projectDir.walkTopDown()
+          .onEnter {
+            when (it) {
+              buildDir -> false
+              projectDir.resolve("src") -> false
+              in includedBuildDirs -> false
+              in subProjectDirs -> false
+              in srcDirs -> false
+              else -> true
             }
-            .filter { it.name.matches(reg) }.toList()
-        )
-      },
+          }
+          .filter { it.name.matches(gradleReg) }.toList()
+      ),
       editorConfigFile = editorConfigFile,
       configProvider = rulesetConfig
     )
@@ -159,16 +161,18 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ) {
 
-    val pairs = target.getSourceSets()
+    val pairs = target.getSourceDirectories()
       .map { (sourceSetName, sourceSet) ->
+
+        val layout = target.layout
 
         registerFormatCheckPair(
           target = target,
           taskNameSuffix = sourceSetName.capitalize(),
           sourceFileShadowDirectory = target.sourceFileShadowDirectory(sourceSetName),
-          sourceDirectorySet = sourceSet.map {
-            it.kotlin.filter { file -> !file.startsWith(target.buildDir) }
-          },
+          sourceDirectorySet = target.files(
+            sourceSet.filter { file -> !file.startsWith(layout.buildDirectory.get().asFile.path) }
+          ),
           editorConfigFile = editorConfigFile,
           configProvider = configProvider
         )
@@ -181,22 +185,17 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     rootTaskPair.second.dependsOn(lintTasks)
   }
 
-  private fun GradleProject.getSourceSets(): Map<String, NamedDomainObjectProvider<KotlinSourceSet>> {
+  private fun GradleProject.getSourceDirectories(): Map<String, FileCollection> = try {
 
-    val kotlinExtension = try {
-
-      extensions
-        .findByType(KotlinSourceSetContainer::class.java)
-    } catch (_: ClassNotFoundException) {
-      return emptyMap()
-    } catch (_: NoClassDefFoundError) {
-      return emptyMap()
-    }
-
-    return kotlinExtension?.sourceSets
-      ?.names
-      ?.associateWith { kotlinExtension.sourceSets.named(it) }
+    extensions
+      .findByType(KotlinSourceSetContainer::class.java)
+      ?.sourceSets
       .orEmpty()
+      .associate { it.name to it.kotlin.sourceDirectories }
+  } catch (_: ClassNotFoundException) {
+    emptyMap()
+  } catch (_: NoClassDefFoundError) {
+    emptyMap()
   }
 
   @OptIn(InternalGradleApiAccess::class)
@@ -204,7 +203,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
     target: GradleProject,
     taskNameSuffix: String,
     sourceFileShadowDirectory: GradleProvider<Directory>,
-    sourceDirectorySet: GradleProvider<FileCollection>?,
+    sourceDirectorySet: ConfigurableFileCollection,
     editorConfigFile: Lazy<File?>,
     configProvider: NamedDomainObjectProvider<GradleConfiguration>?
   ): Pair<TaskProvider<KtLintFormatTask>, TaskProvider<KtLintCheckTask>> {

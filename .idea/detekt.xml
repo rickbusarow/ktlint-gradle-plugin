@@ -11,6 +11,6 @@
         <option value="$PROJECT_DIR$/detekt/detekt-config.yml" />
       </list>
     </option>
-    <option name="enableAllRules" value="true" />
+    <option name="enableDetekt" value="true" />
   </component>
 </project>
