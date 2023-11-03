@@ -18,7 +18,6 @@ diffplug-spotless = "6.22.0"
 dokka = "1.9.0"
 dropbox-dependencyGuard = "0.4.3"
 ec4j = "0.3.0"
-github-release = "2.5.1"
 google-guava = "32.1.2-jre"
 gradle-plugin-publish = "1.2.1"
 integration-test = "1.4.5"
@@ -32,6 +31,7 @@ kotlinx-knit = "0.4.0"
 ktlint-lib = "1.0.1"
 prettier = "2.8.4"
 prettier-plugin-sh = "0.12.8"
+rickBusarow-github-release = "2.5.2"
 rickBusarow-ktrules = "1.1.4"
 rickBusarow-kgx = "0.1.7"
 rickBusarow-ktlint = "0.1.8"
@@ -50,7 +50,7 @@ dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.re
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dropbox-dependencyGuard = { id = "com.dropbox.dependency-guard", version.ref = "dropbox-dependencyGuard" }
-github-release = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
+github-release = { id = "com.rickbusarow.github-release-fork", version.ref = "rickBusarow-github-release" }
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 integration-test = { id = "com.coditory.integration-test", version.ref = "integration-test" }
@@ -64,7 +64,7 @@ taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 [libraries]
 benManes-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "benManes-versions" }
 
-breadmoirai-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "github-release" }
+github-release = { module = "com.rickbusarow.githubreleasepluginfork:github-release", version.ref = "rickBusarow-github-release" }
 
 buildconfig = { module = "com.github.gmazzo:gradle-buildconfig-plugin", version.ref = "buildconfig" }
 
@@ -89,8 +89,6 @@ dokka-versioning = { module = "org.jetbrains.dokka:versioning-plugin", version.r
 dropbox-dependencyGuard = { module = "com.dropbox.dependency-guard:dependency-guard", version.ref = "dropbox-dependencyGuard" }
 
 ec4j-core = { module = "org.ec4j.core:ec4j-core", version.ref = "ec4j" }
-
-github-release = { module = "com.github.breadmoirai:github-release", version.ref = "github-release" }
 
 google-ksp = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "google-ksp" }
 
