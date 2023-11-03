@@ -36,11 +36,14 @@ moduleCheck {
 
 allprojects {
 
-  afterEvaluate {
+  plugins.withId("java-base") {
     configure<JavaPluginExtension> {
       @Suppress("MagicNumber")
       toolchain.languageVersion.set(JavaLanguageVersion.of(11))
     }
+  }
+
+  afterEvaluate {
 
     dependencies {
       ktlint(libs.rickBusarow.ktrules)
