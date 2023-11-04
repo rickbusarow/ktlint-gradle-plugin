@@ -15,6 +15,7 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.BuildConfig.gradleVersion
 import io.kotest.matchers.collections.shouldContainInOrder
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
@@ -46,15 +47,20 @@ internal class LifecycleTest : BaseGradleTest {
         """
       )
 
+    fun expected(task: String) = when {
+      gradleVersion >= "8.4" -> "Calculating task graph as no configuration cache is available for tasks: $task"
+      else -> "0 problems were found storing the configuration cache."
+    }
+
     shouldSucceed("ktlintCheck", "--configuration-cache") {
-      output shouldInclude "0 problems were found storing the configuration cache."
+      output shouldInclude expected("ktlintCheck")
     }
     shouldSucceed("ktlintCheck", "--configuration-cache") {
       output shouldInclude "Reusing configuration cache."
     }
 
     shouldSucceed("ktlintFormat", "--configuration-cache") {
-      output shouldInclude "0 problems were found storing the configuration cache."
+      output shouldInclude expected("ktlintFormat")
     }
     shouldSucceed("ktlintFormat", "--configuration-cache") {
       output shouldInclude "Reusing configuration cache."
