@@ -15,6 +15,7 @@
 
 import builds.VERSION_NAME
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
+import com.rickbusarow.kgx.buildDir
 import com.rickbusarow.kgx.dependsOn
 import com.rickbusarow.kgx.isRealRootProject
 
@@ -67,7 +68,7 @@ buildConfig {
     buildConfigField(
       type = "String",
       name = "deps",
-      value = provider {
+      value = providers.provider {
         if (deps.isEmpty()) {
           throw GradleException(
             "There are no dependencies to pass along to the Gradle Worker's classpath.  " +
@@ -85,6 +86,7 @@ buildConfig {
     className("BuildConfig")
 
     buildConfigField("String", "gradleVersion", "\"${gradle.gradleVersion}\"")
+    buildConfigField("String", "localM2Path", "\"${rootProject.buildDir().resolve("m2")}\"")
     buildConfigField(
       type = "String",
       name = "gradleUserHomeDir",
@@ -122,7 +124,7 @@ sourceSets.named("integrationTest") {
 }
 
 tasks.named("check").dependsOn("integrationTest")
-tasks.named("integrationTest").dependsOn("publishToMavenLocalNoDokka")
+tasks.named("integrationTest").dependsOn("publishToBuildM2")
 
 kotlin {
   val compilations = target.compilations
@@ -172,6 +174,8 @@ dependencies {
   testImplementation(libs.kotlin.gradle.plugin)
   testImplementation(libs.ktlint.ruleset.standard)
   testImplementation(libs.ktlint.test)
+  testImplementation(libs.rickBusarow.kase)
+  testImplementation(libs.rickBusarow.kase.gradle)
 
   worker(libs.ec4j.core)
   worker(libs.kotlin.gradle.plugin)

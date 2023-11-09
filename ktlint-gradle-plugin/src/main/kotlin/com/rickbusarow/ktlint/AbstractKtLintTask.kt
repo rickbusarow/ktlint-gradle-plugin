@@ -57,14 +57,14 @@ abstract class AbstractKtLintTask : DefaultTask() {
   abstract val sourceFiles: ConfigurableFileCollection
 
   /**
-   * This property serves as a workaround for the limitations of incremental tasks, which can't
-   * have the same inputs as their outputs. Since this is a formatting plugin that modifies
-   * input files, we can't use the actual input files as outputs without risking that they
-   * will be deleted by Gradle in case of a change to the build environment.
+   * This property serves as a workaround for the limitations of incremental tasks, which
+   * can't have the same inputs as their outputs. Since this is a formatting plugin that
+   * modifies input files, we can't use the actual input files as outputs without risking
+   * that they will be deleted by Gradle in case of a change to the build environment.
    * Instead, we use this property to declare a separate directory as the output of this task.
    *
-   * Any time the format task writes changes to an input file, it also creates a stub file with the
-   * same relative path inside the sourceFilesShadow directory. During the next incremental
+   * Any time the format task writes changes to an input file, it also creates a stub file with
+   * the same relative path inside the sourceFilesShadow directory. During the next incremental
    * build, the task will only need to update the real input files that have changed since
    * the last build, and the contents of the sourceFilesShadow directory will be ignored.
    *

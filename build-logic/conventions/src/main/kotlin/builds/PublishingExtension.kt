@@ -15,6 +15,7 @@
 
 package builds
 
+import com.rickbusarow.kgx.buildDir
 import com.rickbusarow.kgx.registerOnce
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar.Dokka
@@ -181,15 +182,27 @@ private fun Project.configurePublish(
         applyBinaryCompatibility()
       }
     }
+  }
 
-    extensions.configure(PublishingExtension::class.java) { publishingExtension ->
-      publishingExtension.publications.withType(MavenPublication::class.java)
-        .configureEach { publication ->
-          publication.artifactId = artifactId
-          publication.pom.description.set(pomDescription)
-          publication.groupId = groupId
-        }
+  val gradleExtension = extensions.getByType(PublishingExtension::class.java)
+
+  gradleExtension.publications.withType(MavenPublication::class.java)
+    .configureEach { publication ->
+      publication.artifactId = artifactId
+      publication.pom.description.set(pomDescription)
+      publication.groupId = groupId
     }
+
+  gradleExtension.repositories {
+    it.maven { repo ->
+      repo.url = rootProject.buildDir().resolve("m2").toURI()
+      repo.name = "buildM2"
+    }
+  }
+  // No one wants to type all that
+  tasks.register("publishToBuildM2") {
+    it.group = "Publishing"
+    it.dependsOn("publishAllPublicationsToBuildM2Repository")
   }
 
   registerCoordinatesStringsCheckTask(groupId = groupId, artifactId = artifactId)

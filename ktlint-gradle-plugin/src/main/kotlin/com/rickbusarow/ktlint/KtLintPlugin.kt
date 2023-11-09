@@ -263,11 +263,6 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
         val op = task.outputs as DefaultTaskOutputs
 
-        println(
-          "########################## upToDateSpec specs  --  " + task.outputs.upToDateSpec
-            .specs.map { it.isSatisfiedBy(task) }
-        )
-
         val union: Spec<TaskInternal> = Specs.union(
           upToDateSpec.specs +
             Spec { (it as? KtLintFormatTask)?.changedFilesAreUnchanged() ?: false }

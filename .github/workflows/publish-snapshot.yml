@@ -38,7 +38,7 @@ jobs:
   publish-snapshot:
     needs:
       - build-all
-    if: github.repository == 'RBusarow/ktlint-gradle-plugin'
+    if: github.event.repository.fork == false
     runs-on: macos-latest
 
     steps:

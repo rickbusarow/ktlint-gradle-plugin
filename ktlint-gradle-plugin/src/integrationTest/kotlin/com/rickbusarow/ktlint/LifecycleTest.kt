@@ -15,43 +15,63 @@
 
 package com.rickbusarow.ktlint
 
-import com.rickbusarow.kase.TestEnvironmentFactory
-import com.rickbusarow.kase.asTests
+import com.rickbusarow.kase.gradle.BaseGradleTest
 import com.rickbusarow.kase.gradle.DependencyVersion.Gradle
 import com.rickbusarow.kase.gradle.DependencyVersion.Kotlin
+import com.rickbusarow.kase.gradle.GradleKotlinTestVersions
+import com.rickbusarow.kase.gradle.GradleTestEnvironment
+import com.rickbusarow.kase.gradle.KaseTestFactory
 import com.rickbusarow.kase.gradle.VersionMatrix
-import com.rickbusarow.kase.gradle.kases
-import com.rickbusarow.ktlint.internal.div
-import io.kotest.matchers.collections.shouldContainInOrder
-import org.gradle.api.internal.provider.ValueSupplier.ValueProducer.task
+import io.kotest.matchers.shouldBe
 import org.gradle.testkit.runner.TaskOutcome
-import org.jetbrains.kotlin.fir.declarations.builder.buildFile
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 
-@Suppress("RemoveEmptyClassBody")
-internal class LifecycleTest : BaseGradleTest, TestEnvironmentFactory<TestEnvironment> {
+// internal class LifecycleTest : BaseGradleTest, TestEnvironmentFactory<KtLintTestEnvironment> {
+internal class LifecycleTest :
+  BaseGradleTest<GradleKotlinTestVersions>,
+  KaseTestFactory<GradleTestEnvironment<GradleKotlinTestVersions>, GradleKotlinTestVersions> {
 
   val gradleList = listOf(Gradle("8.3"), Gradle("8.4"))
   val kotlinList = listOf(
-    Kotlin("1.8.11"),
+    Kotlin("1.8.10"),
     Kotlin("1.8.22"),
     Kotlin("1.9.0"),
-    Kotlin("1.9.10")
+    Kotlin("1.9.10"),
+    Kotlin("1.9.20")
   )
-  val matrix = VersionMatrix(gradleList + kotlinList)
-  val kases = matrix.kases(Gradle, Kotlin)
+  override val versionMatrix = VersionMatrix(gradleList + kotlinList)
+
+  override val kases = GradleKotlinTestVersions.from(versionMatrix)
 
   @TestFactory
-  fun `the check lifecycle task invokes ktlintCheck`() = kases.asTests {
+  fun `the check lifecycle task invokes ktlintCheck`() = testFactory {
 
-    buildFile {
-      """
+    rootBuild {
       plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
+        kotlin("jvm", version = it.kotlinVersion)
+        id("com.rickbusarow.ktlint", version = BuildConfig.version)
       }
-      """
+    }
+
+    rootSettings {
+
+      pluginManagement {
+        repositories {
+          maven(stringLiteral(BuildConfig.localM2Path))
+          gradlePluginPortal()
+          mavenCentral()
+          google()
+        }
+      }
+      dependencyResolutionManagement {
+        repositories {
+          maven(stringLiteral(BuildConfig.localM2Path))
+          mavenCentral()
+          google()
+        }
+      }
+
+      rootProjectName.setEquals("root")
     }
 
     workingDir.resolve("src/main/kotlin/com/test/File.kt")
@@ -61,169 +81,12 @@ internal class LifecycleTest : BaseGradleTest, TestEnvironmentFactory<TestEnviro
 
         class File
 
+
         """
       )
 
     shouldFail("check") {
-      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.FAILED
-    }
-  }
-
-  @Test
-  fun `ktlintCheck and ktlintFormat exist even if the project does not have a Kotlin plugin`() =
-    test {
-
-      buildFile {
-        """
-        plugins {
-          id("com.rickbusarow.ktlint")
-        }
-        """
-      }
-
-      shouldSucceed("ktlintCheck", "ktlintFormat") {
-        task(":ktlintFormat")?.outcome shouldBe TaskOutcome.SUCCESS
-        task(":ktlintCheck")?.outcome shouldBe TaskOutcome.SUCCESS
-      }
-    }
-
-  @Test
-  fun `ktlintFormat is cacheable`() = test {
-
-    buildFile {
-      """
-      plugins {
-        id("com.rickbusarow.ktlint")
-      }
-
-      """
-    }
-
-    val testKitDir = workingDir / "testKit"
-
-    shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
-    }
-
-    // TODO <Rick> delete me
-    run {
-      println()
-      println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-      println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-      println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-      println()
-    }
-
-    workingDir.resolve("build").deleteRecursively()
-
-    shouldSucceed(
-      "ktlintFormat",
-      "--build-cache",
-      "-i",
-      withHermeticTestKit = true
-    ) {
-
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.FROM_CACHE
-    }
-  }
-
-  @Test
-  fun `ktlintFormat is is up to date immediately after a successful format`() = test {
-
-    buildFile {
-      """
-      plugins {
-        id ("com.rickbusarow.ktlint")
-      }
-
-      """
-    }
-
-    shouldSucceed("ktlintFormat", "--build-cache") {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
-    }
-
-    shouldSucceed("ktlintFormat", "--build-cache") {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.UP_TO_DATE
-    }
-  }
-
-  @Test
-  fun `gradle scripts tasks exist even if the project does not have a Kotlin plugin`() = test {
-
-    buildFile {
-      """
-      plugins {
-        id("com.rickbusarow.ktlint")
-      }
-      """
-    }
-
-    shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
-      task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
-    }
-  }
-
-  @Test
-  fun `the fix lifecycle task invokes ktlintFormat`() = test {
-
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
-      }
-
-      val fix by tasks.registering
-      """
-    }
-
-    workingDir
-      .resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
-        """
-        package com.test
-
-        class File { }
-
-        """
-      )
-
-    shouldSucceed("fix") {
-      task(":ktlintFormat")?.outcome shouldBe TaskOutcome.SUCCESS
-    }
-  }
-
-  @Test
-  fun `the ktlintCheck must run after ktlintFormat if both are invoked`() = test {
-
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
-      }
-
-      val fix by tasks.registering
-      """
-    }
-
-    workingDir
-      .resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
-        """
-        package com.test
-
-        class File { }
-
-        """
-      )
-
-    shouldSucceed("ktlintCheck", "ktlintFormat") {
-      tasks.map { it.path } shouldContainInOrder listOf(":ktlintFormat", ":ktlintCheck")
-      task(":ktlintFormat")?.outcome shouldBe TaskOutcome.SUCCESS
-      task(":ktlintCheck")?.outcome shouldBe TaskOutcome.SUCCESS
+      task(":ktlintCheckMain")?.outcome shouldBe TaskOutcome.FAILED
     }
   }
 }

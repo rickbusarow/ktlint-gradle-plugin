@@ -15,6 +15,7 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.kase.DefaultTestEnvironment
 import com.rickbusarow.ktlint.internal.KtLintResult
 import com.rickbusarow.ktlint.internal.KtLintResultList
 import com.rickbusarow.ktlint.internal.createSafely
@@ -76,47 +77,45 @@ internal class KtLintEngineWrapperTest {
     )
   }
 
-  inline fun test(action: TestEnvironment.() -> Unit) {
-    TestEnvironment().action()
+  inline fun test(action: KtLintTestEnvironment.() -> Unit) {
+    KtLintTestEnvironment().action()
+  }
+}
+
+internal class KtLintTestEnvironment : DefaultTestEnvironment(emptyList()) {
+
+  fun kotlin(
+    path: String,
+    @Language("kotlin") content: String
+  ): File = workingDir.resolve(path)
+    .createSafely(
+      content.trimIndent()
+        .suffixIfNot("\n")
+    )
+
+  fun editorconfig(
+    path: String = ".editorconfig",
+    @Language("editorconfig") content: String
+  ): File = workingDir.resolve(path)
+    .createSafely(content.trimIndent().suffixIfNot("\n\n"))
+
+  fun check(
+    editorConfigPath: File? = workingDir.resolve(".editorconfig").existsOrNull(),
+    files: List<File> = workingDir.walkBottomUp()
+      .filter { it.isFile && it.extension in setOf("kt", "kts") }
+      .toList()
+  ): KtLintResultList {
+    return KtLintEngineWrapper(editorConfigPath, autoCorrect = false).execute(files)
+      .also { println(it.block()) }
   }
 
-  class TestEnvironment {
-
-    val workingDir: File by lazy { kotlin.io.path.createTempDirectory().toFile() }
-
-    fun kotlin(
-      path: String,
-      @Language("kotlin") content: String
-    ): File = workingDir.resolve(path)
-      .createSafely(
-        content.trimIndent()
-          .suffixIfNot("\n")
-      )
-
-    fun editorconfig(
-      path: String = ".editorconfig",
-      @Language("editorconfig") content: String
-    ): File = workingDir.resolve(path)
-      .createSafely(content.trimIndent().suffixIfNot("\n\n"))
-
-    fun check(
-      editorConfigPath: File? = workingDir.resolve(".editorconfig").existsOrNull(),
-      files: List<File> = workingDir.walkBottomUp()
-        .filter { it.isFile && it.extension in setOf("kt", "kts") }
-        .toList()
-    ): KtLintResultList {
-      return KtLintEngineWrapper(editorConfigPath, autoCorrect = false).execute(files)
-        .also { println(it.block()) }
-    }
-
-    fun format(
-      editorConfigPath: File? = workingDir.resolve(".editorconfig").existsOrNull(),
-      files: List<File> = workingDir.walkBottomUp()
-        .filter { it.isFile && it.extension in setOf("kt", "kts") }
-        .toList()
-    ): KtLintResultList {
-      return KtLintEngineWrapper(editorConfigPath, autoCorrect = true).execute(files)
-        .also { println(it.block()) }
-    }
+  fun format(
+    editorConfigPath: File? = workingDir.resolve(".editorconfig").existsOrNull(),
+    files: List<File> = workingDir.walkBottomUp()
+      .filter { it.isFile && it.extension in setOf("kt", "kts") }
+      .toList()
+  ): KtLintResultList {
+    return KtLintEngineWrapper(editorConfigPath, autoCorrect = true).execute(files)
+      .also { println(it.block()) }
   }
 }
