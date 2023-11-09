@@ -2,6 +2,11 @@ public abstract class com/rickbusarow/ktlint/KtLintCheckTask : com/rickbusarow/k
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
 }
 
+public class com/rickbusarow/ktlint/KtLintExtension {
+	public fun <init> (Lorg/gradle/api/model/ObjectFactory;)V
+	public final fun getKtlintVersion ()Lorg/gradle/api/provider/Property;
+}
+
 public abstract class com/rickbusarow/ktlint/KtLintFormatTask : com/rickbusarow/ktlint/KtLintTask {
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;)V
 }
@@ -55,3 +60,4 @@ public final class com/rickbusarow/ktlint/internal/StringKt {
 	public static final fun remove (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
 	public static final fun remove (Ljava/lang/String;[Lkotlin/text/Regex;)Ljava/lang/String;
 }
+
