@@ -41,9 +41,7 @@ import javax.inject.Inject
 
 /** */
 open class KtLintExtension @Inject constructor(objects: ObjectFactory) {
-  /**
-   * The version of the core KtLint library to use
-   */
+  /** The version of the core KtLint library to use */
   val ktlintVersion: Property<String> = objects.property(String::class.java)
     .convention(BuildConfig.ktlintVersion)
 }
