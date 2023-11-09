@@ -53,6 +53,7 @@ module {
 }
 
 val deps = mutableSetOf<String>()
+val ktlintDeps = mutableSetOf<String>()
 
 buildConfig {
 
@@ -64,6 +65,7 @@ buildConfig {
     buildConfigField("String", "pluginId", "\"$pluginId\"")
     buildConfigField("String", "version", "\"${VERSION_NAME}\"")
     buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
+    buildConfigField("String", "ktlintVersion", "\"${libs.versions.ktlint.lib.get()}\"")
     buildConfigField(
       type = "String",
       name = "deps",
@@ -75,6 +77,19 @@ buildConfig {
           )
         }
         deps.joinToString(",\" +\n\"", "\"", "\"")
+      }
+    )
+    buildConfigField(
+      type = "String",
+      name = "ktlintDeps",
+      value = provider {
+        if (ktlintDeps.isEmpty()) {
+          throw GradleException(
+            "There are no Ktlint dependencies to pass along to the Gradle Worker's classpath.  " +
+              "Is there a race condition?"
+          )
+        }
+        ktlintDeps.joinToString(",\" +\n\"", "\"", "\"")
       }
     )
   }
@@ -139,16 +154,22 @@ val mainConfig: Configuration = when {
 fun DependencyHandlerScope.worker(dependencyNotation: Any) {
   mainConfig(dependencyNotation)
 
-  when (dependencyNotation) {
+  val dependency = when (dependencyNotation) {
     is org.gradle.api.internal.provider.TransformBackedProvider<*, *> -> {
-      deps.add(dependencyNotation.get().toString())
+      dependencyNotation.get() as ExternalDependency
     }
 
     is ProviderConvertible<*> -> {
-      deps.add(dependencyNotation.asProvider().get().toString())
+      dependencyNotation.asProvider().get() as ExternalDependency
     }
 
     else -> error("unsupported dependency type -- ${dependencyNotation::class.java.canonicalName}")
+  }
+
+  if (dependency.group == libs.ktlint.core.get().group) {
+    ktlintDeps.add(dependency.module.toString())
+  } else {
+    deps.add(dependency.toString())
   }
 }
 

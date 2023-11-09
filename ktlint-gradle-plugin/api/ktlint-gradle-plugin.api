@@ -12,13 +12,6 @@ public abstract class com/rickbusarow/ktlint/KtLintPlugin : org/gradle/api/Plugi
 	public fun apply (Lorg/gradle/api/Project;)V
 }
 
-public abstract class com/rickbusarow/ktlint/KtLintSyncRuleSetJarTask : org/gradle/api/tasks/Sync {
-	public fun <init> ()V
-	public final fun execute ()V
-	public abstract fun getJarFolder ()Lorg/gradle/api/file/DirectoryProperty;
-	public abstract fun getXmlFile ()Lorg/gradle/api/file/RegularFileProperty;
-}
-
 public abstract class com/rickbusarow/ktlint/KtLintTask : org/gradle/api/DefaultTask {
 	public fun <init> (Lorg/gradle/workers/WorkerExecutor;Z)V
 	public final fun execute (Lorg/gradle/work/InputChanges;)V
@@ -62,4 +55,3 @@ public final class com/rickbusarow/ktlint/internal/StringKt {
 	public static final fun remove (Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
 	public static final fun remove (Ljava/lang/String;[Lkotlin/text/Regex;)Ljava/lang/String;
 }
-
