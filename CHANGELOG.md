@@ -1,6 +1,38 @@
 # Changelog
 
-## 0.1.9-SNAPSHOT (unreleased)
+## 0.2.1-SNAPSHOT (unreleased)
+
+## [0.2.0] - 2023-11-09
+
+### Added
+
+- Support a user-defined ktlint version. ish... in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/155
+
+  - Only `0.48.x` and `1.0.0`+ are currently supported, due to breaking changes in the ktlint binaries.
+
+  ```kotlin
+  // build.gradle[.kts]
+  plugins {
+    id("com.rickbusarow.ktlint")
+  }
+
+  ktlint {
+    ktlintVersion.set("0.48.2")
+  }
+  ```
+
+### Fixed
+
+- make the ktlint tasks configuration-cache friendly in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/149
+
+### 🧰 Maintenance
+
+- kotlin 1.9.10 in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/153
+- updated to [KtLint 1.0.1](https://github.com/pinterest/ktlint/releases/tag/1.0.1) in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/117
+- adds the `GitHubReleasePlugin` convention in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/128
+- use kgx in build logic in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/129
+
+**Full Changelog**: https://github.com/rickbusarow/ktlint-gradle-plugin/compare/0.1.8...1.2.0
 
 ## [0.1.8] - 2023-06-29
 
@@ -88,3 +120,4 @@ Hello World
 [0.1.6]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.6
 [0.1.7]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.7
 [0.1.8]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.8
+[0.2.0]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.2.0
