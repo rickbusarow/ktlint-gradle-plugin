@@ -15,12 +15,10 @@
 
 package com.rickbusarow.ktlint
 
-import com.rickbusarow.kgx.addAsDependencyTo
 import com.rickbusarow.kgx.buildDir
 import com.rickbusarow.kgx.dependsOn
 import com.rickbusarow.kgx.internal.InternalGradleApiAccess
 import com.rickbusarow.kgx.internal.whenElementRegistered
-import com.rickbusarow.kgx.isRootProject
 import com.rickbusarow.kgx.withAnyPlugin
 import com.rickbusarow.ktlint.internal.GradleConfiguration
 import com.rickbusarow.ktlint.internal.GradleProject
@@ -31,18 +29,31 @@ import com.rickbusarow.ktlint.internal.mapToSet
 import com.rickbusarow.ktlint.internal.resolveInParentOrNull
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
-import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 import java.io.File
+import javax.inject.Inject
+
+/** */
+open class KtLintExtension @Inject constructor(objects: ObjectFactory) {
+  /**
+   * The version of the core KtLint library to use
+   */
+  val ktlintVersion: Property<String> = objects.property(String::class.java)
+    .convention(BuildConfig.ktlintVersion)
+}
 
 /** @since 0.1.1 */
 @Suppress("UnnecessaryAbstractClass")
 abstract class KtLintPlugin : Plugin<GradleProject> {
   override fun apply(target: GradleProject) {
+
+    val extension = target.extensions.create("ktlint", KtLintExtension::class.java)
 
     val rulesetConfig: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
       .register("ktlint") { config ->
@@ -56,25 +67,30 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
           for (coords in deps) {
             defaultDeps.add(target.dependencies.create(coords))
           }
-        }
-      }
 
-    val configProvider: NamedDomainObjectProvider<GradleConfiguration> = target.configurations
-      .register("ktlintAllDependencies") {
-        it.extendsFrom(rulesetConfig.get())
+          val ktlintDeps = extension.ktlintVersion.map { version ->
+            BuildConfig.ktlintDeps
+              .split(",")
+              .map { module ->
+                target.dependencies.create("${module.trim()}:$version")
+              }
+          }
+
+          defaultDeps.addAllLater(ktlintDeps)
+        }
       }
 
     var kotlinHappened = false
 
     target.withKotlinPlugin {
-      doApply(target, rulesetConfig, configProvider)
+      doApply(target, rulesetConfig)
       kotlinHappened = true
     }
 
     if (!kotlinHappened) {
       target.afterEvaluate {
         if (!kotlinHappened) {
-          doApply(it, rulesetConfig, configProvider)
+          doApply(it, rulesetConfig)
         }
       }
     }
@@ -82,8 +98,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
   private fun doApply(
     target: GradleProject,
-    rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>,
-    configProvider: NamedDomainObjectProvider<GradleConfiguration>
+    rulesetConfig: NamedDomainObjectProvider<GradleConfiguration>
   ) {
 
     val editorConfigFile = lazy {
@@ -135,10 +150,6 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
     target.withKotlinPlugin {
       registerKotlinTasks(target, rootTaskPair, editorConfigFile, rulesetConfig)
-    }
-
-    if (target.isRootProject()) {
-      target.registerSyncRuleSetJars(configProvider)
     }
   }
 
@@ -239,41 +250,6 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
       .configure()
 
     return formatTask to lintTask
-  }
-
-  private fun GradleProject.registerSyncRuleSetJars(
-    configProvider: NamedDomainObjectProvider<GradleConfiguration>
-  ) {
-    tasks.register("syncRuleSetJars", KtLintSyncRuleSetJarTask::class.java) { sync ->
-
-      val jarFolder = layout.buildDirectory.dir("ktlint-rules-jars")
-      val xml = file(".idea/ktlint.xml")
-
-      sync.jarFolder.set(jarFolder)
-      sync.xmlFile.set(xml)
-
-      sync.onlyIf { xml.exists() }
-
-      val noTransitive = configProvider.map { original ->
-        val copy = original.copy()
-
-        copy.dependencies.clear()
-
-        copy.dependencies.addAll(
-          original.dependencies.map { dep ->
-            when (dep) {
-              is ModuleDependency -> dep.copy().also { it.setTransitive(false) }
-              else -> dep.copy()
-            }
-          }
-        )
-        copy
-      }
-
-      sync.from(noTransitive)
-      sync.into(jarFolder)
-    }
-      .addAsDependencyTo(tasks.named("prepareKotlinBuildScriptModel"))
   }
 
   private fun GradleProject.sourceFileShadowDirectory(
