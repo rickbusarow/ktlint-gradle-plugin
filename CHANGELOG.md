@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.2.1-SNAPSHOT (unreleased)
+## 0.2.2-SNAPSHOT (unreleased)
 
-## [0.2.0] - 2023-11-09
+## [0.2.1] - 2023-11-09
 
 ### Added
 
@@ -33,6 +33,10 @@
 - use kgx in build logic in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/129
 
 **Full Changelog**: https://github.com/rickbusarow/ktlint-gradle-plugin/compare/0.1.8...1.2.0
+
+## [0.2.0] - 2023-11-09
+
+Skip this release and use [0.2.1]
 
 ## [0.1.8] - 2023-06-29
 
@@ -121,3 +125,4 @@ Hello World
 [0.1.7]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.7
 [0.1.8]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.8
 [0.2.0]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.2.0
+[0.2.1]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.2.1
