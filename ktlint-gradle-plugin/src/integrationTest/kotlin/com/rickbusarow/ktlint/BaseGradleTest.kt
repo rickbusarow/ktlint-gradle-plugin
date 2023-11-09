@@ -32,6 +32,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD
 import java.io.File
@@ -41,8 +42,9 @@ import io.kotest.matchers.string.shouldInclude as kotestShouldInclude
 internal interface BaseGradleTest : TrimmedAsserts {
 
   class GradleTestEnvironment(
-    testStackFrame: StackTraceElement
-  ) : HasWorkingDir(createWorkingDir(testStackFrame)), TrimmedAsserts {
+    testStackFrame: StackTraceElement,
+    vararg testVariantNames: String
+  ) : HasWorkingDir(createWorkingDir(testStackFrame, *testVariantNames)), TrimmedAsserts {
 
     val buildFile by lazy {
       workingDir.resolve("build.gradle.kts").createSafely(
@@ -205,6 +207,20 @@ internal interface BaseGradleTest : TrimmedAsserts {
 
     operator fun File.invoke(contentBuilder: () -> String) {
       createSafely(contentBuilder().trimIndent())
+    }
+  }
+
+  @SkipInStackTrace
+  fun <T> Iterable<T>.test(
+    name: (T) -> String = { it.toString() },
+    action: GradleTestEnvironment.(T) -> Unit
+  ) = map { t ->
+
+    val gradleTestEnvironment = GradleTestEnvironment(testStackTraceElement(), t.toString())
+
+    DynamicTest.dynamicTest(name(t)) {
+      gradleTestEnvironment.clean()
+      gradleTestEnvironment.action(t)
     }
   }
 
