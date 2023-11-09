@@ -246,7 +246,7 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
   ) {
     tasks.register("syncRuleSetJars", KtLintSyncRuleSetJarTask::class.java) { sync ->
 
-      val jarFolder = buildDir.resolve("ktlint-rules-jars")
+      val jarFolder = layout.buildDirectory.dir("ktlint-rules-jars")
       val xml = file(".idea/ktlint.xml")
 
       sync.jarFolder.set(jarFolder)
