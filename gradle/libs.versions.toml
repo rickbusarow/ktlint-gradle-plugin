@@ -9,7 +9,7 @@ kotlinApi = "1.7"
 ktlint-gradle-plugin = "0.2.2-SNAPSHOT"
 
 autoManifest = "2.0"
-benManes-versions = "0.49.0"
+benManes-versions = "0.50.0"
 buildconfig = "4.2.0"
 commons-io = "2.15.0"
 dependencyAnalysis = "1.26.0"
