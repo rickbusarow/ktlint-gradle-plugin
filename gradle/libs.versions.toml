@@ -2,7 +2,7 @@
 jdk = "11" # the jdk used to build the project
 jvmTarget = "1.8" # the jdk used in packaging
 
-kotlin = "1.9.10"
+kotlin = "1.9.21"
 google-ksp = "1.9.10-1.0.13"
 kotlinApi = "1.7"
 
@@ -10,7 +10,7 @@ ktlint-gradle-plugin = "0.2.2-SNAPSHOT"
 
 autoManifest = "2.0"
 benManes-versions = "0.49.0"
-buildconfig = "4.1.2"
+buildconfig = "4.2.0"
 commons-io = "2.15.0"
 dependencyAnalysis = "1.26.0"
 detekt = "1.23.3"
