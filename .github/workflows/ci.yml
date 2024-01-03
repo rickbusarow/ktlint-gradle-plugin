@@ -103,7 +103,7 @@ jobs:
         run: ./gradlew detektReportMerge
 
       - name: Upload SARIF to Github using the upload-sarif action
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: success() || failure()
         with:
           sarif_file: build/reports/detekt/merged.sarif
@@ -132,7 +132,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/build/**/TEST-*.xml"
-          check_name: Unit Test Results - macos
+          check_name: Unit Test Results - ubuntu
 
   integration-tests-ubuntu:
     runs-on: ubuntu-4-16
@@ -158,10 +158,10 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/build/**/TEST-*.xml"
-          check_name: Integration Test Results - macos
+          check_name: Integration Test Results - ubuntu
 
   unit-tests-windows:
-    runs-on: windows-latest
+    runs-on: windows-8-32
     steps:
       - name: check out
         uses: actions/checkout@v4
@@ -187,7 +187,7 @@ jobs:
           check_name: Unit Test Results - windows
 
   integration-tests-windows:
-    runs-on: windows-latest
+    runs-on: windows-8-32
     steps:
       - name: check out
         uses: actions/checkout@v4

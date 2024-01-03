@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2024 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,8 +55,8 @@ internal class SourceSetTest : BaseGradleTest {
     ) {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
-        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///build.gradle.kts:9:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:23:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -90,7 +90,7 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///build.gradle.kts:3:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -127,8 +127,8 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
-        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///build.gradle.kts:3:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:24:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
 
@@ -144,7 +144,7 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        file:///build-logic/build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///build-logic/build.gradle.kts:3:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -176,8 +176,8 @@ internal class SourceSetTest : BaseGradleTest {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        file:///build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
-        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///build.gradle.kts:3:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:24:14 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
 
@@ -191,7 +191,7 @@ internal class SourceSetTest : BaseGradleTest {
       task(":lib:ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
-        file:///lib/build.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///lib/build.gradle.kts:3:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -217,7 +217,7 @@ internal class SourceSetTest : BaseGradleTest {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
         file:///build.gradle.kts:3:1 ❌ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
-        file:///settings.gradle.kts:1:1 ❌ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:23:1 ❌ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -243,7 +243,7 @@ internal class SourceSetTest : BaseGradleTest {
 
       output.remove(workingDir.path).noAnsi() shouldInclude """
         file:///build.gradle.kts:3:1 ✅ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
-        file:///settings.gradle.kts:1:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        file:///settings.gradle.kts:23:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
