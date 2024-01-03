@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2024 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,8 @@ internal class KtLintVersionCompatibilityTest : BaseGradleTest {
   fun `different versions of ktlint are supported`() = listOf(
     "0.49.1",
     "1.0.0",
-    "1.0.1"
+    "1.0.1",
+    "1.1.0"
   ).test { version ->
     buildFile {
       """
