@@ -14,7 +14,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
   build-all:
-    runs-on: macos-latest
+    runs-on: ubuntu-4-16
     steps:
       - name: check out
         uses: actions/checkout@v4
@@ -90,7 +90,7 @@ jobs:
           task: checkVersionIsSnapshot
 
   detekt:
-    runs-on: macos-latest
+    runs-on: ubuntu-4-16
     steps:
       - uses: actions/checkout@v4
       - name: detektAll
@@ -108,8 +108,8 @@ jobs:
         with:
           sarif_file: build/reports/detekt/merged.sarif
 
-  unit-tests-macos:
-    runs-on: macos-latest
+  unit-tests-ubuntu:
+    runs-on: ubuntu-4-16
     steps:
       - name: check out
         uses: actions/checkout@v4
@@ -123,7 +123,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: test-results-macos
+          name: test-results-ubuntu
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: Unit test results
@@ -134,8 +134,8 @@ jobs:
           report_paths: "**/build/**/TEST-*.xml"
           check_name: Unit Test Results - macos
 
-  integration-tests-macos:
-    runs-on: macos-latest
+  integration-tests-ubuntu:
+    runs-on: ubuntu-4-16
     steps:
       - name: check out
         uses: actions/checkout@v4
@@ -149,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: test-results-macos
+          name: test-results-ubuntu
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: Integration test results
@@ -220,12 +220,12 @@ jobs:
       - check-version-is-snapshot
       - dependency-guard
       - detekt
-      - integration-tests-macos
+      - integration-tests-ubuntu
       - integration-tests-windows
       - ktlint
       - moduleCheck
       - spotless
-      - unit-tests-macos
+      - unit-tests-ubuntu
       - unit-tests-windows
 
     steps:
