@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2024 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package com.rickbusarow.ktlint
 
 import com.rickbusarow.ktlint.BuildConfig.gradleVersion
 import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.matchers.string.shouldNotInclude
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
@@ -47,23 +48,34 @@ internal class LifecycleTest : BaseGradleTest {
         """
       )
 
-    fun expected(task: String) = when {
-      gradleVersion >= "8.4" -> "Calculating task graph as no configuration cache is available for tasks: $task"
-      else -> "0 problems were found storing the configuration cache."
+    fun calculatingMessage(task: String) = when {
+      gradleVersion >= "8.5" -> "Calculating task graph as no cached configuration is available for tasks: $task"
+      else -> "Calculating task graph as no configuration cache is available for tasks: $task"
     }
 
+    val storedMessage = "Configuration cache entry stored."
+    val reusedMessage = "Configuration cache entry reused."
+
     shouldSucceed("ktlintCheck", "--configuration-cache") {
-      output shouldInclude expected("ktlintCheck")
+      output shouldInclude calculatingMessage("ktlintCheck")
+      output shouldInclude storedMessage
+      output shouldNotInclude reusedMessage
     }
     shouldSucceed("ktlintCheck", "--configuration-cache") {
       output shouldInclude "Reusing configuration cache."
+      output shouldNotInclude storedMessage
+      output shouldInclude reusedMessage
     }
 
     shouldSucceed("ktlintFormat", "--configuration-cache") {
-      output shouldInclude expected("ktlintFormat")
+      output shouldInclude calculatingMessage("ktlintFormat")
+      output shouldInclude storedMessage
+      output shouldNotInclude reusedMessage
     }
     shouldSucceed("ktlintFormat", "--configuration-cache") {
       output shouldInclude "Reusing configuration cache."
+      output shouldNotInclude storedMessage
+      output shouldInclude reusedMessage
     }
   }
 
