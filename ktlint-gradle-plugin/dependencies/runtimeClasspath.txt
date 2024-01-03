@@ -2,5 +2,5 @@ com.rickbusarow.kgx:kotlin-gradle-extensions:0.1.8
 com.rickbusarow.kgx:names:0.1.8
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.10
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10
-org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+org.jetbrains.kotlin:kotlin-stdlib:1.9.22
 org.jetbrains:annotations:13.0
