@@ -16,22 +16,34 @@ runs:
       shell: bash
       run: |
         runnerOS=$RUNNER_OS
+        runnerName=$RUNNER_NAME
+
+        env
 
         # Set common JVM arguments
         jvmArgs="-XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
-        case $runnerOS in
-          macOS)
+        case $runnerName in
+          ubuntu-4-16)
+            jvmArgs="-Xmx13g -XX:MaxMetaspaceSize=5g $jvmArgs"
+            ;;
+          ubuntu-8-32)
+            jvmArgs="-Xmx28g -XX:MaxMetaspaceSize=5g $jvmArgs"
+            ;;
+          windows-8-32)
+            jvmArgs="-Xmx28g -XX:MaxMetaspaceSize=5g $jvmArgs"
+            ;;
+          macos-latest)
             jvmArgs="-Xmx10g -XX:MaxMetaspaceSize=5g $jvmArgs"
             ;;
-          Linux)
+          ubuntu-latest)
             jvmArgs="-Xmx4g -XX:MaxMetaspaceSize=3g $jvmArgs"
             ;;
-          Windows)
+          windows-latest)
             jvmArgs="-Xmx3g -XX:MaxMetaspaceSize=756m $jvmArgs"
             ;;
           *)
-            echo "Unsupported runner OS: $runnerOS"
+            echo "Unsupported runner name: $runnerName"
             exit 1
             ;;
         esac
