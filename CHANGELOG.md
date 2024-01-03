@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.2.2-SNAPSHOT (unreleased)
+## 0.2.3-SNAPSHOT (unreleased)
+
+## [0.2.2] - 2024-01-03
+
+### 🧰 Maintenance
+
+- kotlin 1.9.22
+- ktlint 1.1.0
+
+**Full Changelog**: https://github.com/rickbusarow/ktlint-gradle-plugin/compare/0.2.1...0.2.2
 
 ## [0.2.1] - 2023-11-09
 
@@ -126,3 +135,4 @@ Hello World
 [0.1.8]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.1.8
 [0.2.0]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.2.0
 [0.2.1]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.2.1
+[0.2.2]: https://github.com/rbusarow/ktlint-gradle-plugin/releases/tag/0.2.2
