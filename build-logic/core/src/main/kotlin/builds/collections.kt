@@ -15,7 +15,7 @@
 
 package builds
 
-/**   */
+/** @since 0.2.2 */
 inline fun <E> List<E>.splitInclusive(predicate: (E) -> Boolean): List<List<E>> {
 
   val toSplit = this@splitInclusive

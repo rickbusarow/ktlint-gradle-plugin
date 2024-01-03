@@ -39,9 +39,13 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 import java.io.File
 import javax.inject.Inject
 
-/** */
+/** @since 0.2.2 */
 open class KtLintExtension @Inject constructor(objects: ObjectFactory) {
-  /** The version of the core KtLint library to use */
+  /**
+   * The version of the core KtLint library to use
+   *
+   * @since 0.2.2
+   */
   val ktlintVersion: Property<String> = objects.property(String::class.java)
     .convention(BuildConfig.ktlintVersion)
 }
