@@ -40,7 +40,7 @@ slf4j = "2.0.9"
 square-anvil = "2.4.6"
 square-moshi = "1.15.0"
 taskTree = "2.1.1"
-vanniktech-publish = "0.25.3"
+vanniktech-publish = "0.26.0"
 
 [plugins]
 
