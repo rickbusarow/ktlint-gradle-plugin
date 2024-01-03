@@ -2,10 +2,9 @@ name: Delete Unused Caches
 
 on:
   pull_request:
-    types: [ closed ]
+    types: [closed]
 
 jobs:
-
   # This deletes the caches created by the branch while it was in PR.
   # Those caches are inaccessible to it once it's merged, so they can be deleted.
   delete-orphaned-caches:
