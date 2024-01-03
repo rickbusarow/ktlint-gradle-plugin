@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2024 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,7 +78,7 @@ dependencies {
   api(libs.rickBusarow.kgx)
   api(libs.rickBusarow.ktrules)
   api(libs.slf4j.api)
-  api(libs.square.moshi)
+  api(libs.square.kotlinPoet)
 
   api(project(":core"))
 
