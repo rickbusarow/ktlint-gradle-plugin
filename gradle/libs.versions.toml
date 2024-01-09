@@ -41,7 +41,7 @@ square-anvil = "2.4.6"
 square-kotlinPoet = "1.15.3"
 square-moshi = "1.15.0"
 taskTree = "2.1.1"
-vanniktech-publish = "0.26.0"
+vanniktech-publish = "0.27.0"
 
 [plugins]
 
