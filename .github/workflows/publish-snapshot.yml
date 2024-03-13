@@ -1,5 +1,5 @@
 name: Publish snapshot
-run-name: ${{ github.workflow }} on ${{ github.event.pull_request.title }}
+run-name: ${{ github.workflow }} on '${{ github.event.pull_request.title }}'
 
 on:
   workflow_dispatch:
