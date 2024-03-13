@@ -1,12 +1,12 @@
 {
-  "$schema" : "https://docs.renovatebot.com/renovate-schema.json",
-  "extends" : [
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
     "config:best-practices",
     "default:disableRateLimiting"
   ],
-  "rebaseWhen" : "conflicted",
-  "rebaseLabel" : "rebase",
-  "packageRules" : [
+  "rebaseWhen": "conflicted",
+  "rebaseLabel": "rebase",
+  "packageRules": [
     {
       "groupName": "Kotlin and compiler plugins",
       "matchPackagePrefixes": [
@@ -25,7 +25,7 @@
       ]
     }
   ],
-  "labels" : [
+  "labels": [
     "dependencies",
     "automerge"
   ]
