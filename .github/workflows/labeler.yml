@@ -1,5 +1,5 @@
 name: Label Pull Request
-run-name: ${{ github.workflow }} on ${{ github.event.pull_request.title }}
+run-name: ${{ github.workflow }} on '${{ github.event.pull_request.title }}'
 
 on:
   # `pull_request_target` makes it so that the action is run against the configuration in the
