@@ -12,10 +12,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: build build-logic
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
         with:
           task: :build-logic:compileKotlin :build-logic:jar
           write-cache-key: build-logic-jar
@@ -24,10 +24,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: main build
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
         with:
           task: jar compileKotlin
           restore-cache-key: build-logic-jar
@@ -41,16 +41,16 @@ jobs:
 
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Dokka & JavadocJar
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
         with:
           task: dokkaJavadocJar
           restore-cache-key: main-build-artifacts
 
       - name: Publish Snapshots
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
         with:
           task: publish
           write-cache-key: local-m2
