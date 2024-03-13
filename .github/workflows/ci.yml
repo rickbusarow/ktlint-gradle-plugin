@@ -1,4 +1,5 @@
 name: CI
+run-name: ${{ github.workflow }} on ${{ github.event.pull_request.title }}
 
 on:
   pull_request:
@@ -11,7 +12,7 @@ jobs:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.1
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-all:
     runs-on: ubuntu-4-16
@@ -20,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: main build
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: jar compileKotlin
           write-cache-key: main-build-artifacts
@@ -28,73 +29,120 @@ jobs:
   spotless:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: spotless
-        uses: ./.github/actions/gradle-task-with-commit
+      - name: check out
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@f2acddfb5195534d487896a656232b016a682f3c # v1
+        id: app-token
         with:
-          personal-access-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          app-id: ${{ secrets.PR_BOT_APP_ID }}
+          private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
+
+      - name: spotless
+        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        with:
+          personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: spotlessApply
           check-task: spotlessCheck
 
   ktlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: ktlint
-        uses: ./.github/actions/gradle-task-with-commit
+      - name: check out
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@f2acddfb5195534d487896a656232b016a682f3c # v1
+        id: app-token
         with:
-          personal-access-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          app-id: ${{ secrets.PR_BOT_APP_ID }}
+          private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
+
+      - name: ktlint
+        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        with:
+          personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: ktlintFormat
           check-task: ktlintCheck
 
   dependency-guard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: dependency-guard
-        uses: ./.github/actions/gradle-task-with-commit
+      - name: check out
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@f2acddfb5195534d487896a656232b016a682f3c # v1
+        id: app-token
         with:
-          personal-access-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          app-id: ${{ secrets.PR_BOT_APP_ID }}
+          private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
+
+      - name: dependency-guard
+        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        with:
+          personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: dependencyGuardBaseline
           check-task: dependencyGuard
 
   moduleCheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: moduleCheck
-        uses: ./.github/actions/gradle-task-with-commit
+      - name: check out
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@f2acddfb5195534d487896a656232b016a682f3c # v1
+        id: app-token
         with:
-          personal-access-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          app-id: ${{ secrets.PR_BOT_APP_ID }}
+          private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
+
+      - name: moduleCheck
+        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        with:
+          personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: moduleCheckAuto
           check-task: moduleCheck
 
   artifacts-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: artifacts-check
-        uses: ./.github/actions/gradle-task-with-commit
+      - name: check out
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@f2acddfb5195534d487896a656232b016a682f3c # v1
+        id: app-token
         with:
-          personal-access-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          app-id: ${{ secrets.PR_BOT_APP_ID }}
+          private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
+
+      - name: artifacts-check
+        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        with:
+          personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: artifactsDump
           check-task: artifactsCheck
 
   check-version-is-snapshot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: check out
+        uses: actions/checkout@v4
       - name: check version is snapshot
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: checkVersionIsSnapshot
 
   detekt:
     runs-on: ubuntu-4-16
     steps:
-      - uses: actions/checkout@v4
+      - name: check out
+        uses: actions/checkout@v4
       - name: detektAll
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: detektAll
           restore-cache-key: main-build-artifacts
@@ -114,7 +162,7 @@ jobs:
       - name: check out
         uses: actions/checkout@v4
       - name: unit tests
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: test
           restore-cache-key: main-build-artifacts
@@ -140,7 +188,7 @@ jobs:
       - name: check out
         uses: actions/checkout@v4
       - name: integration tests
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: integrationTest
           restore-cache-key: main-build-artifacts
@@ -166,7 +214,7 @@ jobs:
       - name: check out
         uses: actions/checkout@v4
       - name: unit tests
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: test
           restore-cache-key: main-build-artifacts
@@ -192,7 +240,7 @@ jobs:
       - name: check out
         uses: actions/checkout@v4
       - name: integration tests
-        uses: ./.github/actions/gradle-task
+        uses: rickbusarow/actions/gradle-task@v1
         with:
           task: integrationTest
           restore-cache-key: main-build-artifacts
@@ -230,6 +278,6 @@ jobs:
 
     steps:
       - name: require that all other jobs have passed
-        uses: re-actors/alls-green@release/v1
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           jobs: ${{ toJSON(needs) }}
