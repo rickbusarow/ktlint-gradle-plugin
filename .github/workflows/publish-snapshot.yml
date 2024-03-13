@@ -12,16 +12,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: main build
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
         with:
           task: jar compileKotlin
           write-cache-key: main-build-artifacts
 
       - name: Publish Snapshots
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
         with:
           task: publish
           write-cache-key: local-m2
