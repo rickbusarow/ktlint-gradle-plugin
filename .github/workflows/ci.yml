@@ -260,7 +260,7 @@ jobs:
           report_paths: "**/build/**/TEST-*.xml"
           check_name: Integration Test Results - windows
 
-  all-green:
+  all-checks:
     if: always()
     runs-on: ubuntu-latest
     needs:
