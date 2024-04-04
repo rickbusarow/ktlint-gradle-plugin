@@ -15,7 +15,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-all:
-    runs-on: ubuntu-4-16
+    runs-on: ubuntu-latest
     steps:
       - name: check out
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -137,7 +137,7 @@ jobs:
           task: checkVersionIsSnapshot
 
   detekt:
-    runs-on: ubuntu-4-16
+    runs-on: ubuntu-latest
     steps:
       - name: check out
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -157,7 +157,7 @@ jobs:
           sarif_file: build/reports/detekt/merged.sarif
 
   unit-tests-ubuntu:
-    runs-on: ubuntu-4-16
+    runs-on: ubuntu-latest
     steps:
       - name: check out
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -183,7 +183,7 @@ jobs:
           check_name: Unit Test Results - ubuntu
 
   integration-tests-ubuntu:
-    runs-on: ubuntu-4-16
+    runs-on: ubuntu-latest
     steps:
       - name: check out
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -209,7 +209,7 @@ jobs:
           check_name: Integration Test Results - ubuntu
 
   unit-tests-windows:
-    runs-on: windows-8-32
+    runs-on: windows-latest
     steps:
       - name: check out
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -235,7 +235,7 @@ jobs:
           check_name: Unit Test Results - windows
 
   integration-tests-windows:
-    runs-on: windows-8-32
+    runs-on: windows-latest
     steps:
       - name: check out
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
