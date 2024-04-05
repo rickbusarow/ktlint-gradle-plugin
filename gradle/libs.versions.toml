@@ -3,7 +3,7 @@ jdk = "11" # the jdk used to build the project
 jvmTarget = "1.8" # the jdk used in packaging
 
 kotlin = "1.9.23"
-google-ksp = "1.9.23-1.0.19"
+google-ksp = "1.9.23-1.0.20"
 kotlinApi = "1.7"
 
 ktlint-gradle-plugin = "0.2.3-SNAPSHOT"
