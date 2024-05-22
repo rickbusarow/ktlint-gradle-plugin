@@ -1,4 +1,4 @@
 com.rickbusarow.kgx:kotlin-gradle-extensions:0.1.12
 com.rickbusarow.kgx:names:0.1.12
-org.jetbrains.kotlin:kotlin-stdlib:1.9.24
+org.jetbrains.kotlin:kotlin-stdlib:2.0.0
 org.jetbrains:annotations:13.0
