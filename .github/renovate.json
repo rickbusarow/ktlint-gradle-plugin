@@ -9,19 +9,19 @@
   "packageRules": [
     {
       "groupName": "Kotlin and compiler plugins",
-      "matchPackagePrefixes": [
-        "org.jetbrains.kotlin:",
-        "com.google.devtools.ksp:",
-        "com.square.anvil:",
-        "dev.drewhamilton.poko:"
+      "matchPackageNames": [
+        "org.jetbrains.kotlin:**",
+        "com.google.devtools.ksp:**",
+        "com.square.anvil:**",
+        "dev.drewhamilton.poko:**"
       ]
     },
     {
       "groupName": "KtLint libs",
-      "matchPackagePrefixes": [
-        "com.pinterest.ktlint:",
-        "com.rickbusarow.ktlint:",
-        "com.rickbusarow.ktrules:"
+      "matchPackageNames": [
+        "com.pinterest.ktlint:**",
+        "com.rickbusarow.ktlint:**",
+        "com.rickbusarow.ktrules:**"
       ]
     }
   ],
