@@ -10,7 +10,7 @@ ktlint-gradle-plugin = "0.2.3-SNAPSHOT"
 
 autoManifest = "2.0"
 benManes-versions = "0.51.0"
-buildconfig = "5.4.0"
+buildconfig = "5.5.0"
 commons-io = "2.16.1"
 dependencyAnalysis = "2.0.2"
 detekt = "1.23.7"
