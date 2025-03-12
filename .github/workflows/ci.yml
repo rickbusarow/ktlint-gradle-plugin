@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: main build
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: jar compileKotlin
           write-cache-key: main-build-artifacts
@@ -40,7 +40,7 @@ jobs:
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: spotless
-        uses: rickbusarow/actions/gradle-task-with-commit@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task-with-commit@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: spotlessApply
@@ -60,7 +60,7 @@ jobs:
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: ktlint
-        uses: rickbusarow/actions/gradle-task-with-commit@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task-with-commit@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: ktlintFormat
@@ -80,7 +80,7 @@ jobs:
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: dependency-guard
-        uses: rickbusarow/actions/gradle-task-with-commit@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task-with-commit@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: dependencyGuardBaseline
@@ -100,7 +100,7 @@ jobs:
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: moduleCheck
-        uses: rickbusarow/actions/gradle-task-with-commit@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task-with-commit@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: moduleCheckAuto
@@ -120,7 +120,7 @@ jobs:
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: artifacts-check
-        uses: rickbusarow/actions/gradle-task-with-commit@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task-with-commit@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: artifactsDump
@@ -132,7 +132,7 @@ jobs:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: check version is snapshot
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: checkVersionIsSnapshot
 
@@ -142,7 +142,7 @@ jobs:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: detektAll
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: detektAll
           restore-cache-key: main-build-artifacts
@@ -162,7 +162,7 @@ jobs:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: unit tests
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: test
           restore-cache-key: main-build-artifacts
@@ -188,7 +188,7 @@ jobs:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: integration tests
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: integrationTest
           restore-cache-key: main-build-artifacts
@@ -214,7 +214,7 @@ jobs:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: unit tests
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: test
           restore-cache-key: main-build-artifacts
@@ -240,7 +240,7 @@ jobs:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: integration tests
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: integrationTest
           restore-cache-key: main-build-artifacts

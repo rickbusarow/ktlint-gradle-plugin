@@ -15,13 +15,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: main build
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: jar compileKotlin
           write-cache-key: main-build-artifacts
 
       - name: Publish Snapshots
-        uses: rickbusarow/actions/gradle-task@bf0940965387f10bcb8b6699a79499d18167dfbe # v1
+        uses: rickbusarow/actions/gradle-task@96a51a0e1dbb3225282a52139342eed4d3e43400 # v1
         with:
           task: publish
           write-cache-key: local-m2
