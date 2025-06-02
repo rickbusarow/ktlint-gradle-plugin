@@ -6,6 +6,8 @@ on:
     # every 4 hours
     - cron: "0 */4 * * *"
   workflow_dispatch:
+  issues:
+  label:
   pull_request:
     types:
       # run when the little "click here to rebase" box is checked.
@@ -15,8 +17,8 @@ on:
       - main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event }}
-  cancel-in-progress: true
+  group: renovate
+  cancel-in-progress: false
 
 jobs:
   renovate:
