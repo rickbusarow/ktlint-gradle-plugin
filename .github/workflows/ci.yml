@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.1
+        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # 0.12.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: main build
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: jar compileKotlin
           write-cache-key: main-build-artifacts
@@ -30,17 +30,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: app-token
         with:
           app-id: ${{ secrets.PR_BOT_APP_ID }}
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: spotless
-        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        uses: rickbusarow/actions/gradle-task-with-commit@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: spotlessApply
@@ -50,17 +50,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: app-token
         with:
           app-id: ${{ secrets.PR_BOT_APP_ID }}
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: ktlint
-        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        uses: rickbusarow/actions/gradle-task-with-commit@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: ktlintFormat
@@ -70,17 +70,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: app-token
         with:
           app-id: ${{ secrets.PR_BOT_APP_ID }}
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: dependency-guard
-        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        uses: rickbusarow/actions/gradle-task-with-commit@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: dependencyGuardBaseline
@@ -90,17 +90,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: app-token
         with:
           app-id: ${{ secrets.PR_BOT_APP_ID }}
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: moduleCheck
-        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        uses: rickbusarow/actions/gradle-task-with-commit@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: moduleCheckAuto
@@ -110,17 +110,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: app-token
         with:
           app-id: ${{ secrets.PR_BOT_APP_ID }}
           private-key: ${{ secrets.PR_BOT_PRIVATE_KEY }}
 
       - name: artifacts-check
-        uses: rickbusarow/actions/gradle-task-with-commit@v1
+        uses: rickbusarow/actions/gradle-task-with-commit@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           personal-access-token: ${{ steps.app-token.outputs.token }}
           fix-task: artifactsDump
@@ -130,9 +130,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: check version is snapshot
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: checkVersionIsSnapshot
 
@@ -140,9 +140,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: detektAll
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: detektAll
           restore-cache-key: main-build-artifacts
@@ -151,7 +151,7 @@ jobs:
         run: ./gradlew detektReportMerge
 
       - name: Upload SARIF to Github using the upload-sarif action
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f # v3
         if: success() || failure()
         with:
           sarif_file: build/reports/detekt/merged.sarif
@@ -160,22 +160,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: unit tests
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: test
           restore-cache-key: main-build-artifacts
 
       - name: Archive test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: test-results-ubuntu
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: Unit test results
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@65fe03598d8d251738592a497a9e8547a5c48eaa # v5
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -186,22 +186,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: integration tests
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: integrationTest
           restore-cache-key: main-build-artifacts
 
       - name: Archive test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: test-results-ubuntu
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: Integration test results
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@db71d41eb79864e25ab0337e395c352e84523afe # v4
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -212,22 +212,22 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: unit tests
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: test
           restore-cache-key: main-build-artifacts
 
       - name: Archive test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: test-results-windows
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: unit test results
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@db71d41eb79864e25ab0337e395c352e84523afe # v4
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -238,22 +238,22 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: integration tests
-        uses: rickbusarow/actions/gradle-task@v1
+        uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
           task: integrationTest
           restore-cache-key: main-build-artifacts
 
       - name: Archive test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: test-results-windows
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: Integration test results
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@db71d41eb79864e25ab0337e395c352e84523afe # v4
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
