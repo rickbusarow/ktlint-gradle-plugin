@@ -21,7 +21,9 @@ ec4j = "1.1.1"
 google-guava = "33.4.8-jre"
 gradle-plugin-publish = "1.3.1"
 integration-test = "2.2.5"
-jUnit = "5.13.0"
+jUnit-platform = "1.13.0"
+jUnit4 = "4.13.2"
+jUnit5 = "5.13.0"
 java-diff-utils = "4.15"
 jetbrains-markdown = "0.7.3"
 johnrengelman-shadow = "8.1.1"
@@ -103,10 +105,17 @@ jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrai
 
 johnrengelman-shadowJar = { module = "com.github.johnrengelman:shadow", version.ref = "johnrengelman-shadow" }
 
-junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jUnit" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jUnit" }
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jUnit" }
-junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jUnit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jUnit5" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jUnit5" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jUnit5" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jUnit5" }
+junit-platform-engine = { module = "org.junit.platform:junit-platform-engine", version.ref = "jUnit-platform" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "jUnit-platform" }
+junit-platform-suite = { module = "org.junit.platform:junit-platform-suite", version.ref = "jUnit-platform" }
+junit-platform-suite-api = { module = "org.junit.platform:junit-platform-suite-api", version.ref = "jUnit-platform" }
+junit-platform-suite-engine = { module = "org.junit.platform:junit-platform-suite-engine", version.ref = "jUnit-platform" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "jUnit5" }
+junit4 = { module = "junit:junit", version.ref = "jUnit4" }
 
 kotest-assertions-api = { module = "io.kotest:kotest-assertions-api", version.ref = "kotest" }
 kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
@@ -160,19 +169,3 @@ square-moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", ver
 vanniktech-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-publish" }
 
 zacSweers-auto-service-ksp = "dev.zacsweers.autoservice:auto-service-ksp:1.2.0"
-
-[bundles]
-jUnit = [
-  "junit-engine",
-  "junit-jupiter",
-  "junit-jupiter-api",
-  "junit-params",
-]
-kotest = [
-  "kotest-assertions-api",
-  "kotest-assertions-core-jvm",
-  "kotest-assertions-shared",
-  "kotest-common",
-  "kotest-extensions",
-  "kotest-property-jvm",
-]

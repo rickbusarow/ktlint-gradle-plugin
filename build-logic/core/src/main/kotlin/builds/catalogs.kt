@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +17,11 @@ package builds
 
 import com.rickbusarow.kgx.libsCatalog
 import com.rickbusarow.kgx.version
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.Project
+
+val Project.libs: LibrariesForLibs
+  get() = extensions.getByType(LibrariesForLibs::class.java)
 
 /**
  * Convenience for reading the library version from `libs.versions.toml`
