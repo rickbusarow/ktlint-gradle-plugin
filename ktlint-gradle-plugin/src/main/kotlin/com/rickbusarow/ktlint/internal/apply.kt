@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,8 +15,6 @@
 
 package com.rickbusarow.ktlint.internal
 
-import kotlin.contracts.contract
-
 /**
  * from Kotlin's addToStdlib.kt
  *
@@ -24,31 +22,4 @@ import kotlin.contracts.contract
  */
 internal inline fun <T> T.letIf(predicate: Boolean, body: T.() -> T): T {
   return if (predicate) body() else this
-}
-
-/**
- * shorthand for `requireNotNull(this, lazyMessage)`
- *
- * @since 0.1.1
- * @throws IllegalArgumentException if receiver is null
- */
-internal inline fun <T : Any> T?.requireNotNull(lazyMessage: () -> Any): T {
-  contract {
-    returns() implies (this@requireNotNull != null)
-  }
-  return requireNotNull(this, lazyMessage)
-}
-
-/**
- * shorthand for `requireNotNull(this)`
- *
- * @since 0.1.1
- * @throws IllegalArgumentException if receiver is null
- */
-@Suppress("NOTHING_TO_INLINE")
-inline fun <T : Any> T?.requireNotNull(): T {
-  contract {
-    returns() implies (this@requireNotNull != null)
-  }
-  return requireNotNull(this)
 }
