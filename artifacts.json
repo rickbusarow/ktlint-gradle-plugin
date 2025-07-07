@@ -3,7 +3,7 @@
     "gradlePath": ":ktlint-gradle-plugin",
     "group": "com.rickbusarow.ktlint",
     "artifactId": "com.rickbusarow.ktlint.gradle.plugin",
-    "description": "the ktlint Gradle plugin",
+    "description": "An incremental Ktlint Gradle wrapper with pretty logging",
     "packaging": "pom",
     "javaVersion": "1.8",
     "publicationName": "ktlint-gradle-pluginPluginMarkerMaven"
@@ -12,7 +12,7 @@
     "gradlePath": ":ktlint-gradle-plugin",
     "group": "com.rickbusarow.ktlint",
     "artifactId": "ktlint-gradle-plugin",
-    "description": "the ktlint Gradle plugin",
+    "description": "An incremental Ktlint Gradle wrapper with pretty logging",
     "packaging": "jar",
     "javaVersion": "1.8",
     "publicationName": "pluginMaven"

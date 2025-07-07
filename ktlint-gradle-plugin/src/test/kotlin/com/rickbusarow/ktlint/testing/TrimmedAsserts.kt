@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,8 +15,9 @@
 
 package com.rickbusarow.ktlint.testing
 
-import com.rickbusarow.ktlint.internal.requireNotNull
 import java.io.File
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 import io.kotest.matchers.shouldBe as kotestShouldBe
 
@@ -154,3 +155,18 @@ internal val coroutinesClasses: Set<String> = setOf(
   "kotlinx.coroutines.EventLoopImplBase",
   "kotlinx.coroutines.internal.ScopeCoroutine"
 )
+
+/**
+ * shorthand for `requireNotNull(this)`
+ *
+ * @since 0.1.1
+ * @throws IllegalArgumentException if receiver is null
+ */
+@OptIn(ExperimentalContracts::class)
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T : Any> T?.requireNotNull(): T {
+  contract {
+    returns() implies (this@requireNotNull != null)
+  }
+  return requireNotNull(this)
+}

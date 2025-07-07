@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,12 @@
  * limitations under the License.
  */
 
-import modulecheck.gradle.task.AbstractModuleCheckTask
-
 plugins {
-  id("root")
-  alias(libs.plugins.moduleCheck)
-}
+  alias(libs.plugins.kotlin.jvm) apply false
+  alias(libs.plugins.mahout.root)
 
-moduleCheck {
-  deleteUnused = true
-  checks.sortDependencies = true
+  // Avoid "the plugin is already in the classpath with an unknown version" issues
+  // when consuming Mahout from a snapshot build.
+  alias(libs.plugins.mahout.java.gradle.plugin) apply false
+  alias(libs.plugins.mahout.gradle.test) apply false
 }
-
-tasks.withType(AbstractModuleCheckTask::class.java)
-  .matching { !it.name.endsWith("Auto") }
-  .configureEach {
-    mustRunAfter(
-      tasks.withType(AbstractModuleCheckTask::class.java)
-        .matching { it.name.endsWith("Auto") }
-    )
-  }
