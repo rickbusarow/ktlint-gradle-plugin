@@ -1,14 +1,6 @@
 [versions]
-jdk = "11" # the jdk used to build the project
-jvmTarget = "1.8" # the jdk used in packaging
+kotlin = "2.0.0"
 
-kotlin = "1.9.25"
-google-ksp = "1.9.25-1.0.20"
-kotlinApi = "1.7"
-
-ktlint-gradle-plugin = "0.2.3-SNAPSHOT"
-
-autoManifest = "2.0"
 benManes-versions = "0.51.0"
 buildconfig = "5.6.7"
 commons-io = "2.19.0"
@@ -37,6 +29,7 @@ rickBusarow-github-release = "2.5.2"
 rickBusarow-ktrules = "1.4.0"
 rickBusarow-kgx = "0.1.12"
 rickBusarow-ktlint = "0.2.2"
+rickBusarow-mahout = "0.1.0-SNAPSHOT"
 rickBusarow-moduleCheck = "0.12.5"
 slf4j = "2.0.17"
 square-anvil = "2.4.6"
@@ -54,7 +47,6 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dropbox-dependencyGuard = { id = "com.dropbox.dependency-guard", version.ref = "dropbox-dependencyGuard" }
 github-release = { id = "com.rickbusarow.github-release-fork", version.ref = "rickBusarow-github-release" }
-google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 integration-test = { id = "com.coditory.integration-test", version.ref = "integration-test" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -63,6 +55,10 @@ ktlint = { id = "com.rickbusarow.ktlint", version.ref = "rickBusarow-ktlint" }
 moduleCheck = { id = "com.rickbusarow.module-check", version.ref = "rickBusarow-moduleCheck" }
 shadowJar = { id = "com.github.johnrengelman.shadow", version.ref = "johnrengelman-shadow" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
+
+mahout-java-gradle-plugin = { id = "com.rickbusarow.mahout.java-gradle-plugin", version.ref = "rickBusarow-mahout" }
+mahout-gradle-test = { id = "com.rickbusarow.mahout.gradle-test", version.ref = "rickBusarow-mahout" }
+mahout-root = { id = "com.rickbusarow.mahout.root", version.ref = "rickBusarow-mahout" }
 
 [libraries]
 benManes-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "benManes-versions" }
@@ -93,7 +89,6 @@ dropbox-dependencyGuard = { module = "com.dropbox.dependency-guard:dependency-gu
 
 ec4j-core = { module = "org.ec4j.core:ec4j-core", version.ref = "ec4j" }
 
-google-ksp = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "google-ksp" }
 
 gradle-plugin-publish = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "gradle-plugin-publish" }
 
@@ -155,6 +150,8 @@ rickBusarow-ktlint = { module = "com.rickbusarow.ktlint:ktlint-gradle-plugin", v
 
 rickBusarow-ktrules = { module = "com.rickbusarow.ktrules:ktrules", version.ref = "rickBusarow-ktrules" }
 rickBusarow-ktrules48 = { module = "com.rickbusarow.ktrules:ktrules-48", version.ref = "rickBusarow-ktrules" }
+
+rickBusarow-mahout-gradle-plugin = { module = "com.rickbusarow.mahout:mahout-gradle-plugin", version.ref = "rickBusarow-mahout" }
 
 rickBusarow-moduleCheck-gradle-plugin = { module = "com.rickbusarow.modulecheck:plugin", version.ref = "rickBusarow-moduleCheck" }
 

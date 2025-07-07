@@ -13,22 +13,19 @@
  * limitations under the License.
  */
 
-import builds.VERSION_NAME
-import com.github.gmazzo.buildconfig.BuildConfigTask
-import com.rickbusarow.kgx.dependsOn
 import com.rickbusarow.kgx.isRealRootProject
+import org.gradle.kotlin.dsl.buildConfigField
 
 plugins {
-  id("module")
-  id("java-gradle-plugin")
-  id("com.gradle.plugin-publish")
-  `jvm-test-suite`
+  alias(libs.plugins.mahout.java.gradle.plugin)
+  alias(libs.plugins.mahout.gradle.test)
   alias(libs.plugins.buildconfig)
+  alias(libs.plugins.gradle.plugin.publish)
 }
 
 val pluginId = "com.rickbusarow.ktlint"
 val pluginArtifactId = "ktlint-gradle-plugin"
-val moduleDescription = "the ktlint Gradle plugin"
+val moduleDescription = "An incremental Ktlint Gradle wrapper with pretty logging"
 
 val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
   gradlePlugin.plugins
@@ -36,113 +33,56 @@ val pluginDeclaration: NamedDomainObjectProvider<PluginDeclaration> =
       id = pluginId
       displayName = "ktlint"
       implementationClass = "com.rickbusarow.ktlint.KtLintPlugin"
-      version = VERSION_NAME
       description = moduleDescription
       @Suppress("UnstableApiUsage")
-      this@register.tags.set(listOf("markdown", "documentation"))
+      this@register.tags.set(listOf("ktlint", "kotlin"))
     }
 
-module {
+mahout {
 
-  published(
-    artifactId = pluginArtifactId,
-    pomDescription = moduleDescription
-  )
-
-  publishedPlugin(pluginDeclaration = pluginDeclaration)
+  publishing {
+    publishPlugin(pluginDeclaration)
+  }
+  gradleTests {}
 }
 
-val deps = mutableSetOf<String>()
-val ktlintDeps = mutableSetOf<String>()
+val deps = objects.setProperty<String>()
+val ktlintDeps = objects.setProperty<String>()
 
 buildConfig {
 
-  this@buildConfig.sourceSets.named("main") {
+  sourceSets.named("main") {
 
-    packageName(builds.GROUP)
+    packageName(mahoutProperties.group.get())
     className("BuildConfig")
 
-    buildConfigField("String", "pluginId", "\"$pluginId\"")
-    buildConfigField("String", "version", "\"${VERSION_NAME}\"")
-    buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
-    buildConfigField("String", "ktlintVersion", "\"${libs.versions.ktlint.lib.get()}\"")
-    buildConfigField(
-      type = "String",
-      name = "deps",
-      value = provider {
-        if (deps.isEmpty()) {
-          throw GradleException(
-            "There are no dependencies to pass along to the Gradle Worker's classpath.  " +
-              "Is there a race condition?"
-          )
-        }
-        deps.joinToString(",\" +\n\"", "\"", "\"")
-      }
-    )
-    buildConfigField(
-      type = "String",
-      name = "ktlintDeps",
-      value = provider {
-        if (ktlintDeps.isEmpty()) {
-          throw GradleException(
-            "There are no Ktlint dependencies to pass along to the Gradle Worker's classpath.  " +
-              "Is there a race condition?"
-          )
-        }
-        ktlintDeps.joinToString(",\" +\n\"", "\"", "\"")
-      }
-    )
-  }
-
-  this@buildConfig.sourceSets.register("integrationTest") {
-
-    packageName(builds.GROUP)
-    className("BuildConfig")
-
-    buildConfigField("String", "gradleVersion", "\"${gradle.gradleVersion}\"")
-    buildConfigField(
-      type = "String",
-      name = "gradleUserHomeDir",
-      value = "\"${gradle.gradleUserHomeDir.invariantSeparatorsPath}\""
-    )
-    buildConfigField("String", "kotlinVersion", "\"${libs.versions.kotlin.get()}\"")
-    buildConfigField("String", "ktlintVersion", "\"${libs.versions.ktlint.lib.get()}\"")
-    buildConfigField("String", "pluginId", "\"$pluginId\"")
-    buildConfigField("String", "version", "\"${VERSION_NAME}\"")
-  }
-}
-
-rootProject.tasks.named("prepareKotlinBuildScriptModel")
-  .dependsOn(tasks.withType(BuildConfigTask::class.java))
-
-testing {
-  suites {
-    @Suppress("UnstableApiUsage")
-    register("integrationTest", JvmTestSuite::class) {
-      testType.set(TestSuiteType.INTEGRATION_TEST)
+    useKotlinOutput {
+      internalVisibility = true
     }
+
+    buildConfigField("version", mahoutProperties.versionName)
+    buildConfigField("kotlinVersion", libs.versions.kotlin)
+    buildConfigField("ktlintVersion", libs.versions.ktlint.lib)
+    buildConfigField("pluginId", pluginId)
+    buildConfigField("deps", deps)
+    buildConfigField("ktlintDeps", ktlintDeps)
   }
-}
 
-val main by sourceSets.getting
-val test by sourceSets.getting
+  this@buildConfig.sourceSets.named(mahout.gradleTests.sourceSetName.get()) {
 
-sourceSets.named("integrationTest") {
-  kotlin.apply {
-    compileClasspath += main.output
-      .plus(test.output)
-      .plus(configurations.testRuntimeClasspath.get())
-    runtimeClasspath += output + compileClasspath
-  }
-}
+    packageName(mahoutProperties.group.get())
+    className("GradleTestBuildConfig")
 
-tasks.named("check").dependsOn("integrationTest")
-tasks.named("integrationTest").dependsOn("publishToMavenLocalNoDokka")
+    useKotlinOutput {
+      internalVisibility = true
+    }
 
-kotlin {
-  val compilations = target.compilations
-  compilations.named("integrationTest") {
-    associateWith(compilations.getByName("main"))
+    buildConfigField("localBuildM2Dir", mahout.gradleTests.gradleTestM2Dir.asFile)
+
+    buildConfigField("pluginId", pluginId)
+    buildConfigField("version", mahoutProperties.versionName)
+    buildConfigField("kotlinVersion", libs.versions.kotlin)
+    buildConfigField("ktlintVersion", libs.versions.ktlint.lib)
   }
 }
 
@@ -151,21 +91,19 @@ val mainConfig: Configuration = when {
   else -> configurations.getByName("implementation")
 }
 
+fun Any.asExternalDependency(): ExternalDependency {
+  return when (this) {
+    is ExternalDependency -> this
+    is org.gradle.api.internal.provider.TransformBackedProvider<*, *> -> this.get() as ExternalDependency
+    is ProviderConvertible<*> -> this.asProvider().get() as ExternalDependency
+    else -> error("unsupported dependency type -- ${this::class.java.canonicalName}")
+  }
+}
+
 fun DependencyHandlerScope.worker(dependencyNotation: Any) {
   mainConfig(dependencyNotation)
 
-  val dependency = when (dependencyNotation) {
-    is org.gradle.api.internal.provider.TransformBackedProvider<*, *> -> {
-      dependencyNotation.get() as ExternalDependency
-    }
-
-    is ProviderConvertible<*> -> {
-      dependencyNotation.asProvider().get() as ExternalDependency
-    }
-
-    else -> error("unsupported dependency type -- ${dependencyNotation::class.java.canonicalName}")
-  }
-
+  val dependency = dependencyNotation.asExternalDependency()
   if (dependency.group == libs.ktlint.core.get().group) {
     ktlintDeps.add(dependency.module.toString())
   } else {
