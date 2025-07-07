@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,8 +63,6 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
         config.dependencies.also { defaultDeps ->
 
           val deps = BuildConfig.deps
-            .split(",")
-            .map { it.trim() }
 
           for (coords in deps) {
             defaultDeps.add(target.dependencies.create(coords))
@@ -72,7 +70,6 @@ abstract class KtLintPlugin : Plugin<GradleProject> {
 
           val ktlintDeps = extension.ktlintVersion.map { version ->
             BuildConfig.ktlintDeps
-              .split(",")
               .map { module ->
                 target.dependencies.create("${module.trim()}:$version")
               }

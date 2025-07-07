@@ -182,15 +182,15 @@ jobs:
           report_paths: "**/build/**/TEST-*.xml"
           check_name: Unit Test Results - ubuntu
 
-  integration-tests-ubuntu:
+  gradle-tests-ubuntu:
     runs-on: ubuntu-latest
     steps:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: integration tests
+      - name: Gradle tests
         uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
-          task: integrationTest
+          task: gradleTest
           restore-cache-key: main-build-artifacts
 
       - name: Archive test results
@@ -200,13 +200,13 @@ jobs:
           name: test-results-ubuntu
           path: ${{ github.workspace }}/**/build/reports/tests/
 
-      - name: Integration test results
+      - name: Gradle test results
         uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/build/**/TEST-*.xml"
-          check_name: Integration Test Results - ubuntu
+          check_name: Gradle Test Results - ubuntu
 
   unit-tests-windows:
     runs-on: windows-latest
@@ -234,15 +234,15 @@ jobs:
           report_paths: "**/build/**/TEST-*.xml"
           check_name: Unit Test Results - windows
 
-  integration-tests-windows:
+  gradle-tests-windows:
     runs-on: windows-latest
     steps:
       - name: check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: integration tests
+      - name: gradle tests
         uses: rickbusarow/actions/gradle-task@c602f8da97f00279c6e77d3f25cbedcbf24ef936 # v1
         with:
-          task: integrationTest
+          task: gradleTest
           restore-cache-key: main-build-artifacts
 
       - name: Archive test results
@@ -252,13 +252,13 @@ jobs:
           name: test-results-windows
           path: ${{ github.workspace }}/**/build/reports/tests/
 
-      - name: Integration test results
+      - name: Gradle test results
         uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/build/**/TEST-*.xml"
-          check_name: Integration Test Results - windows
+          check_name: Gradle Test Results - windows
 
   all-checks:
     if: always()
@@ -268,8 +268,8 @@ jobs:
       - check-version-is-snapshot
       - dependency-guard
       - detekt
-      - integration-tests-ubuntu
-      - integration-tests-windows
+      - gradle-tests-ubuntu
+      - gradle-tests-windows
       - ktlint
       - moduleCheck
       - spotless
