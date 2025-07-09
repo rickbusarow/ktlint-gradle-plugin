@@ -14,7 +14,6 @@
  */
 
 import com.rickbusarow.kgx.isRealRootProject
-import org.gradle.kotlin.dsl.buildConfigField
 
 plugins {
   alias(libs.plugins.mahout.java.gradle.plugin)
@@ -117,18 +116,28 @@ dependencies {
 
   implementation(libs.rickBusarow.kgx)
 
-  testImplementation(libs.jetbrains.markdown)
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.jupiter.api)
   testImplementation(libs.kotest.assertions.api)
-  testImplementation(libs.kotest.assertions.core.jvm)
   testImplementation(libs.kotest.assertions.shared)
   testImplementation(libs.kotest.common)
   testImplementation(libs.kotest.extensions)
   testImplementation(libs.kotest.property.jvm)
-  testImplementation(libs.kotlin.gradle.plugin)
   testImplementation(libs.ktlint.ruleset.standard)
   testImplementation(libs.ktlint.test)
+
+  gradleTestImplementation(libs.junit.jupiter)
+  gradleTestImplementation(libs.junit.jupiter.api)
+  gradleTestImplementation(libs.kotest.assertions.api)
+  gradleTestImplementation(libs.rickBusarow.kase)
+  gradleTestImplementation(libs.rickBusarow.kase.gradle)
+  gradleTestImplementation(libs.rickBusarow.kase.gradle.dsl)
+  gradleTestImplementation(libs.kotest.assertions.core.jvm)
+  gradleTestImplementation(libs.kotest.assertions.shared)
+  gradleTestImplementation(libs.kotest.common)
+  gradleTestImplementation(libs.kotest.extensions)
+  gradleTestImplementation(libs.ktlint.ruleset.standard)
+  gradleTestImplementation(libs.ktlint.test)
 
   worker(libs.ec4j.core)
   worker(libs.kotlin.gradle.plugin)
