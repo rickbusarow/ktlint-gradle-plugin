@@ -15,43 +15,37 @@
 
 package com.rickbusarow.ktlint
 
-import com.rickbusarow.ktlint.BuildConfig.gradleVersion
+import com.rickbusarow.kase.gradle.dsl.buildFile
+import com.rickbusarow.ktlint.testing.KtlintGradleTest
 import io.kotest.matchers.collections.shouldContainInOrder
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldInclude
 import io.kotest.matchers.string.shouldNotInclude
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 
-@Suppress("RemoveEmptyClassBody")
-internal class LifecycleTest : BaseGradleTest {
+internal class LifecycleTest : KtlintGradleTest() {
 
-  @Test
-  fun `tasks are compatible with configuration caching`() = test {
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
-      }
-
-      """
-    }
-
-    workingDir.resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
+  @TestFactory
+  fun `tasks are compatible with configuration caching`() = testFactory {
+    rootProject {
+      buildFileAsFile.appendText("\n")
+      settingsFileAsFile.appendText("\n")
+      kotlinFile(
+        "src/main/kotlin/com/test/File.kt",
         """
         package com.test
 
         class File
 
-        """
+        """.trimIndent()
       )
-
-    fun calculatingMessage(task: String) = when {
-      gradleVersion >= "8.5" -> "Calculating task graph as no cached configuration is available for tasks: $task"
-      else -> "Calculating task graph as no configuration cache is available for tasks: $task"
     }
+
+    fun calculatingMessage(task: String) =
+      "Calculating task graph as no configuration cache is available for tasks: $task"
 
     val storedMessage = "Configuration cache entry stored."
     val reusedMessage = "Configuration cache entry reused."
@@ -79,20 +73,11 @@ internal class LifecycleTest : BaseGradleTest {
     }
   }
 
-  @Test
-  fun `the check lifecycle task invokes ktlintCheck`() = test {
+  @TestFactory fun `the check lifecycle task invokes ktlintCheck`() = testFactory {
 
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
-      }
-      """
-    }
-
-    workingDir.resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
+    rootProject {
+      kotlinFile(
+        "src/main/kotlin/com/test/File.kt",
         """
         package com.test
 
@@ -100,22 +85,22 @@ internal class LifecycleTest : BaseGradleTest {
 
         """
       )
+    }
 
     shouldFail("check") {
       task(":ktlintCheckGradleScripts")?.outcome shouldBe FAILED
     }
   }
 
-  @Test
+  @TestFactory
   fun `ktlintCheck and ktlintFormat exist even if the project does not have a Kotlin plugin`() =
-    test {
-
-      buildFile {
-        """
-        plugins {
-          id("com.rickbusarow.ktlint")
+    testFactory {
+      rootProject {
+        buildFile {
+          plugins {
+            id("com.rickbusarow.ktlint")
+          }
         }
-        """
       }
 
       shouldSucceed("ktlintCheck", "ktlintFormat") {
@@ -124,62 +109,58 @@ internal class LifecycleTest : BaseGradleTest {
       }
     }
 
-  @Test
-  fun `ktlintFormat is cacheable`() = test {
+  @TestFactory
+  fun `ktlintFormat is cacheable`() = testFactory {
 
-    buildFile {
-      """
-      plugins {
-        id("com.rickbusarow.ktlint")
-      }
-      """
+    rootProject {
+      buildFileAsFile.appendText("\n")
+      settingsFileAsFile.appendText("\n")
     }
 
     shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
-      task(":ktlintFormat")?.outcome shouldBe SUCCESS
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
+      // This is already cached since it's just an empty umbrella task.
+      task(":ktlintFormat")?.outcome shouldBe FROM_CACHE
     }
 
     workingDir.resolve("build").deleteRecursively()
 
     shouldSucceed("ktlintFormat", "--build-cache", withHermeticTestKit = true) {
+      task(":ktlintFormatGradleScripts")?.outcome shouldBe FROM_CACHE
       task(":ktlintFormat")?.outcome shouldBe FROM_CACHE
     }
   }
 
-  @Test
-  fun `gradle scripts tasks exist even if the project does not have a Kotlin plugin`() = test {
+  @TestFactory
+  fun `gradle scripts tasks exist even if the project does not have a Kotlin plugin`() =
+    testFactory {
 
-    buildFile {
-      """
-      plugins {
-        id("com.rickbusarow.ktlint")
-      }
-      """
-    }
-
-    shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
-      task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
-      task(":ktlintCheckGradleScripts")?.outcome shouldBe SUCCESS
-    }
-  }
-
-  @Test
-  fun `the fix lifecycle task invokes ktlintFormat`() = test {
-
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
+      rootProject.buildFile {
+        plugins {
+          id("com.rickbusarow.ktlint")
+        }
       }
 
-      val fix by tasks.registering
-      """
+      shouldSucceed("ktlintCheckGradleScripts", "ktlintFormatGradleScripts") {
+        task(":ktlintFormatGradleScripts")?.outcome shouldBe SUCCESS
+        task(":ktlintCheckGradleScripts")?.outcome shouldBe SUCCESS
+      }
     }
 
-    workingDir
-      .resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
+  @TestFactory fun `the fix lifecycle task invokes ktlintFormat`() = testFactory {
+
+    rootProject {
+      buildFile {
+        plugins {
+          kotlin("jvm")
+          id("com.rickbusarow.ktlint")
+        }
+
+        raw("val fix by tasks.registering")
+      }
+
+      kotlinFile(
+        "src/main/kotlin/com/test/File.kt",
         """
         package com.test
 
@@ -187,36 +168,36 @@ internal class LifecycleTest : BaseGradleTest {
 
         """
       )
+    }
 
     shouldSucceed("fix") {
       task(":ktlintFormat")?.outcome shouldBe SUCCESS
     }
   }
 
-  @Test
-  fun `the ktlintCheck must run after ktlintFormat if both are invoked`() = test {
+  @TestFactory
+  fun `the ktlintCheck must run after ktlintFormat if both are invoked`() = testFactory {
 
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
+    rootProject {
+      buildFile {
+        plugins {
+          kotlin("jvm")
+          id("com.rickbusarow.ktlint")
+        }
+
+        raw("val fix by tasks.registering")
       }
 
-      val fix by tasks.registering
-      """
-    }
-
-    workingDir
-      .resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
+      kotlinFile(
+        "src/main/kotlin/com/test/File.kt",
         """
-        package com.test
+          package com.test
 
-        class File { }
+          class File { }
 
-        """
+        """.trimIndent()
       )
+    }
 
     shouldSucceed("ktlintCheck", "ktlintFormat") {
       tasks.map { it.path } shouldContainInOrder listOf(":ktlintFormat", ":ktlintCheck")

@@ -15,40 +15,28 @@
 
 package com.rickbusarow.ktlint
 
+import com.rickbusarow.ktlint.testing.KtlintGradleTest
 import org.junit.jupiter.api.TestFactory
 
-internal class KtLintVersionCompatibilityTest : BaseGradleTest {
+internal class KtLintVersionCompatibilityTest : KtlintGradleTest() {
 
   @TestFactory
-  fun `different versions of ktlint are supported`() = listOf(
-    "0.49.1",
-    "1.0.0",
-    "1.0.1",
-    "1.1.0"
-  ).test { version ->
-    buildFile {
-      """
-      plugins {
-        kotlin("jvm")
-        id("com.rickbusarow.ktlint")
-      }
+  fun `different versions of ktlint are supported`() = testFactory {
 
-      ktlint {
-        ktlintVersion.set("$version")
-      }
+    rootProject {
+      buildFileAsFile.appendText("\n")
+      settingsFileAsFile.appendText("\n")
 
-      """
-    }
-
-    workingDir.resolve("src/main/kotlin/com/test/File.kt")
-      .kotlin(
+      kotlinFile(
+        "src/main/kotlin/com/test/File.kt",
         """
         package com.test
 
         class File
 
-        """
+        """.trimIndent()
       )
+    }
 
     shouldSucceed("ktlintCheck")
     shouldSucceed("ktlintFormat")

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,18 +15,16 @@
 
 package com.rickbusarow.ktlint.testing
 
-/**
- * Returns the current class if it's a real class, otherwise walks up
- * the hierarchy of enclosing/nesting classes until it finds a real one.
- *
- * In practical terms, this strips away Kotlin's anonymous lambda
- * "classes" and other compatibility shims, returning the real class.
- *
- * @since 0.1.1
- */
-tailrec fun Class<*>.firstNonSyntheticClass(): Class<*> {
-  return when {
-    canonicalName != null -> this
-    else -> enclosingClass.firstNonSyntheticClass()
-  }
+import com.rickbusarow.kase.KaseMatrix
+import com.rickbusarow.kase.gradle.KaseGradleTest
+import com.rickbusarow.kase.gradle.versions
+
+internal open class KtlintGradleTest(
+  override val kaseMatrix: KaseMatrix = KtlintVersionMatrix()
+) : KaseGradleTest<KtlintGradleTestParams, KtlintGradleTestEnvironment, KtlintGradleTestEnvironment.Factory> {
+
+  override val testEnvironmentFactory = KtlintGradleTestEnvironment.Factory()
+
+  override val params: List<KtlintGradleTestParams>
+    get() = kaseMatrix.versions(KtlintGradleTestParams)
 }
