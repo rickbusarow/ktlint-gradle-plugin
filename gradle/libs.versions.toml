@@ -8,9 +8,10 @@ jUnit5 = "5.13.4"
 jetbrains-markdown = "0.7.3"
 kotest = "5.9.1"
 ktlint-lib = "1.3.1"
-rickBusarow-ktrules = "1.4.0"
+rickBusarow-kase = "0.12.0"
 rickBusarow-kgx = "0.1.12"
 rickBusarow-ktlint = "0.2.2"
+rickBusarow-ktrules = "1.4.0"
 rickBusarow-mahout = "0.1.0-SNAPSHOT"
 
 [plugins]
@@ -48,6 +49,10 @@ ktlint-rule-engine-core = { module = "com.pinterest.ktlint:ktlint-rule-engine-co
 ktlint-rule-engine = { module = "com.pinterest.ktlint:ktlint-rule-engine", version.ref = "ktlint-lib" }
 ktlint-ruleset-standard = { module = "com.pinterest.ktlint:ktlint-ruleset-standard", version.ref = "ktlint-lib" }
 ktlint-test = { module = "com.pinterest.ktlint:ktlint-test", version.ref = "ktlint-lib" }
+
+rickBusarow-kase = { module = "com.rickbusarow.kase:kase", version.ref = "rickBusarow-kase" }
+rickBusarow-kase-gradle = { module = "com.rickbusarow.kase:kase-gradle", version.ref = "rickBusarow-kase" }
+rickBusarow-kase-gradle-dsl = { module = "com.rickbusarow.kase:kase-gradle-dsl", version.ref = "rickBusarow-kase" }
 
 rickBusarow-kgx = { module = "com.rickbusarow.kgx:kotlin-gradle-extensions", version.ref = "rickBusarow-kgx" }
 
