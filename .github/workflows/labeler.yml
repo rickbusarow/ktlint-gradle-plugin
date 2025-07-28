@@ -11,6 +11,9 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      # Pull requests currently don't include labels with their 'write' permission, so add issues
+      # https://github.com/googleapis/release-please-action/issues/1105#issuecomment-2780292262
+      issues: write
     runs-on: ubuntu-latest
 
     steps:
