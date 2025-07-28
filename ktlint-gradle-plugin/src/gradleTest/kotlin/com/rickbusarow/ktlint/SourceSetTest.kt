@@ -19,15 +19,15 @@
 package com.rickbusarow.ktlint
 
 import com.rickbusarow.kase.gradle.dsl.buildFile
-import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
-import com.rickbusarow.ktlint.internal.remove
+import com.rickbusarow.kase.stdlib.remove
 import com.rickbusarow.ktlint.testing.KtlintGradleTest
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldInclude
-import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.kotlin.konan.file.File
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 
 @Suppress("RemoveEmptyClassBody")
@@ -63,8 +63,8 @@ internal class SourceSetTest : KtlintGradleTest() {
     ) {
 
       outputCleaned shouldInclude """
-        file:///build.gradle.kts:9:1 ✅ standard:final-newline ═ File must end with a newline (\n)
-        file:///settings.gradle.kts:21:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        build.gradle.kts:9:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        settings.gradle.kts:21:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -91,7 +91,7 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       outputCleaned shouldInclude """
-        file:///build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -130,8 +130,8 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       outputCleaned shouldInclude """
-        file:///build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
-        file:///settings.gradle.kts:22:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        settings.gradle.kts:22:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
 
@@ -147,7 +147,7 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       outputCleaned shouldInclude """
-        file:///build-logic/build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        build-logic/build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -169,8 +169,8 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       outputCleaned shouldInclude """
-        file:///build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
-        file:///settings.gradle.kts:22:14 ✅ standard:final-newline ═ File must end with a newline (\n)
+        build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        settings.gradle.kts:22:14 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
 
@@ -184,7 +184,7 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":lib:ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       outputCleaned shouldInclude """
-        file:///lib/build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        lib/build.gradle.kts:7:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -211,8 +211,8 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":ktlintCheckGradleScripts")?.outcome shouldBe TaskOutcome.FAILED
 
       outputCleaned shouldInclude """
-        file:///build.gradle.kts:3:1 ❌ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
-        file:///settings.gradle.kts:21:1 ❌ standard:final-newline ═ File must end with a newline (\n)
+        build.gradle.kts:3:1 ❌ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
+        settings.gradle.kts:21:1 ❌ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -239,8 +239,8 @@ internal class SourceSetTest : KtlintGradleTest() {
       task(":ktlintFormatGradleScripts")?.outcome shouldBe TaskOutcome.SUCCESS
 
       outputCleaned shouldInclude """
-        file:///build.gradle.kts:3:1 ✅ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
-        file:///settings.gradle.kts:21:1 ✅ standard:final-newline ═ File must end with a newline (\n)
+        build.gradle.kts:3:1 ✅ standard:no-blank-line-before-rbrace ═ Unexpected blank line(s) before "}"
+        settings.gradle.kts:21:1 ✅ standard:final-newline ═ File must end with a newline (\n)
       """.trimIndent()
     }
   }
@@ -272,7 +272,7 @@ internal class SourceSetTest : KtlintGradleTest() {
         task(":ktlintFormatMain")?.outcome shouldBe TaskOutcome.SUCCESS
 
         outputCleaned shouldInclude """
-        file:///src/main/kotlin/com/test/File.kt:3:12 ✅ standard:no-empty-class-body ═ Unnecessary block ("{}")
+        src/main/kotlin/com/test/File.kt:3:12 ✅ standard:no-empty-class-body ═ Unnecessary block ("{}")
         """.trimIndent()
       }
     }

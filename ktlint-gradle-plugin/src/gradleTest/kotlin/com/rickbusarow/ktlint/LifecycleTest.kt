@@ -45,7 +45,7 @@ internal class LifecycleTest : KtlintGradleTest() {
     }
 
     fun calculatingMessage(task: String) =
-      "Calculating task graph as no configuration cache is available for tasks: $task"
+      "Calculating task graph as no cached configuration is available for tasks: $task"
 
     val storedMessage = "Configuration cache entry stored."
     val reusedMessage = "Configuration cache entry reused."
