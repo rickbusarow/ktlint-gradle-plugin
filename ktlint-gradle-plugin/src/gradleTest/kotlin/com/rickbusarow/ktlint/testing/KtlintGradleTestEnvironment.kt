@@ -28,7 +28,10 @@ import com.rickbusarow.kase.gradle.HasAgpDependencyVersion
 import com.rickbusarow.kase.gradle.dsl.BuildFileSpec
 import com.rickbusarow.kase.gradle.dsl.SettingsFileSpec
 import com.rickbusarow.kase.gradle.rootProject
+import com.rickbusarow.kase.stdlib.remove
 import com.rickbusarow.ktlint.GradleTestBuildConfig
+import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
+import org.gradle.testkit.runner.BuildResult
 import java.io.File
 
 internal class KtlintGradleTestEnvironment(
@@ -51,6 +54,9 @@ internal class KtlintGradleTestEnvironment(
     get() = path.resolve(dslLanguage.buildFileName)
   val GradleProjectBuilder.settingsFileAsFile: File
     get() = path.resolve(dslLanguage.settingsFileName)
+
+  val BuildResult.outputCleaned: String
+    get() = output.remove(workingDir.invariantSeparatorsPath).noAnsi()
 
   class Factory : GradleTestEnvironmentFactory<KtlintGradleTestParams, KtlintGradleTestEnvironment> {
 
