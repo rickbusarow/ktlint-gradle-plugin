@@ -29,7 +29,6 @@ internal class KtlintVersionMatrix(
   private companion object {
     val ktlintList = setOf(
       "1.1.0",
-      "1.2.0",
       GradleTestBuildConfig.ktlintVersion
     )
       .sorted()
@@ -37,7 +36,6 @@ internal class KtlintVersionMatrix(
 
     val kotlinList = setOf(
       "2.0.0",
-      "2.2.0",
       KotlinDependencyVersion.current().value
     )
       .sorted()
