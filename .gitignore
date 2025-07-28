@@ -96,3 +96,5 @@ lint/tmp/
 build-logic/.editorconfig
 
 .DS_Store
+
+.kotlin
