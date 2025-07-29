@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-pluginManagement {
-  val allowMavenLocal = providers
-    .gradleProperty("ktlint-gradle-plugin.allow-maven-local")
-    .orNull.toBoolean()
+rootProject.name = "ktlint-gradle"
 
+pluginManagement {
   repositories {
-    if (allowMavenLocal) {
-      logger.lifecycle("${rootProject.name} -- allowing mavenLocal for plugins")
-      mavenLocal()
+    maven {
+      url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+      content {
+        @Suppress("UnstableApiUsage")
+        includeGroupAndSubgroups("com.rickbusarow.mahout")
+      }
     }
     gradlePluginPortal()
     mavenCentral()
     google()
   }
-  includeBuild("build-logic")
 }
 
 plugins {
   id("com.gradle.develocity") version "4.1"
+  id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 develocity {
@@ -71,38 +72,12 @@ develocity {
   }
 }
 
-val allowMavenLocal = providers
-  .gradleProperty("ktlint-gradle-plugin.allow-maven-local")
-  .orNull.toBoolean()
 dependencyResolutionManagement {
   @Suppress("UnstableApiUsage")
   repositories {
-    if (allowMavenLocal) {
-      logger.lifecycle("${rootProject.name} -- allowing mavenLocal for dependencies")
-      mavenLocal()
-    }
-    google()
     mavenCentral()
-    maven("https://plugins.gradle.org/m2/")
+    google()
   }
 }
 
-rootProject.name = "ktlint-gradle-plugin"
-
-include(
-  ":ktlint-gradle-plugin"
-)
-
-// If this project is the real root of the build, copy the root project's properties file to included
-// builds, to ensure that Gradle settings are identical and there's only 1 daemon.
-// Note that with this copy, any changes to the included build's properties file will be overwritten.
-if (gradle.parent == null) {
-  (settings as org.gradle.initialization.DefaultSettings).includedBuilds
-    .forEach { includedBuildSpec ->
-      rootDir.resolve("gradle.properties")
-        .copyTo(
-          target = includedBuildSpec.rootDir.resolve("gradle.properties"),
-          overwrite = true
-        )
-    }
-}
+include(":ktlint-gradle-plugin")

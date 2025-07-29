@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rick Busarow
+ * Copyright (C) 2025 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,12 +16,12 @@
 package com.rickbusarow.ktlint.internal
 
 import com.rickbusarow.ktlint.internal.Ansi.Companion.noAnsi
-import com.rickbusarow.ktlint.testing.Tests
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
 
-internal class KtLintResultBlockTest : Tests {
+internal class KtLintResultBlockTest {
 
   @Test
   fun `results for the same file are sorted by position`() {

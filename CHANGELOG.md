@@ -16,7 +16,6 @@
 ### Added
 
 - Support a user-defined ktlint version. ish... in https://github.com/rickbusarow/ktlint-gradle-plugin/pull/155
-
   - Only `0.48.x` and `1.0.0`+ are currently supported, due to breaking changes in the ktlint binaries.
 
   ```kotlin

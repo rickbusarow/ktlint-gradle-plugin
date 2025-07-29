@@ -13,13 +13,18 @@
  * limitations under the License.
  */
 
-package com.rickbusarow.ktlint.internal
+package com.rickbusarow.ktlint.testing
 
-/**
- * from Kotlin's addToStdlib.kt
- *
- * @since 0.1.1
- */
-internal inline fun <T> T.letIf(predicate: Boolean, body: T.() -> T): T {
-  return if (predicate) body() else this
+import com.rickbusarow.kase.KaseMatrix
+import com.rickbusarow.kase.gradle.KaseGradleTest
+import com.rickbusarow.kase.gradle.versions
+
+internal open class KtlintGradleTest(
+  override val kaseMatrix: KaseMatrix = KtlintVersionMatrix()
+) : KaseGradleTest<KtlintGradleTestParams, KtlintGradleTestEnvironment, KtlintGradleTestEnvironment.Factory> {
+
+  override val testEnvironmentFactory = KtlintGradleTestEnvironment.Factory()
+
+  override val params: List<KtlintGradleTestParams>
+    get() = kaseMatrix.versions(KtlintGradleTestParams)
 }
