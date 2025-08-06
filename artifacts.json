@@ -5,7 +5,7 @@
     "artifactId": "com.rickbusarow.ktlint.gradle.plugin",
     "description": "An incremental Ktlint Gradle wrapper with pretty logging",
     "packaging": "pom",
-    "javaVersion": "1.8",
+    "javaVersion": "17",
     "publicationName": "ktlint-gradle-pluginPluginMarkerMaven"
   },
   {
@@ -14,7 +14,7 @@
     "artifactId": "ktlint-gradle-plugin",
     "description": "An incremental Ktlint Gradle wrapper with pretty logging",
     "packaging": "jar",
-    "javaVersion": "1.8",
+    "javaVersion": "17",
     "publicationName": "pluginMaven"
   }
 ]
